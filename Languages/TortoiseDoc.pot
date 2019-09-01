@@ -9182,7 +9182,7 @@ msgid "The command line includes several parameters which get filled in by Torto
 msgstr ""
 
 #. (para)
-msgid "A path to a temporary file which contains all the paths for which the operation was started. Each path is on a separate line in the temp file."
+msgid "A path to a temporary file which contains all the paths for which the operation was started in UTF-8 encoding. Each path is on a separate line in the temp file."
 msgstr ""
 
 #. (para)
@@ -9246,7 +9246,7 @@ msgid "The current working directory with which the script is run. This is set t
 msgstr ""
 
 #. (para)
-msgid "A path to a temporary file which contains all the paths which were somehow touched by the operation. Each path is on a separate line in the temp file."
+msgid "A path to a temporary file which contains all the paths in UTF-8 encoding which were somehow touched by the operation. Each path is on a separate line in the temp file."
 msgstr ""
 
 #. (para)
@@ -9385,7 +9385,7 @@ msgid "The Settings Dialog, Sync Page"
 msgstr ""
 
 #. (para)
-msgid "<placeholder-1/> You can sync all TortoiseSVN settings to and from an encrypted file. The file is encrpyted with the password you enter so you don't have to worry if you store that file on a cloud folder like OneDrive, GDrive, DropBox, ..."
+msgid "<placeholder-1/> You can sync all TortoiseSVN settings to and from an encrypted file. The file is encrypted with the password you enter so you don't have to worry if you store that file on a cloud folder like OneDrive, GDrive, DropBox, ..."
 msgstr ""
 
 #. (para)
@@ -9575,6 +9575,10 @@ msgstr ""
 
 #. (para)
 msgid "The log dialog shows the revision the working copy path is at in bold. But this requires that the log dialog fetches the status of that path. Since for very big working copies this can take a while, you can set this value to <literal>false</literal> to deactivate this feature."
+msgstr ""
+
+#. (para)
+msgid "Comboboxes for URLs and paths show a history of previously used URLs/paths if possible. This settings controls how many previous items are saved and shown. The default is 25 items."
 msgstr ""
 
 #. (para)

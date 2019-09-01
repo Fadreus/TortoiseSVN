@@ -134,6 +134,11 @@ pre code {
   white-space: pre-wrap;
 }
 
+.openhub-badge {
+    border: none;
+    overflow: hidden;
+}
+
 .table-hover > tbody > tr:hover {
     background-color: #e1eafe;
 }
@@ -478,10 +483,6 @@ pre code {
 
 .left-aligned {
     text-align: left;
-}
-
-.no-js .defer {
-    display: none;
 }
 
 /* clearfix and list-unstyled taken from Bootstrap */

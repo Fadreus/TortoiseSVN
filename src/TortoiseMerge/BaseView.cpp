@@ -1,6 +1,7 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
 // Copyright (C) 2003-2019 - TortoiseSVN
+// Copyright (C) 2019 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -1587,14 +1588,6 @@ bool CBaseView::IsViewLineRemoved(int nViewLine)
     return IsStateRemoved(state);
 }
 
-bool CBaseView::IsViewLineConflicted(int nLineIndex)
-{
-    if (m_pViewData == 0)
-        return false;
-    const DiffStates state = m_pViewData->GetState(nLineIndex);
-    return IsStateConflicted(state);
-}
-
 COLORREF CBaseView::InlineDiffColor(int nLineIndex)
 {
     return IsLineRemoved(nLineIndex) ? m_InlineRemovedBk : m_InlineAddedBk;
@@ -2627,7 +2620,7 @@ void CBaseView::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
     int nViewBlockStart = -1;
     int nViewBlockEnd = -1;
     GetViewSelection(nViewBlockStart, nViewBlockEnd);
-    if ((point.x >= 0) && (point.y >= 0))
+    if ((point.x != -1) || (point.y != -1))
     {
         int nLine = GetLineFromPoint(point)-1;
         if ((nLine >= 0) && (nLine < m_Screen2View.size()))
@@ -2685,16 +2678,19 @@ void CBaseView::RefreshViews()
     if (m_pwndLeft)
     {
         m_pwndLeft->UpdateStatusBar();
+        m_pwndLeft->UpdateCaret();
         m_pwndLeft->Invalidate();
     }
     if (m_pwndRight)
     {
         m_pwndRight->UpdateStatusBar();
+        m_pwndRight->UpdateCaret();
         m_pwndRight->Invalidate();
     }
     if (m_pwndBottom)
     {
         m_pwndBottom->UpdateStatusBar();
+        m_pwndBottom->UpdateCaret();
         m_pwndBottom->Invalidate();
     }
     if (m_pwndLocator)
@@ -2711,15 +2707,6 @@ void CBaseView::GoToFirstConflict()
 {
     SetCaretToFirstViewLine();
     SelectNextBlock(1, true, false);
-}
-
-void CBaseView::HighlightLines(int nStart, int nEnd /* = -1 */)
-{
-    ClearSelection();
-    SetupAllSelection(nStart, max(nStart, nEnd));
-
-    UpdateCaretPosition(SetupPoint(0, nStart));
-    Invalidate();
 }
 
 void CBaseView::HighlightViewLines(int nStart, int nEnd /* = -1 */)
@@ -3904,7 +3891,7 @@ void CBaseView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
                     lineData.sLine.Insert(ptCaretViewPos.x, (wchar_t)nChar);
             }
         }
-        if (IsStateEmpty(lineData.state))
+        if (IsStateEmpty(lineData.state) || IsStateConflicted(lineData.state) || lineData.state == DIFFSTATE_IDENTICALREMOVED)
         {
             // if not last line set EOL
             for (int nCheckViewLine = nViewLine+1; nCheckViewLine < GetViewCount(); nCheckViewLine++)
@@ -3918,7 +3905,7 @@ void CBaseView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
             // make sure previous (non empty) line have EOL set
             for (int nCheckViewLine = nViewLine-1; nCheckViewLine > 0; nCheckViewLine--)
             {
-                if (!IsViewLineEmpty(nCheckViewLine))
+                if (!IsViewLineEmpty(nCheckViewLine) && GetViewState(nCheckViewLine) != DIFFSTATE_IDENTICALREMOVED)
                 {
                     if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
                     {
@@ -5188,12 +5175,6 @@ int CBaseView::Screen2View::GetSubLineOffset( int screenLine )
     return m_Screen2View[screenLine].nViewSubLine;
 }
 
-CBaseView::TScreenLineInfo CBaseView::Screen2View::GetScreenLineInfo( int screenLine )
-{
-    RebuildIfNecessary();
-    return m_Screen2View[screenLine];
-}
-
 /**
     doing partial rebuild, whole screen2view vector is built, but uses ScreenedViewLine cache to do it faster
 */
@@ -5861,13 +5842,6 @@ void CBaseView::OnEditGotoline()
                 return;
             }
         }
-    }
-}
-
-void CBaseView::OnToggleReadonly()
-{
-    if (IsReadonlyChangable()) {
-        SetWritable(IsReadonly());
     }
 }
 
@@ -6615,6 +6589,31 @@ void CBaseView::InsertText(const CString& sText)
         sLine.Insert(nLeft, sText);
         ptCaretViewPos = SetupPoint(nLeft + sText.GetLength(), nViewLine);
         SetViewLine(nViewLine, sLine);
+
+        auto viewState = GetViewState(nViewLine);
+        if (IsStateEmpty(viewState) || IsStateConflicted(viewState) || viewState == DIFFSTATE_IDENTICALREMOVED)
+        {
+            // if not last line set EOL
+            for (int nCheckViewLine = nViewLine + 1; nCheckViewLine < GetViewCount(); ++nCheckViewLine)
+            {
+                if (!IsViewLineEmpty(nCheckViewLine))
+                {
+                    SetViewLineEnding(nViewLine, m_lineendings);
+                    break;
+                }
+            }
+            // make sure previous (non empty) line have EOL set
+            for (int nCheckViewLine = nViewLine - 1; nCheckViewLine > 0; --nCheckViewLine)
+            {
+                if (!IsViewLineEmpty(nCheckViewLine))
+                {
+                    if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
+                        SetViewLineEnding(nCheckViewLine, m_lineendings);
+                    break;
+                }
+            }
+        }
+
         SetViewState(nViewLine, DIFFSTATE_EDITED);
         SetModified();
         SaveUndoStep();

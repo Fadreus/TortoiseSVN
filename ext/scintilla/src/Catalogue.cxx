@@ -90,6 +90,7 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmBlitzBasic);
 	LINK_LEXER(lmBullant);
 	LINK_LEXER(lmCaml);
+	LINK_LEXER(lmCIL);
 	LINK_LEXER(lmClw);
 	LINK_LEXER(lmClwNoCase);
 	LINK_LEXER(lmCmake);
@@ -101,6 +102,7 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmCsound);
 	LINK_LEXER(lmCss);
 	LINK_LEXER(lmD);
+	LINK_LEXER(lmDataflex);
 	LINK_LEXER(lmDiff);
 	LINK_LEXER(lmDMAP);
 	LINK_LEXER(lmDMIS);
@@ -193,6 +195,7 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmVerilog);
 	LINK_LEXER(lmVHDL);
 	LINK_LEXER(lmVisualProlog);
+	LINK_LEXER(lmX12);
 	LINK_LEXER(lmXML);
 	LINK_LEXER(lmYAML);
 

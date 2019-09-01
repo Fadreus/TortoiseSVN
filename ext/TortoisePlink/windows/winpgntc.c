@@ -15,23 +15,23 @@
 
 #define AGENT_COPYDATA_ID 0x804e50ba   /* random goop */
 
-int agent_exists(void)
+bool agent_exists(void)
 {
     HWND hwnd;
     hwnd = FindWindow("Pageant", "Pageant");
     if (!hwnd)
-	return FALSE;
+	return false;
     else
-	return TRUE;
+	return true;
 }
 
 void agent_cancel_query(agent_pending_query *q)
 {
-    assert(0 && "Windows agent queries are never asynchronous!");
+    unreachable("Windows agent queries are never asynchronous!");
 }
 
 agent_pending_query *agent_query(
-    void *in, int inlen, void **out, int *outlen,
+    strbuf *query, void **out, int *outlen,
     void (*callback)(void *, void *, int), void *callback_ctx)
 {
     HWND hwnd;
@@ -46,6 +46,9 @@ agent_pending_query *agent_query(
 
     *out = NULL;
     *outlen = 0;
+
+    if (query->len > AGENT_MAX_MSGLEN)
+        return NULL;                   /* query too large */
 
     hwnd = FindWindow("Pageant", "Pageant");
     if (!hwnd)
@@ -72,9 +75,9 @@ agent_pending_query *agent_query(
             if (psd) {
                 if (p_InitializeSecurityDescriptor
                     (psd, SECURITY_DESCRIPTOR_REVISION) &&
-                    p_SetSecurityDescriptorOwner(psd, usersid, FALSE)) {
+                    p_SetSecurityDescriptorOwner(psd, usersid, false)) {
                     sa.nLength = sizeof(sa);
-                    sa.bInheritHandle = TRUE;
+                    sa.bInheritHandle = true;
                     sa.lpSecurityDescriptor = psd;
                     psa = &sa;
                 } else {
@@ -93,7 +96,8 @@ agent_pending_query *agent_query(
 	return NULL;		       /* *out == NULL, so failure */
     }
     p = MapViewOfFile(filemap, FILE_MAP_WRITE, 0, 0, 0);
-    memcpy(p, in, inlen);
+    strbuf_finalise_agent_query(query);
+    memcpy(p, query->s, query->len);
     cds.dwData = AGENT_COPYDATA_ID;
     cds.cbData = 1 + strlen(mapname);
     cds.lpData = mapname;
@@ -105,13 +109,24 @@ agent_pending_query *agent_query(
      */
     id = SendMessage(hwnd, WM_COPYDATA, (WPARAM) NULL, (LPARAM) &cds);
     if (id > 0) {
-	retlen = 4 + GET_32BIT(p);
-	ret = snewn(retlen, unsigned char);
-	if (ret) {
+        uint32_t length_field = GET_32BIT_MSB_FIRST(p);
+        if (length_field > 0 && length_field <= AGENT_MAX_MSGLEN - 4) {
+            retlen = length_field + 4;
+            ret = snewn(retlen, unsigned char);
 	    memcpy(ret, p, retlen);
-	    *out = ret;
-	    *outlen = retlen;
-	}
+            *out = ret;
+            *outlen = retlen;
+        } else {
+            /*
+             * If we get here, we received an out-of-range length
+             * field, either without space for a message type code or
+             * overflowing the FileMapping.
+             *
+             * Treat this as if Pageant didn't answer at all - which
+             * actually means we do nothing, and just don't fill in
+             * out and outlen.
+             */
+        }
     }
     UnmapViewOfFile(p);
     CloseHandle(filemap);

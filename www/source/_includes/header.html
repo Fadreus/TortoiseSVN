@@ -2,7 +2,6 @@
 <html lang="{{ page.lang }}" prefix="og: http://ogp.me/ns#" itemscope itemtype="http://schema.org/WebPage" class="no-js">
 <head>
     <meta charset="utf-8">
-    <link rel="dns-prefetch" href="https://www.openhub.net">
 
     {% capture title %}{% if paginator.page and paginator.page != 1 %}{{ page.title }} - Page {{ paginator.page }}{% else %}{{ page.title }}{% endif%} &middot; TortoiseSVN{% endcapture %}
     <title>{{ title }}</title>
@@ -11,18 +10,21 @@
     <meta name="description" content="{{ meta_description }}">
     {% if page.keywords %}<meta name="keywords" content="{{ page.keywords }}">{% endif %}
     <meta name="generator" content="Jekyll v{{ jekyll.version }}">
+    <link rel="canonical" href="{{ site.url | append: page.url }}">
 
-    <link rel="shortcut icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    {% include favicons.html %}
+
     <link rel="stylesheet" href="/assets/css/pack.css">
+
+    <link rel="dns-prefetch" href="https://www.openhub.net/">
 
     <meta property="og:title" content="{{ title }}">
     <meta property="og:type" content="website">
     <meta property="og:description" content="{{ meta_description }}">
     {% if page.slug == "home" %}
-    <meta property="og:url" content="{{ site.url }}/">
+    <meta property="og:url" content="{{ site.url }}">
     {% else %}
-    <meta property="og:url" content="{{ site.url }}{{ page.url }}">
+    <meta property="og:url" content="{{ site.url | append: page.url }}">
     {% endif %}
     <meta property="og:image" content="{{ site.url | replace: 'https://', 'http://' }}/assets/img/logo-256x256.png">
     <meta property="og:image:secure_url" content="{{ site.url }}/assets/img/logo-256x256.png">
@@ -37,6 +39,7 @@
     {% for page in pages %}
     {% unless page.lang == current_page_lang %}
     <meta property="og:locale:alternate" content="{{ page.lang }}">
+    <link rel="alternate" href="{{ site.url | append: page.url }}" hreflang="{{ page.lang }}">
     {% endunless %}
     {% endfor %}
     {% endunless %}

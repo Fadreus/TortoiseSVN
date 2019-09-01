@@ -1,7 +1,6 @@
 'use strict';
 
 module.exports = function(grunt) {
-
     grunt.initConfig({
         dirs: {
             dest: 'dist',
@@ -64,14 +63,6 @@ module.exports = function(grunt) {
                 ],
                 dest: '<%= dirs.dest %>/assets/css/pack.css'
             },
-            mainJs: {
-                src: ['<%= dirs.src %>/assets/js/vendor/plugins.js',
-                      '<%= dirs.src %>/assets/js/no-js-class.js',
-                      '<%= dirs.src %>/assets/js/onLoad.js',
-                      '<%= dirs.src %>/assets/js/google-analytics.js'
-                ],
-                dest: '<%= dirs.dest %>/assets/js/main.js'
-            },
             baguetteBox: {
                 src: ['<%= dirs.src %>/assets/js/vendor/baguetteBox.js',
                       '<%= dirs.src %>/assets/js/baguetteBox-init.js'
@@ -130,8 +121,7 @@ module.exports = function(grunt) {
             },
             minify: {
                 files: {
-                    '<%= concat.baguetteBox.dest %>': '<%= concat.baguetteBox.dest %>',
-                    '<%= concat.mainJs.dest %>': '<%= concat.mainJs.dest %>'
+                    '<%= concat.baguetteBox.dest %>': '<%= concat.baguetteBox.dest %>'
                 }
             }
         },
@@ -189,6 +179,11 @@ module.exports = function(grunt) {
                     { minifyStyles: true },
                     { moveElemsAttrsToGroup: true },
                     { moveGroupAttrsToElems: true },
+                    {
+                        removeAttrs: {
+                            attrs: 'data-name'
+                        }
+                    },
                     { removeComments: true },
                     { removeDesc: true },
                     { removeDoctype: true },
@@ -200,7 +195,11 @@ module.exports = function(grunt) {
                     { removeMetadata: true },
                     { removeNonInheritableGroupAttrs: true },
                     { removeTitle: true },
-                    { removeUnknownsAndDefaults: true },
+                    {
+                        removeUnknownsAndDefaults: {
+                            keepRoleAttr: true
+                        }
+                    },
                     { removeUnusedNS: true },
                     { removeUselessDefs: true },
                     { removeUselessStrokeAndFill: true },
@@ -227,7 +226,8 @@ module.exports = function(grunt) {
                 options: {
                     base: '<%= dirs.dest %>/',
                     livereload: 35729,
-                    open: true,  // Automatically open the webpage in the default browser
+                    // Automatically open the webpage in the default browser
+                    open: true,
                     port: 8000
                 }
             },
@@ -244,11 +244,21 @@ module.exports = function(grunt) {
                 livereload: '<%= connect.livereload.options.livereload %>'
             },
             dev: {
-                files: ['<%= dirs.src %>/**', '.jshintrc', '_config.yml', 'Gruntfile.js'],
+                files: [
+                    '<%= dirs.src %>/**',
+                    '.jshintrc',
+                    '_config.yml',
+                    'Gruntfile.js'
+                ],
                 tasks: 'dev'
             },
             build: {
-                files: ['<%= dirs.src %>/**', '.jshintrc', '_config.yml', 'Gruntfile.js'],
+                files: [
+                    '<%= dirs.src %>/**',
+                    '.jshintrc',
+                    '_config.yml',
+                    'Gruntfile.js'
+                ],
                 tasks: 'build'
             }
         },
@@ -265,14 +275,14 @@ module.exports = function(grunt) {
                 jshintrc: '.jshintrc'
             },
             files: {
-                src: ['Gruntfile.js', '<%= dirs.src %>/assets/js/*.js', '!<%= dirs.src %>/assets/js/google-analytics.js']
+                src: [
+                    'Gruntfile.js',
+                    '<%= dirs.src %>/assets/js/*.js'
+                ]
             }
         },
 
         htmllint: {
-            options: {
-                ignore: /This document appears to be written in./
-            },
             src: '<%= dirs.dest %>/**/*.html'
         },
 
@@ -280,15 +290,11 @@ module.exports = function(grunt) {
             options: {
                 callback: function (crawler) {
                     crawler.addFetchCondition(function (queueItem) {
-                        return !queueItem.path.match(/\/docs\/(release|nightly)\//) &&
-                               queueItem.path !== '/assets/js/vendor/g.src' &&
-                               queueItem.path !== '/assets/js/+f+' &&
-                               queueItem.path !== '/assets/js/%7Bhref%7D' &&
-                               queueItem.path !== '/a';
+                        return !queueItem.path.match(/\/docs\/(release|nightly)\//);
                     });
                 },
-                interval: 1,        // 1 ms; default 250
-                maxConcurrency: 5   // default; bigger doesn't seem to improve time
+                interval: 1, // 1 ms; default 250
+                maxConcurrency: 5 // default; bigger doesn't seem to improve time
             },
             dev: {
                 site: 'localhost',
@@ -305,7 +311,7 @@ module.exports = function(grunt) {
     });
 
     // Load any grunt plugins found in package.json.
-    require('load-grunt-tasks')(grunt, { scope: 'dependencies' });
+    require('load-grunt-tasks')(grunt, { scope: 'devDependencies' });
     require('time-grunt')(grunt);
 
     grunt.registerTask('build', [
@@ -352,5 +358,4 @@ module.exports = function(grunt) {
         'connect:livereload',
         'watch:dev'
     ]);
-
 };

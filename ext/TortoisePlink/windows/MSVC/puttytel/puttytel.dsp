@@ -130,11 +130,15 @@ SOURCE=..\..\..\ldisc.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\ldiscucs.c
+SOURCE=..\..\..\logging.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\..\logging.c
+SOURCE=..\..\..\marshal.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\memory.c
 # End Source File
 # Begin Source File
 
@@ -178,7 +182,15 @@ SOURCE=..\..\..\sercfg.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\sessprep.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\settings.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\stripctrl.c
 # End Source File
 # Begin Source File
 
@@ -195,6 +207,10 @@ SOURCE=..\..\..\timing.c
 # Begin Source File
 
 SOURCE=..\..\..\tree234.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\utils.c
 # End Source File
 # Begin Source File
 
@@ -250,6 +266,10 @@ SOURCE=..\..\..\windows\winmisc.c
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\windows\winmiscs.c
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\windows\winnet.c
 # End Source File
 # Begin Source File
@@ -294,15 +314,15 @@ SOURCE=..\..\..\charset\charset.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\defs.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\dialog.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\..\empty.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\..\int64.h
 # End Source File
 # Begin Source File
 
@@ -314,11 +334,19 @@ SOURCE=..\..\..\licence.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\..\marshal.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\..\misc.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\..\network.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\pgssapi.h
 # End Source File
 # Begin Source File
 
@@ -339,6 +367,22 @@ SOURCE=..\..\..\puttyps.h
 # Begin Source File
 
 SOURCE=..\..\..\ssh.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshgss.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshgssc.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshsignals.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\sshttymodes.h
 # End Source File
 # Begin Source File
 

@@ -19,7 +19,7 @@
 # Emilio Bologna <io@emilio.i5-my.name>, 2012
 # Emilio Bologna <io@emilio.i5-my.name>, 2012
 # Fabio Turrin, 2018
-# Fabio Turrin, 2018
+# Fabio Turrin, 2018-2019
 # Leonardo <philyo1@gmail.com>, 2012
 # acehigh, 2011
 # Marco Scalcione <marco.scalcione@prae.it>, 2018
@@ -27,17 +27,18 @@
 # Leonardo <philyo1@gmail.com>, 2012
 # Roberto Casazza <roberto.casazza@alice.it>, 2011
 # Roberto <roberto@elkgrove.us>, 2011-2012
-# Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>, 2016
-# Sebastiano Pistore <SebastianoPistore.info@protonmail.ch>, 2016
+# SebastianoPistore <SebastianoPistore.info@protonmail.ch>, 2016
+# SebastianoPistore <SebastianoPistore.info@protonmail.ch>, 2016
 # Silvia, 2013
 # Silvia, 2013
+# Stefano Barenghi <steo.brs@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2019-01-28 01:27+0000\n"
-"Last-Translator: luebbe <luebbe.opensource@gmail.com>\n"
+"PO-Revision-Date: 2019-06-01 12:34+0000\n"
+"Last-Translator: Lübbe Onken <luebbe.opensource@gmail.com>\n"
 "Language-Team: Italian (http://www.transifex.com/luebbe/tortoisesvn/language/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -507,7 +508,7 @@ msgid ""
 "The <xref linkend=\"tsvn-projectmonitor\"/> explains how you can monitor "
 "your Subversion projects so you don't miss important commits from your other"
 " team members."
-msgstr ""
+msgstr "L'<xref linkend=\"tsvn-projectmonitor\"/> spiega come monitorare i tuoi progetti di Subversion per non perdere importanti commit approtate dai membri del tuo team"
 
 #. (para)
 msgid ""
@@ -2217,7 +2218,7 @@ msgid ""
 "bean.com/en/1.8/svn.reposadmin.create.html#svn.reposadmin.create.hooks\"><citetitle>Hook"
 " Scripts</citetitle></ulink> in the Subversion Book for full details about "
 "the hooks which are implemented."
-msgstr ""
+msgstr "Uno script di aggancio è un programma innestato da un evento del repository, ad esempio la creazione di una nuova revisione o la modifica di una proprietà non revisionata. Ad ogni script di aggancio sono fornite abbastanza informazioni per identificare l'evento, su quali oggetti sta operando e l'username della persona che ha scatenato l'evento. In base all'output dello script o al suo stato di ritorno, il programma di aggancio può continuare l'azione, fermarla o sospenderla in qualche modo. Riferirsi al capitolo sugli <ulink url=\"http://svnbook.red-bean.com/en/1.8/svn.reposadmin.create.html#svn.reposadmin.create.hooks\"><citetitle>Script di Aggancio</citetitle></ulink> nel libro di Subversion per tutti i dettagli riguardanti gli script  che sono stati implementati."
 
 #. (para)
 msgid ""
@@ -2864,7 +2865,7 @@ msgid ""
 " on this versioned folder to add some or all of the content. You can add and"
 " remove files, set <literal>svn:ignore</literal> properties on folders and "
 "make any other changes you need to."
-msgstr ""
+msgstr "Usa <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Add...</guimenuitem></menuchoice> su questa cartella con versione per aggiungere tutto o parte del contenuto. Puoi aggiungere e rimuovere file, impostare sulle cartelle la proprietà <literal>svn:ignore</literal> e apportare qualsiasi modifica tu voglia."
 
 #. (para)
 msgid ""
@@ -2876,7 +2877,7 @@ msgstr ""
 msgid ""
 "Assuming you already have a repository, and you want to add a new folder "
 "structure to it, just follow these steps: <placeholder-1/>"
-msgstr ""
+msgstr "Assumendo che tu abbia già un repository e che tu voglia aggiungerci una nuova struttura di cartelle, segui questi passaggi: <placeholder-1/>"
 
 #. (title)
 msgid "Special Files"
@@ -2893,7 +2894,7 @@ msgid ""
 "to modify to suit his/her local setup. But versioning such a file is "
 "difficult because every user would commit his/her changes every time to the "
 "repository."
-msgstr ""
+msgstr "A volte potrebbe servire avere un file sotto controllo di versione contenente dei dati specifici di un utente. Questo implica avere un file che ogni sviluppatore/utente modifica per soddisfare le proprie esigenze di impostazione locale. Il versioning di un file del genere è difficile perché ogni utente farà il commit delle sue modifiche sul repository tutte le volte."
 
 #. (para)
 msgid ""
@@ -2987,7 +2988,7 @@ msgstr "Figli immediati, includi cartelle"
 msgid ""
 "Checkout the specified directory, including all files and child folders, but"
 " do not populate the child folders."
-msgstr ""
+msgstr "Checkout della cartella specificata, compresi tutti i suoi file e le sottocartelle, senza popolare le sottocartelle."
 
 #. (term)
 msgid "Only file children"
@@ -3031,7 +3032,7 @@ msgid ""
 "Used to reduce working copy depth after a folder has already been populated."
 " This option is only available in the <guilabel>Update to "
 "revision</guilabel> dialog."
-msgstr ""
+msgstr "Usato per ridurre la profondità della working copy dopo che una cartella è già stata popolata. Questa opzione è disponibile soltanto nella voce <guilabel>Aggiorna alla revisione</guilabel>."
 
 #. (para)
 msgid ""
@@ -3102,7 +3103,7 @@ msgid ""
 "click</action> on the folder(s) you would like to add to your working copy, "
 "then use <menuchoice><guimenu>Context "
 "menu</guimenu><guimenuitem>Update</guimenuitem></menuchoice>."
-msgstr ""
+msgstr "Nella finestra di controllo delle modifiche, per prima cosa fare click tenendo premuto <keycap>shift</keycap>. La finestra mostrerà tutti i file e le cartelle presenti nel repository delle quali non hai fatto il checkout come <literal>aggiunte da remoto</literal>. <action>Clicca con il tasto destro</action> sulla cartella (o cartelle) che vorresti aggiungere alla tua working copy, poi usa<menuchoice><guimenu>Menu</guimenu><guimenuitem>Aggiorna</guimenuitem></menuchoice>"
 
 #. (para)
 msgid ""
@@ -3209,7 +3210,7 @@ msgid ""
 "<filename>.svn</filename> directories, e.g. to create a zipped tarball of "
 "your source. Read <xref linkend=\"tsvn-dug-export\"/> to find out how to do "
 "that."
-msgstr ""
+msgstr "A volte vorresti creare una copia locale senza tutte le cartelle <filename>.svn</filename>, ad esempio per creare un tarball zippato del tuo sorgente. Leggi <xref linkend=\"tsvn-dug-export\"/> per scoprire come farlo."
 
 #. (title)
 msgid "Committing Your Changes To The Repository"
@@ -3241,11 +3242,11 @@ msgstr "L'invio delle modifiche apportate alla tua copia di lavoro è noto come 
 
 #. (title)
 msgid "The Commit Dialog"
-msgstr ""
+msgstr "La finestra di Commit"
 
 #. (title)
 msgid "The Commit dialog"
-msgstr ""
+msgstr "La finestra di Commit"
 
 #. (para)
 msgid ""
@@ -3282,7 +3283,7 @@ msgid ""
 "indicated using an <literal>(s)</literal> marker. You may have switched "
 "something while working on a branch and forgotten to switch back to trunk. "
 "This is your warning sign!"
-msgstr ""
+msgstr "Gli oggetti che sono stati spostati in un percorso diverso del repository sono anche indicati con il simbolo <literal>(s)</literal>. Potresti aver cambiato qualcosa mentre lavoravi su un branch dimenticandoti di tornare nel trunk. Questo è il tuo segnale di avvertimento!"
 
 #. (title)
 msgid "Commit files or folders?"
@@ -3528,7 +3529,7 @@ msgid ""
 "changes a timestamp in the project file every time you build. The project "
 "file has to be versioned as it includes all the build settings, but it "
 "doesn't need to be committed just because the timestamp changed."
-msgstr ""
+msgstr "A volte hai dei file con versione che cambiano di frequente dei quali non vuoi veramente fare il commit. Questo potrebbe indicare una falla nel tuo processo di sviluppo - perché quei file sono sotto controllo di versione? Dovresti usare dei file template? Ma occasionalmente è inevitabile. Un motivo tipico è che il tuo IDE cambia un timestamp nel file del progetto ogni volta che sviluppi. Il file del progetto deve avere un controllo di versione poiché contiene tutte le impostazioni di sviluppo, ma non si deve fare il commit solo perché è cambiato il suo timestamp."
 
 #. (para)
 msgid ""
@@ -3536,7 +3537,7 @@ msgid ""
 " <literal>ignore-on-commit</literal>. Any file added to this changelist will"
 " automatically be unchecked in the commit dialog. You can still commit "
 "changes, but you have to select it manually in the commit dialog."
-msgstr ""
+msgstr "Per aiutare in casi complciati come questo, abbiamo riservato una lista dei cambiamenti detta <literal>ignore-on-commit</literal>. Qualunque file aggiunto alla lista sarà automaticamente deselezionato dalla finestra di commit. Puoi ancora fare il commit delle modifiche, ma devi selezionarlo manualmente dalla finestra di commit."
 
 #. (title)
 msgid "Commit Log Messages"
@@ -6389,11 +6390,11 @@ msgid ""
 "If you did this from the revision log for a folder, a Compare Revisions "
 "dialog appears, showing a list of changed files in that folder. Read more in"
 " <xref linkend=\"tsvn-dug-compare-revs\"/>."
-msgstr ""
+msgstr "Se si è eseguita questa operazione dal log delle revisioni di una cartella, viene visualizzata la finestra di dialogo Confronta Revisioni che mostra un elenco di file modificati in tale cartella. Leggi di più in <xref linkend=\"tsvn-dug-compare-revs\"/>."
 
 #. (term)
 msgid "All changes made in a commit"
-msgstr ""
+msgstr "Tutte le modifiche apportate in un commit"
 
 #. (para)
 msgid ""
@@ -6404,7 +6405,7 @@ msgid ""
 "Revision Log dialog select the revision of interest, then select "
 "<guimenuitem>Show Differences as Unified-Diff</guimenuitem> from the context"
 " menu."
-msgstr ""
+msgstr "Se si desidera vedere le modifiche apportate a tutti i file in una revisione particolare in una vista, è possibile utilizzare l'output Unified-Diff (formato patch GNU). Questo mostra solo le differenze con alcune linee di contesto. È più difficile da leggere rispetto a un file di confronto, ma mostrerà tutte le modifiche insieme. Dalla finestra di dialogo Log delle Revisioni selezionare la revisione di interesse, quindi selezionare <guimenuitem>Mostra differenze come Unified-Diff</guimenuitem> dal menu di scelta rapida."
 
 #. (term)
 msgid "Difference between files"
@@ -6416,7 +6417,7 @@ msgid ""
 "that directly in explorer by selecting both files (using the usual "
 "<keycap>Ctrl</keycap>-modifier). Then from the explorer context menu select "
 "<menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff</guimenuitem></menuchoice>."
-msgstr ""
+msgstr "Se vuoi vedere le differenze tra due file diversi, puoi farlo direttamente in Explorer selezionando entrambi i file (usando il solito modificatore <keycap>Ctrl</keycap>). Quindi dal menu di scelta rapida di explorer selezionare <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff</guimenuitem></menuchoice>."
 
 #. (para)
 msgid ""
@@ -6430,7 +6431,7 @@ msgid ""
 "<menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff "
 "later</guimenuitem></menuchoice> again, but hold down the "
 "<keycap>Ctrl</keycap>-modifier while clicking on it."
-msgstr ""
+msgstr "Se i file da confrontare non si trovano nella stessa cartella, utilizzare il comando <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff in seguito</guimenuitem></menuchoice> per contrassegnare il primo file da confrontare, quindi individuare il secondo file e utilizzare <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff con \"percorso/del/file/contrassegnato\"</guimenuitem></menuchoice>. Per rimuovere il file contrassegnato, usa di nuovo il comando <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff in seguito</guimenuitem></menuchoice>, ma tieni premuto il modificatore <keycap>Ctrl</keycap> mentre fai clic su di esso."
 
 #. (term)
 msgid "Difference between WC file/folder and a URL"
@@ -6446,7 +6447,7 @@ msgid ""
 "URL</guimenuitem></menuchoice>. You can do the same thing for a working copy"
 " folder. TortoiseMerge shows these differences in the same way as it shows a"
 " patch file - a list of changed files which you can view one at a time."
-msgstr ""
+msgstr "Se vuoi vedere le differenze tra un file nella tua copia di lavoro e un file in qualsiasi repository di Subversion, puoi farlo direttamente in explorer selezionando il file e tenendo premuto il tasto <keycap>Maiusc</keycap> mentre fai clic destro per ottenere il menu di scelta rapida. Seleziona <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff con URL</guimenuitem></menuchoice>. Puoi fare la stessa cosa per una cartella di lavoro. TortoiseMerge mostra queste differenze nello stesso modo in cui mostra un file patch: un elenco di file modificati che è possibile visualizzare uno alla volta."
 
 #. (term)
 msgid "Difference with blame information"
@@ -6470,7 +6471,7 @@ msgid ""
 "differences between directory hierarchies. But if you have an external tool "
 "which does support that feature, you can use that instead. In <xref linkend"
 "=\"tsvn-dug-diff-tools\"/> we tell you about some tools which we have used."
-msgstr ""
+msgstr "Gli strumenti integrati forniti con TortoiseSVN non supportano la visualizzazione delle differenze tra le gerarchie di directory. Ma se hai uno strumento esterno che supporta questa funzione, puoi invece usarlo. In <xref linkend=\"tsvn-dug-diff-tools\"/> vi parleremo di alcuni strumenti che abbiamo usato."
 
 #. (para)
 msgid ""
@@ -6478,11 +6479,11 @@ msgid ""
 "<keycap>Shift</keycap> when selecting the Diff command to use the alternate "
 "tool. Read <xref linkend=\"tsvn-dug-settings-progs\"/> to find out about "
 "configuring other diff tools."
-msgstr ""
+msgstr "Se è stato configurato uno strumento di diff di terze parti, è possibile utilizzare <keycap>Shift</keycap> quando si seleziona il comando Diff per utilizzare lo strumento alternativo. Leggi <xref linkend=\"tsvn-dug-settings-progs\"/> per scoprire come configurare altri strumenti diff."
 
 #. (title)
 msgid "Line-end and Whitespace Options"
-msgstr ""
+msgstr "Opzioni di fine linea e spazi bianchi"
 
 #. (para)
 msgid ""
@@ -6494,19 +6495,19 @@ msgid ""
 "comparing and applying differences. You will see these settings in the "
 "<guilabel>Merge</guilabel> and <guilabel>Blame</guilabel> dialogs, as well "
 "as in the settings for TortoiseMerge."
-msgstr ""
+msgstr "A volte nella vita di un progetto è possibile modificare le terminazioni di riga da <literal>CRLF</literal> a <literal>LF</literal>, oppure è possibile modificare l'indentazione di una sezione. Sfortunatamente questo segnerà un numero elevato di righe come modificato, anche se non vi è alcun cambiamento nel significato del codice. Le opzioni seguenti aiuteranno a gestire questi cambiamenti quando si tratta di confrontare e applicare le differenze. Vedrai queste impostazioni nelle finestre di dialogo <guilabel>Unisci</guilabel> e <guilabel>Blame</guilabel>, nonché nelle impostazioni di TortoiseMerge."
 
 #. (para)
 msgid ""
 "<guilabel>Ignore line endings</guilabel> excludes changes which are due "
 "solely to difference in line-end style."
-msgstr ""
+msgstr "<guilabel>Ignora le terminazioni di riga</guilabel> esclude le modifiche dovute unicamente alla differenza nello stile di fine riga."
 
 #. (para)
 msgid ""
 "<guilabel>Compare whitespaces</guilabel> includes all changes in indentation"
 " and inline whitespace as added/removed lines."
-msgstr ""
+msgstr "<guilabel>Confronta gli spazi bianchi</guilabel> include tutte le modifiche nel rientro e negli spazi bianchi in linea come linee aggiunte/rimosse."
 
 #. (para)
 msgid ""
@@ -6515,18 +6516,18 @@ msgid ""
 "the indentation or changing tabs to spaces. Adding whitespace where there "
 "was none before, or removing a whitespace completely is still shown as a "
 "change."
-msgstr ""
+msgstr "<guilabel>Ignora le modifiche agli spazi bianchi</guilabel> esclude le modifiche che sono dovute esclusivamente a una modifica della quantità o del tipo di spazi bianchi, ad es. cambiare il rientro o cambiare tabulazioni in spazi. Aggiungere spazi bianchi dove non ce n'erano prima, o rimuovere completamente uno spazio bianco è ancora mostrato come una modifica."
 
 #. (para)
 msgid ""
 "<guilabel>Ignore all whitespaces</guilabel> excludes all whitespace-only "
 "changes."
-msgstr ""
+msgstr "<guilabel>Ignora tutti gli spazi bianchi</guilabel> esclude tutte le modifiche agli spazi bianchi."
 
 #. (para)
 msgid ""
 "Naturally, any line with changed content is always included in the diff."
-msgstr ""
+msgstr "Naturalmente, qualsiasi riga con contenuto modificato è sempre inclusa nel diff."
 
 #. (title)
 msgid "Comparing Folders"
@@ -6542,7 +6543,7 @@ msgstr "esporta modifiche"
 
 #. (title)
 msgid "The Compare Revisions Dialog"
-msgstr ""
+msgstr "La finestra di dialogo Confronto delle revisioni"
 
 #. (para)
 msgid ""
@@ -6550,7 +6551,7 @@ msgid ""
 " when you select two revisions of a folder in the log dialog, you can "
 "<menuchoice><guimenu>Context menu</guimenu><guimenuitem>Compare "
 "revisions</guimenuitem></menuchoice>."
-msgstr ""
+msgstr "<placeholder-1/> Quando si selezionano due alberi all'interno del browser del repository o quando si selezionano due revisioni di una cartella nella finestra di dialogo del log, è possibile utilizzare <menuchoice><guimenu>Menu contestuale</guimenu><guimenuitem>Confronta revisioni</guimenuitem></menuchoice>."
 
 #. (para)
 msgid ""
@@ -6568,14 +6569,14 @@ msgid ""
 "menu</guimenu><guimenuitem>Export selection "
 "to...</guimenuitem></menuchoice>. You will be prompted for a location to "
 "save the change tree."
-msgstr ""
+msgstr "È possibile esportare un <emphasis>albero delle modifiche</emphasis>, che è utile se è necessario inviare a qualcun altro la struttura dell'albero del progetto, ma contenente solo i file che sono stati modificati. Questa operazione funziona solo sui file selezionati, quindi è necessario selezionare i file di interesse - che in genere significa tutti - e quindi con il <menuchoice>menu contestuale<guimenu><guimenuitem>Esporta Selezione in...</guimenuitem></menuchoice>. Verrà richiesto un percorso in cui salvare l'albero delle modifiche."
 
 #. (para)
 msgid ""
 "You can also export the <emphasis>list</emphasis> of changed files to a text"
 " file using <menuchoice><guimenu>Context menu</guimenu><guimenuitem>Save "
 "list of selected files to...</guimenuitem></menuchoice>."
-msgstr ""
+msgstr "È anche possibile esportare <emphasis>l'elenco</emphasis> dei file modificati in un file di testo utilizzando il <guimenu>menu contestuale</guimenu><guimenuitem>Salva l'elenco dei file selezionati in...</guimenuitem><menuchoice>."
 
 #. (para)
 msgid ""
@@ -6583,20 +6584,20 @@ msgid ""
 " (modified, added, deleted) as well, you can do that using "
 "<menuchoice><guimenu>Context menu</guimenu><guimenuitem>Copy selection to "
 "clipboard</guimenuitem></menuchoice>."
-msgstr ""
+msgstr "Se si desidera esportare l'elenco di file <emphasis>e</emphasis> le azioni (modificate, aggiunte, eliminate), è possibile farlo utilizzando il <menuchoice><guimenu>menu contestuale</guimenu><guimenuitem>Copia selezione negli appunti</guimenuitem></menuchoice>."
 
 #. (para)
 msgid ""
 "The button at the top allows you to change the direction of comparison. You "
 "can show the changes need to get from A to B, or if you prefer, from B to A."
-msgstr ""
+msgstr "Il pulsante in alto consente di modificare la direzione del confronto. Puoi mostrare che le modifiche devono andare da A a B, o se preferisci, da B a A."
 
 #. (para)
 msgid ""
 "The buttons with the revision numbers on can be used to change to a "
 "different revision range. When you change the range, the list of items which"
 " differ between the two revisions will be updated automatically."
-msgstr ""
+msgstr "I pulsanti con i numeri di revisione attivi possono essere utilizzati per passare a un intervallo di revisione diverso. Quando si modifica l'intervallo, l'elenco di elementi che differiscono tra le due revisioni verrà aggiornato automaticamente."
 
 #. (para)
 msgid ""
@@ -6604,7 +6605,7 @@ msgid ""
 "the list to filenames containing specific text. Note that a simple text "
 "search is used, so if you want to restrict the list to C source files you "
 "should enter <filename>.c</filename> rather than <filename>*.c</filename>."
-msgstr ""
+msgstr "Se l'elenco dei nomi di file è molto lungo, è possibile utilizzare la casella di ricerca per ridurre l'elenco ai nomi di file contenenti testo specifico. Si noti che viene utilizzata una semplice ricerca di testo, quindi se si desidera limitare l'elenco ai file scritti in linguaggio C, è necessario immettere <filename>.c</filename> anziché <filename>*.c</filename>."
 
 #. (title)
 msgid "Diffing Images Using TortoiseIDiff"
@@ -6623,11 +6624,11 @@ msgid ""
 "There are many tools available for diffing text files, including our own "
 "TortoiseMerge, but we often find ourselves wanting to see how an image file "
 "has changed too. That's why we created TortoiseIDiff."
-msgstr ""
+msgstr "Ci sono molti strumenti disponibili per effettuare il diff di file di testo, incluso il nostro TortoiseMerge, ma spesso ci ritroviamo a voler vedere anche come è cambiato un file immagine. Ecco perché abbiamo creato TortoiseIDiff."
 
 #. (title)
 msgid "The image difference viewer"
-msgstr ""
+msgstr "Il visualizzatore delle differenze di immagine"
 
 #. (para)
 msgid ""
@@ -6637,7 +6638,7 @@ msgid ""
 "can use the View menu or toolbar to switch to a top-bottom view instead, or "
 "if you prefer, you can overlay the images and pretend you are using a "
 "lightbox."
-msgstr ""
+msgstr "<placeholder-1/><menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff</guimenuitem></menuchoice> per qualsiasi formato di file di immagine comune avvierà TortoiseIDiff per mostrare le differenze di immagine. Per impostazione predefinita, le immagini vengono visualizzate affiancate ma è possibile utilizzare il menu Visualizza o la barra degli strumenti per passare invece a una vista dall'alto in basso oppure, se lo si preferisce, è possibile sovrapporre le immagini e far finta di utilizzare una lightbox."
 
 #. (para)
 msgid ""
@@ -6645,7 +6646,7 @@ msgid ""
 "also pan the image simply by left-dragging it. If you select the "
 "<guilabel>Link images together</guilabel> option, then the pan controls "
 "(scrollbars, mousewheel) on both images are linked."
-msgstr ""
+msgstr "Naturalmente è anche possibile ingrandire e rimpicciolire l'immagine. Puoi anche spostare la parte visibile dell'immagine semplicemente trascinandola con il pulsante sinistro del mouse. Se si seleziona l'opzione <guilabel>Collega immagini insieme</guilabel>, i controlli di spostamento e zoom (barre di scorrimento, rotellina del mouse) sono collegati su entrambe le immagini."
 
 #. (para)
 msgid ""
@@ -6654,7 +6655,7 @@ msgid ""
 "<menuchoice><guimenu>View</guimenu><guimenuitem>Image "
 "Info</guimenuitem></menuchoice> to hide it. You can get the same information"
 " in a tooltip if you hover the mouse over the image title bar."
-msgstr ""
+msgstr "Una finestra di informazioni sull'immagine mostra dettagli sul file immagine, come la dimensione in pixel, la risoluzione e la profondità del colore. Se questa finestra interferisce, utilizza <menuchoice><guimenu>Visualizza</guimenu><guimenuitem>Informazioni immagine</guimenuitem></menuchoice> per nasconderla. Puoi ottenere le stesse informazioni in un tooltip se passi il mouse sopra la barra del titolo dell'immagine."
 
 #. (para)
 msgid ""
@@ -6663,7 +6664,7 @@ msgid ""
 "anywhere in the slider to set the blend directly, or you can drag the slider"
 " to change the blend interactively. "
 "<keycap>Ctrl+Shift</keycap>-<action>Wheel</action> to change the blend."
-msgstr ""
+msgstr "Quando le immagini sono sovrapposte, l'intensità relativa delle immagini (miscela alfa) è controllata da un controllo a scorrimento sul lato sinistro. Puoi fare clic in qualsiasi punto del controllo a scorrimento per impostare direttamente la fusione oppure puoi trascinare il cursore per modificare la fusione in modo interattivo. Usa <keycap>Ctrl+Shift</keycap>-<action>Rotellina del mouse</action> per cambiare l'intensità della fusione."
 
 #. (para)
 msgid ""
@@ -14616,7 +14617,8 @@ msgstr ""
 #. (para)
 msgid ""
 "A path to a temporary file which contains all the paths for which the "
-"operation was started. Each path is on a separate line in the temp file."
+"operation was started in UTF-8 encoding. Each path is on a separate line in "
+"the temp file."
 msgstr ""
 
 #. (para)
@@ -14696,8 +14698,9 @@ msgstr ""
 
 #. (para)
 msgid ""
-"A path to a temporary file which contains all the paths which were somehow "
-"touched by the operation. Each path is on a separate line in the temp file."
+"A path to a temporary file which contains all the paths in UTF-8 encoding "
+"which were somehow touched by the operation. Each path is on a separate line"
+" in the temp file."
 msgstr ""
 
 #. (para)
@@ -15245,6 +15248,13 @@ msgid ""
 "this requires that the log dialog fetches the status of that path. Since for"
 " very big working copies this can take a while, you can set this value to "
 "<literal>false</literal> to deactivate this feature."
+msgstr ""
+
+#. (para)
+msgid ""
+"Comboboxes for URLs and paths show a history of previously used URLs/paths "
+"if possible. This settings controls how many previous items are saved and "
+"shown. The default is 25 items."
 msgstr ""
 
 #. (para)

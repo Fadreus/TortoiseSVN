@@ -151,7 +151,7 @@ lang: en
                 <li>It runs with SYSTEM privileges, not just as e.g. Administrator. That's important because TortoiseSVN is a shell extension which requires us to create and modify registry keys which aren't accessible to user accounts (this is especially important on Vista with UAC enabled).</li>
                 <li>It's easy to distribute an MSI to multiple computers/users in a domain via GPO's. All other installers would require a domain admin to first 'wrap' that installer inside an MSI to do that.</li>
                 <li>MSI is the standard and recommended way of installing Windows applications. It's even <strong>required</strong> now to get the "Certified for Vista" logo from Microsoft.</li>
-                <li>There's a great open source tool for creating MSI files: <a href="http://wixtoolset.org/">WiX</a> which we use.</li>
+                <li>There's a great open source tool for creating MSI files: <a href="https://wixtoolset.org/">WiX</a> which we use.</li>
                 <li>MSI takes care of reference counting of installed modules which prevents the so called <a href="https://en.wikipedia.org/wiki/DLL_hell">dll hell</a>.</li>
                 <li>an installer is required since we have to <strong>register</strong> TortoiseSVN with the shell. A simple exe for you to run wouldn't work.</li>
             </ul>
@@ -666,7 +666,7 @@ force security mode = 0600</pre>
             <p>We have this policy to prevent getting new bugs into the stable branch. After all, it's called the <em>stable</em> branch.</p>
             <p>Your requested feature/reported bug, even though it is fixed/implemented on trunk was not merged back to
             the stable branch due to this policy. That's why you don't see the change in the latest release.</p>
-            <p>You can use a nightly build if you feel adventerous though: <a href="https://nightlybuilds.tortoisesvn.net/latest/">https://nightlybuilds.tortoisesvn.net/latest/</a></p>
+            <p>You can use a nightly build if you feel adventurous though: <a href="https://nightlybuilds.tortoisesvn.net/latest/">https://nightlybuilds.tortoisesvn.net/latest/</a></p>
             </div>
 
             <div class="h3" id="eclipse">
@@ -819,7 +819,7 @@ force security mode = 0600</pre>
                 <dd>Will be replaced by the date of the highest revision in your working copy.</dd>
             </dl>
             <p>As an example, have a look at the file <cite>version.in</cite> in the
-            <a href="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/src/version.in">TortoiseSVN source tree</a>.
+            <a href="https://svn.osdn.net/svnroot/tortoisesvn/trunk/src/version.in">TortoiseSVN source tree</a>.
             This file is used in TortoiseSVN and its resource files. The SubWCRev.exe tool
             is called from the build script like this:
             <code>SubWCRev.exe path\\to\\working\\copy version.in version.h</code>

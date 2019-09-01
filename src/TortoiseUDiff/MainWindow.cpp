@@ -1,7 +1,7 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2018 - TortoiseSVN
-// Copyright (C) 2012-2016, 2018 - TortoiseGit
+// Copyright (C) 2012-2016, 2018-2019 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -156,7 +156,16 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
             SendEditor(SCI_SEARCHANCHOR);
             m_bMatchCase = !!wParam;
             m_findtext = (LPCTSTR)lParam;
-            SendEditor(SCI_SEARCHNEXT, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str());
+            if (SendEditor(SCI_SEARCHNEXT, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str()) == -1)
+            {
+                FLASHWINFO fwi;
+                fwi.cbSize = sizeof(FLASHWINFO);
+                fwi.uCount = 3;
+                fwi.dwTimeout = 100;
+                fwi.dwFlags = FLASHW_ALL;
+                fwi.hwnd = m_hwnd;
+                FlashWindowEx(&fwi);
+            }
             SendEditor(SCI_SCROLLCARET);
         }
         break;
@@ -165,7 +174,17 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
             SendEditor(SCI_SEARCHANCHOR);
             m_bMatchCase = !!wParam;
             m_findtext = (LPCTSTR)lParam;
-            SendEditor(SCI_SEARCHPREV, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str());
+            if (SendEditor(SCI_SEARCHPREV, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str()) == -1)
+            {
+                FLASHWINFO fwi;
+                fwi.cbSize = sizeof(FLASHWINFO);
+                fwi.uCount = 3;
+                fwi.dwTimeout = 100;
+                fwi.dwFlags = FLASHW_ALL;
+                fwi.hwnd = m_hwnd;
+                FlashWindowEx(&fwi);
+            }
+
             SendEditor(SCI_SCROLLCARET);
         }
         break;
@@ -230,13 +249,32 @@ LRESULT CMainWindow::DoCommand(int id)
         }
         break;
     case IDM_FINDNEXT:
+        SendEditor(SCI_CHARRIGHT);
         SendEditor(SCI_SEARCHANCHOR);
-        SendEditor(SCI_SEARCHNEXT, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str());
+        if (SendEditor(SCI_SEARCHNEXT, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str()) == -1)
+        {
+            FLASHWINFO fwi;
+            fwi.cbSize = sizeof(FLASHWINFO);
+            fwi.uCount = 3;
+            fwi.dwTimeout = 100;
+            fwi.dwFlags = FLASHW_ALL;
+            fwi.hwnd = m_hwnd;
+            FlashWindowEx(&fwi);
+        }
         SendEditor(SCI_SCROLLCARET);
         break;
     case IDM_FINDPREV:
         SendEditor(SCI_SEARCHANCHOR);
-        SendEditor(SCI_SEARCHPREV, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str());
+        if (SendEditor(SCI_SEARCHPREV, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str()) == -1)
+        {
+            FLASHWINFO fwi;
+            fwi.cbSize = sizeof(FLASHWINFO);
+            fwi.uCount = 3;
+            fwi.dwTimeout = 100;
+            fwi.dwFlags = FLASHW_ALL;
+            fwi.hwnd = m_hwnd;
+            FlashWindowEx(&fwi);
+        }
         SendEditor(SCI_SCROLLCARET);
         break;
     case IDM_FINDEXIT:
@@ -692,12 +730,18 @@ void CMainWindow::SetupWindow(bool bUTF8)
               CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackCommentColor", UDIFF_COLORBACKCOMMENT));
     SendEditor(SCI_STYLESETBOLD, SCE_DIFF_COMMENT, TRUE);
 
-    SetAStyle(SCE_DIFF_ADDED,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeAddedColor", UDIFF_COLORFOREADDED),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackAddedColor", UDIFF_COLORBACKADDED));
-    SetAStyle(SCE_DIFF_DELETED,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeRemovedColor", UDIFF_COLORFOREREMOVED),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackRemovedColor", UDIFF_COLORBACKREMOVED));
+    for (int style : { SCE_DIFF_ADDED, SCE_DIFF_PATCH_ADD, SCE_DIFF_PATCH_DELETE })
+    {
+        SetAStyle(style,
+                  CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeAddedColor", UDIFF_COLORFOREADDED),
+                  CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackAddedColor", UDIFF_COLORBACKADDED));
+    }
+    for (int style : { SCE_DIFF_DELETED, SCE_DIFF_REMOVED_PATCH_ADD, SCE_DIFF_REMOVED_PATCH_DELETE })
+    {
+        SetAStyle(style,
+                  CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeRemovedColor", UDIFF_COLORFOREREMOVED),
+                  CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackRemovedColor", UDIFF_COLORBACKREMOVED));
+    }
 
     SendEditor(SCI_SETLEXER, SCLEX_DIFF);
     SendEditor(SCI_SETKEYWORDS, 0, (LPARAM)"revision");

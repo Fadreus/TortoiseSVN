@@ -36,6 +36,8 @@ CSysImageList::~CSysImageList()
 
 // Singleton specific operations
 
+std::string current_parse_problem = "Found a comment close ('*/') with no matching open ('/*')";
+
 CSysImageList& CSysImageList::GetInstance()
 {
 	if (instance == NULL)
