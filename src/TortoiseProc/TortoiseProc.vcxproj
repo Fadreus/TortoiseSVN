@@ -82,7 +82,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir);..\TortoiseShell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -95,7 +95,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir);..\TortoiseShell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -108,7 +108,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HUNSPELL_STATIC;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HUNSPELL_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir);..\TortoiseShell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -121,7 +121,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>HUNSPELL_STATIC;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HUNSPELL_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IntDir);..\TortoiseShell;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -172,6 +172,7 @@
     <ClCompile Include="..\Utils\CmdUrlParser.cpp" />
     <ClCompile Include="..\Utils\COMError.cpp" />
     <ClCompile Include="..\Utils\CommonAppUtils.cpp" />
+    <ClCompile Include="..\Utils\DarkModeHelper.cpp" />
     <ClCompile Include="..\Utils\DebugOutput.cpp" />
     <ClCompile Include="..\Utils\DirFileEnum.cpp" />
     <ClCompile Include="..\Utils\DragDropImpl.cpp" />
@@ -208,6 +209,7 @@
     <ClCompile Include="..\Utils\MiscUI\StandAloneDlg.cpp" />
     <ClCompile Include="..\Utils\MiscUI\SubTooltipListCtrl.cpp" />
     <ClCompile Include="..\Utils\MiscUI\SVG.cpp" />
+    <ClCompile Include="..\Utils\MiscUI\ThemeControls.cpp" />
     <ClCompile Include="..\Utils\MiscUI\ToastNotifications.cpp" />
     <ClCompile Include="..\Utils\MiscUI\Tooltip.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaitCursorEx.cpp" />
@@ -228,6 +230,7 @@
     <ClCompile Include="..\Utils\SysImageList.cpp" />
     <ClCompile Include="..\Utils\TaskbarUUID.cpp" />
     <ClCompile Include="..\Utils\TempFile.cpp" />
+    <ClCompile Include="..\Utils\Theme.cpp" />
     <ClCompile Include="..\Utils\UnicodeUtils.cpp" />
     <ClCompile Include="AboutDlg.cpp" />
     <ClCompile Include="AddDlg.cpp" />
@@ -493,6 +496,7 @@
     <ClInclude Include="..\Utils\CommonAppUtils.h" />
     <ClInclude Include="..\Utils\CrashReport.h" />
     <ClInclude Include="..\Utils\CreateProcessHelper.h" />
+    <ClInclude Include="..\Utils\DarkModeHelper.h" />
     <ClInclude Include="..\Utils\DebugOutput.h" />
     <ClInclude Include="..\Utils\DirFileEnum.h" />
     <ClInclude Include="..\Utils\DPIAware.h" />
@@ -538,6 +542,7 @@
     <ClInclude Include="..\Utils\MiscUI\StandAloneDlg.h" />
     <ClInclude Include="..\Utils\MiscUI\SubTooltipListCtrl.h" />
     <ClInclude Include="..\Utils\MiscUI\SVG.h" />
+    <ClInclude Include="..\Utils\MiscUI\ThemeControls.h" />
     <ClInclude Include="..\Utils\MiscUI\ToastNotifications.h" />
     <ClInclude Include="..\Utils\MiscUI\Tooltip.h" />
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h" />
@@ -566,6 +571,7 @@
     <ClInclude Include="..\Utils\SysImageList.h" />
     <ClInclude Include="..\Utils\TaskbarUUID.h" />
     <ClInclude Include="..\Utils\TempFile.h" />
+    <ClInclude Include="..\Utils\Theme.h" />
     <ClInclude Include="..\Utils\UnicodeUtils.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="AddDlg.h" />

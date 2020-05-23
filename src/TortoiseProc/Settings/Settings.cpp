@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2015, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +21,8 @@
 #include "Settings.h"
 #include "AppUtils.h"
 #include "../../TSVNCache/CacheInterface.h"
+#include "Theme.h"
+#include "DarkModeHelper.h"
 
 #define BOTTOMMARG 32
 
@@ -30,11 +32,23 @@ CSettings::CSettings(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
     AddPropPages();
+    SetTheme(CTheme::Instance().IsDarkTheme());
 }
 
 CSettings::~CSettings()
 {
     RemovePropPages();
+}
+
+void CSettings::SetTheme(bool bDark)
+{
+    __super::SetTheme(bDark);
+    for (int i = 0; i < GetPageCount(); ++i)
+    {
+        auto pPage = GetPage(i);
+        if (IsWindow(pPage->GetSafeHwnd()))
+            CTheme::Instance().SetThemeForDialog(pPage->GetSafeHwnd(), bDark);
+    }
 }
 
 void CSettings::AddPropPages()
@@ -207,6 +221,10 @@ BOOL CSettings::OnInitDialog()
         m_aeroControls.SubclassOkCancelHelp(this);
         m_aeroControls.SubclassControl(this, ID_APPLY_NOW);
     }
+
+    DarkModeHelper::Instance().AllowDarkModeForApp(CTheme::Instance().IsDarkTheme());
+    SetTheme(CTheme::Instance().IsDarkTheme());
+    CTheme::Instance().SetThemeForDialog(GetSafeHwnd(), CTheme::Instance().IsDarkTheme());
 
     CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
     return bResult;

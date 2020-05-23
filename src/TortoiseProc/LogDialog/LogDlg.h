@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2018, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,6 +37,7 @@
 #include "SimpleIni.h"
 #include "DragDropTreeCtrl.h"
 #include "ReaderWriterLock.h"
+#include "ThemeControls.h"
 
 // import EnvDTE for opening files in Visual Studio through COM
 #include "dte80a.tlh"
@@ -84,6 +85,7 @@ public:
         , UnreadItems(0)
         , unreadFirst(0)
         , authfailed(false)
+        , parentPath(false)
     {}
     MonitorItem()
         : interval(5)
@@ -94,6 +96,7 @@ public:
         , UnreadItems(0)
         , unreadFirst(0)
         , authfailed(false)
+        , parentPath(false)
     {}
     ~MonitorItem() {}
 
@@ -107,6 +110,7 @@ public:
     svn_revnum_t                unreadFirst;
     int                         UnreadItems;
     bool                        authfailed;
+    bool                        parentPath;
     CString                     lastErrorMsg;
     CString                     username;
     CString                     password;
@@ -239,6 +243,7 @@ protected:
     afx_msg BOOL OnQueryEndSession();
     afx_msg LRESULT OnTaskbarButtonCreated(WPARAM wParam, LPARAM lParam);
     afx_msg void OnLvnBegindragLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnSysColorChange();
 
     virtual void OnCancel();
     virtual void OnOK();
@@ -255,6 +260,7 @@ private:
     void LogThread();
     void StatusThread();
     void Refresh (bool autoGoOnline = false);
+    void SetTheme(bool bDark);
     BOOL IsDiffPossible (const CLogChangedPath& changedpath, svn_revnum_t rev);
     BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
     void EditAuthor(const std::vector<PLOGENTRYDATA>& logs);
@@ -447,6 +453,7 @@ public:
     ProjectProperties   m_ProjectProperties;
     WORD                m_wParam;
 private:
+    int                 m_themeCallbackId;
     CFont               m_unreadFont;
     CFont               m_wcRevFont;
     CString             m_sRelativeRoot;
@@ -458,7 +465,7 @@ private:
     CFilterEdit         m_cFilter;
     CLogDlgFilter       m_filter;
     CProgressCtrl       m_LogProgress;
-    CMFCMenuButton      m_btnShow;
+    CThemeMFCMenuButton m_btnShow;
     CMenu               m_btnMenu;
     CTSVNPath           m_path;
     CTSVNPath           m_mergePath;
@@ -569,7 +576,8 @@ private:
     CHintCtrl<CDragDropTreeCtrl> m_projTree;
     CSimpleIni          m_monitoringFile;
     volatile LONG       m_bMonitorThreadRunning;
-    std::vector<MonitorItem>    m_monitorItemListForThread;
+    std::vector<MonitorItem>            m_monitorItemListForThread;
+    std::multimap<CString, MonitorItem> m_monitorItemParentPathList;
     int                 m_nMonitorUrlIcon;
     int                 m_nMonitorWCIcon;
     int                 m_nErrorOvl;

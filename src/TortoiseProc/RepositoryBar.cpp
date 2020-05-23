@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2018 - TortoiseSVN
+// Copyright (C) 2003-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,13 @@ IMPLEMENT_DYNAMIC(CRepositoryBar, CReBarCtrl)
 CRepositoryBar::CRepositoryBar()
     : m_cbxUrl(this)
     , m_pRepo(NULL)
+    , m_themeCallbackId(0)
 {
+    m_themeCallbackId = CTheme::Instance().RegisterThemeChangeCallback(
+        [this]()
+        {
+            SetTheme(CTheme::Instance().IsDarkTheme());
+        });
 }
 
 CRepositoryBar::~CRepositoryBar()
@@ -53,6 +59,7 @@ BEGIN_MESSAGE_MAP(CRepositoryBar, CReBarCtrl)
     ON_BN_CLICKED(IDC_FORWARD_BTN, OnHistoryForward)
     ON_WM_DESTROY()
     ON_NOTIFY(CBEN_DRAGBEGIN, IDC_URL_COMBO, OnCbenDragbeginUrlcombo)
+    ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
@@ -61,7 +68,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
     ASSERT(parent != 0);
     parent->GetWindowRect(&rect);
 
-    DWORD style = WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+    DWORD style = WS_CHILD | WS_VISIBLE
                 | CCS_TOP | RBS_AUTOSIZE | RBS_VARHEIGHT;
 
     DWORD style_ex = WS_EX_TOOLWINDOW | WS_EX_TRANSPARENT;
@@ -80,8 +87,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         CFont *font = parent->GetFont();
         CString temp;
 
-        REBARINFO rbi;
-        SecureZeroMemory(&rbi, sizeof rbi);
+        REBARINFO rbi = {0};
         rbi.cbSize = sizeof rbi;
         rbi.fMask  = 0;
         rbi.himl   = (HIMAGELIST)0;
@@ -89,8 +95,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         if (!this->SetBarInfo(&rbi))
             return false;
 
-        REBARBANDINFO rbbi;
-        SecureZeroMemory(&rbbi, sizeof rbbi);
+        REBARBANDINFO rbbi = {0};
         rbbi.cbSize = REBARBANDINFO_V6_SIZE;
         rbbi.fMask  = RBBIM_TEXT | RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
         rbbi.fStyle = RBBS_NOGRIPPER | RBBS_FIXEDBMP;
@@ -110,8 +115,8 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         m_btnBack.Invalidate();
         rbbi.lpText     = L"";
         rbbi.hwndChild  = m_btnBack.m_hWnd;
-        rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
-        rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
+        rbbi.clrFore    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_WINDOWTEXT));
+        rbbi.clrBack    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE));
         rbbi.cx         = rect.Width();
         rbbi.cxMinChild = rect.Width();
         rbbi.cyMinChild = rect.Height();
@@ -125,8 +130,8 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         m_btnForward.Invalidate();
         rbbi.lpText     = L"";
         rbbi.hwndChild  = m_btnForward.m_hWnd;
-        rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
-        rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
+        rbbi.clrFore    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_WINDOWTEXT));
+        rbbi.clrBack    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE));
         rbbi.cx         = rect.Width();
         rbbi.cxMinChild = rect.Width();
         rbbi.cyMinChild = rect.Height();
@@ -142,8 +147,8 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         temp.LoadString(IDS_REPO_BROWSEURL);
         rbbi.lpText     = const_cast<LPTSTR>((LPCTSTR)temp);
         rbbi.hwndChild  = m_cbxUrl.m_hWnd;
-        rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
-        rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
+        rbbi.clrFore    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_WINDOWTEXT));
+        rbbi.clrBack    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE));
         rbbi.cx         = rect.Width();
         rbbi.cxMinChild = rect.Width();
         rbbi.cyMinChild = m_cbxUrl.GetItemHeight(-1) + CDPIAware::Instance().Scale(10);
@@ -162,8 +167,8 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         m_btnUp.Invalidate();
         rbbi.lpText     = L"";
         rbbi.hwndChild  = m_btnUp.m_hWnd;
-        rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
-        rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
+        rbbi.clrFore    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_WINDOWTEXT));
+        rbbi.clrBack    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE));
         rbbi.cx         = rect.Width();
         rbbi.cxMinChild = rect.Width();
         rbbi.cyMinChild = rect.Height();
@@ -177,8 +182,8 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         temp.LoadString(IDS_REPO_BROWSEREV);
         rbbi.lpText     = const_cast<LPTSTR>((LPCTSTR)temp);
         rbbi.hwndChild  = m_btnRevision.m_hWnd;
-        rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
-        rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
+        rbbi.clrFore    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_WINDOWTEXT));
+        rbbi.clrBack    = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE));
         rbbi.cx         = rect.Width();
         rbbi.cxMinChild = rect.Width();
         rbbi.cyMinChild = rect.Height();
@@ -192,8 +197,12 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         m_tooltips.AddTool(&m_btnBack, IDS_REPOBROWSE_TT_BACKWARD);
         m_tooltips.AddTool(&m_btnForward, IDS_REPOBROWSE_TT_FORWARD);
 
+        SetTheme(CTheme::Instance().IsDarkTheme());
+
         return true;
     }
+
+    SetTheme(CTheme::Instance().IsDarkTheme());
 
     return false;
 }
@@ -354,6 +363,8 @@ bool CRepositoryBar::CRepositoryCombo::OnReturnKeyPressed()
 
 void CRepositoryBar::OnCbnSelEndOK()
 {
+    if (!IsWindowVisible())
+        return;
     int idx = m_cbxUrl.GetCurSel();
     if (idx >= 0)
     {
@@ -438,6 +449,11 @@ void CRepositoryBar::OnHistoryForward()
         ::SendMessage(m_pRepo->GetHWND(), WM_COMMAND, MAKEWPARAM(ID_URL_HISTORY_FORWARD, 1), 0);
 }
 
+void CRepositoryBar::SetTheme(bool bDark)
+{
+    CTheme::Instance().SetThemeForDialog(GetSafeHwnd(), bDark);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CRepositoryBarCnr::CRepositoryBarCnr(CRepositoryBar *repository_bar) :
@@ -458,8 +474,14 @@ END_MESSAGE_MAP()
 
 IMPLEMENT_DYNAMIC(CRepositoryBarCnr, CStatic)
 
-BOOL CRepositoryBarCnr::OnEraseBkgnd(CDC* /* pDC */)
+BOOL CRepositoryBarCnr::OnEraseBkgnd(CDC* pDC)
 {
+    if (CTheme::Instance().IsDarkTheme())
+    {
+        CRect rc;
+        GetClientRect(&rc);
+        pDC->FillSolidRect(&rc, RGB(0, 0, 0));
+    }
     return TRUE;
 }
 
@@ -493,3 +515,14 @@ void CRepositoryBarCnr::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
     CStatic::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
+BOOL CRepositoryBar::OnEraseBkgnd(CDC* pDC)
+{
+    if (CTheme::Instance().IsDarkTheme())
+    {
+        CRect rc;
+        GetClientRect(&rc);
+        pDC->FillSolidRect(&rc, RGB(0, 0, 0));
+        return true;
+    }
+    return CReBarCtrl::OnEraseBkgnd(pDC);
+}

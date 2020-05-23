@@ -17,9 +17,6 @@ using std::min;
 
 #include <SDKDDKVer.h>
 
-// Windows Header Files:
-#include <windows.h>
-
 // C RunTime Header Files
 #include <stdlib.h>
 #include <malloc.h>
@@ -35,6 +32,7 @@ using std::min;
 #define COMMITMONITOR_FINDEXIT          (WM_APP+3)
 #define COMMITMONITOR_FINDRESET         (WM_APP+4)
 
+#define REGSTRING_DARKTHEME L"Software\\TortoiseSVN\\UDiffDarkTheme"
 
 
 #ifdef _WIN64

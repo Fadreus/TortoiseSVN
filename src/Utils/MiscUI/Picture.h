@@ -1,6 +1,7 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2007, 2009, 2012-2015, 2017 - TortoiseSVN
+// Copyright (C) 2020 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,6 +25,8 @@
 #pragma warning(disable: 4458) // declaration of 'xxx' hides class member
 #include <gdiplus.h>
 #pragma warning(pop)
+#include "SmartHandle.h"
+#include <vector>
 
 using namespace Gdiplus;
 
@@ -97,12 +100,12 @@ public:
      * Return the horizontal resolutions in dpi of the loaded picture.
      * \remark this only works if gdi+ is installed.
      */
-    float GetHorizontalResolution() {return pBitmap ? pBitmap->GetHorizontalResolution() : 0.0f;}
+    float GetHorizontalResolution() { return m_pBitmap ? m_pBitmap->GetHorizontalResolution() : 0.0f; }
     /**
      * Return the vertical resolution in dpi of the loaded picture.
      * \remark this only works if gdi+ is installed.
      */
-    float GetVerticalResolution() {return pBitmap ? pBitmap->GetVerticalResolution() : 0.0f;}
+    float GetVerticalResolution() { return m_pBitmap ? m_pBitmap->GetVerticalResolution() : 0.0f; }
     /**
      * Returns the picture height in pixels.
      * \remark this only works if gdi+ is installed.
@@ -167,10 +170,7 @@ public:
     CPicture();
     virtual ~CPicture();
 
-
-    HGLOBAL     hGlobal;
-
-    IPicture* m_IPicture;   ///< Same As LPPICTURE (typedef IPicture __RPC_FAR *LPPICTURE)
+    CComPtr<IPicture> m_IPicture; ///< Same As LPPICTURE (typedef IPicture __RPC_FAR *LPPICTURE)
 
     LONG        m_Height;   ///< Height (in pixels)
     LONG        m_Width;    ///< Width (in pixels)
@@ -188,16 +188,20 @@ protected:
     bool LoadPictureData(BYTE* pBuffer, int nSize);
 
 private:
+    bool TryLoadIcon(const tstring& sFilePathName);
+    bool TryLoadWIC(const tstring& sFilePathName);
+    bool TryLoadFreeImage(const tstring& sFilePathName);
+
     GdiplusStartupInput gdiplusStartupInput;
     ULONG_PTR           gdiplusToken;
-    Bitmap *            pBitmap;
-    BYTE *              pBitmapBuffer;
+    std::unique_ptr<Bitmap> m_pBitmap;
+    std::unique_ptr<BYTE[]>  m_pBitmapBuffer;
     InterpolationMode   m_ip;
     bool                bIsIcon;
     bool                bIsTiff;
     UINT                nCurrentIcon;
-    BYTE *              lpIcons;
-    HICON *             hIcons;
+    std::unique_ptr<BYTE[]>  m_lpIcons;
+    std::unique_ptr<std::vector<CAutoIcon>> m_hIcons;
     DWORD               m_nSize;
 
     #pragma pack(push, r1, 2)   // n = 16, pushed to stack

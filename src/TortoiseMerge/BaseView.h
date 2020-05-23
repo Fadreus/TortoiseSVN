@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2003-2015, 2017-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -139,6 +139,7 @@ public: // methods
     void            SetInlineDiff(bool bDiff) {m_bShowInlineDiff = bDiff;}
     void            SetMarkedWord(const CString& word) {m_sMarkedWord = word; BuildMarkedWordArray();}
     LPCTSTR         GetMarkedWord() {return (LPCTSTR)m_sMarkedWord;}
+    int             GetMarkedWordCount() const { return m_MarkedWordCount; }
     LPCTSTR         GetFindString() {return (LPCTSTR)m_sFindText;}
 
     // Selection methods; all public methods dealing with selection go here
@@ -218,6 +219,7 @@ public: // methods
     static bool     IsViewGood(const CBaseView* view ) { return (view != 0) && view->IsWindowVisible(); }
     static CBaseView * GetFirstGoodView();
 
+    int             GetLargestSpaceStreak(const CString& line);
     int             GetIndentCharsForLine(int x, int y);
     void            AddIndentationForSelectedBlock();
     void            RemoveIndentationForSelectedBlock();
@@ -467,10 +469,15 @@ protected:  // methods
 
     static void     ResetUndoStep();
     void            SaveUndoStep();
+
+    void            SetTheme(bool bDark);
 protected:  // variables
     COLORREF        m_InlineRemovedBk;
     COLORREF        m_InlineAddedBk;
     COLORREF        m_ModifiedBk;
+    COLORREF        m_InlineRemovedDarkBk;
+    COLORREF        m_InlineAddedDarkBk;
+    COLORREF        m_ModifiedDarkBk;
     COLORREF        m_WhiteSpaceFg;
     UINT            m_nStatusBarID;     ///< The ID of the status bar pane used by this view. Must be set by the parent class.
 
@@ -498,6 +505,7 @@ protected:  // variables
     int             m_nSelViewBlockEnd;
 
     int             m_nMouseLine;
+    int             m_nLDownLine;
     bool            m_mouseInMargin;
     HCURSOR         m_margincursor;
 
@@ -543,6 +551,7 @@ protected:  // variables
     CString         m_sNoLineNr;
     CString         m_sMarkedWord;
     CString         m_sPreviousMarkedWord;
+    int             m_MarkedWordCount;
 
     CBitmap *       m_pCacheBitmap;
     CDC *           m_pDC;
@@ -553,7 +562,8 @@ protected:  // variables
     UnicodeType     m_texttype;   ///< the text encoding this view uses
     EOL             m_lineendings; ///< the line endings the view uses
     bool            m_bInsertMode;
-
+    bool            m_bDark;
+    int             m_themeCallbackId;
     char            m_szTip[MAX_PATH*2+1];
     wchar_t         m_wszTip[MAX_PATH*2+1];
     // These three pointers lead to the three parent

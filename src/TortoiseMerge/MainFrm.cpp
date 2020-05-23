@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2004-2018 - TortoiseSVN
+// Copyright (C) 2004-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,6 +35,10 @@
 #include "SVNHelpers.h"
 #include "SVNConfig.h"
 #include "RegexFiltersDlg.h"
+#include "Theme.h"
+#include "StringUtils.h"
+#include "Windows10Colors.h"
+#include "DarkModeHelper.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -156,6 +160,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_COMMAND(ID_INDICATOR_RIGHTVIEWCOMBOTABMODE, &CMainFrame::OnDummyEnabled)
     ON_COMMAND(ID_INDICATOR_BOTTOMVIEWCOMBOTABMODE, &CMainFrame::OnDummyEnabled)
     ON_UPDATE_COMMAND_UI(ID_EDIT_THREEWAY_ACTIONS, &CMainFrame::OnUpdateThreeWayActions)
+    ON_UPDATE_COMMAND_UI(ID_INDICATOR_COLUMN, &CMainFrame::OnUpdateColumnStatusBar)
+    ON_UPDATE_COMMAND_UI(ID_INDICATOR_MARKEDWORDS, &CMainFrame::OnUpdateMarkedWords)
+    ON_UPDATE_COMMAND_UI(ID_EDIT_FINDNEXTSTART, &CMainFrame::OnUpdateEnableIfSelection)
+    ON_UPDATE_COMMAND_UI(ID_EDIT_FINDPREVSTART, &CMainFrame::OnUpdateEnableIfSelection)
     ON_COMMAND_RANGE(ID_INDICATOR_LEFTENCODINGSTART, ID_INDICATOR_LEFTENCODINGSTART+19, &CMainFrame::OnEncodingLeft)
     ON_COMMAND_RANGE(ID_INDICATOR_RIGHTENCODINGSTART, ID_INDICATOR_RIGHTENCODINGSTART+19, &CMainFrame::OnEncodingRight)
     ON_COMMAND_RANGE(ID_INDICATOR_BOTTOMENCODINGSTART, ID_INDICATOR_BOTTOMENCODINGSTART+19, &CMainFrame::OnEncodingBottom)
@@ -174,6 +182,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_UPDATE_COMMAND_UI_RANGE(ID_INDICATOR_LEFTTABMODESTART, ID_INDICATOR_LEFTTABMODESTART + 19, &CMainFrame::OnUpdateTabModeLeft)
     ON_UPDATE_COMMAND_UI_RANGE(ID_INDICATOR_RIGHTTABMODESTART, ID_INDICATOR_RIGHTTABMODESTART + 19, &CMainFrame::OnUpdateTabModeRight)
     ON_UPDATE_COMMAND_UI_RANGE(ID_INDICATOR_BOTTOMTABMODESTART, ID_INDICATOR_BOTTOMTABMODESTART + 19, &CMainFrame::OnUpdateTabModeBottom)
+    ON_WM_SETTINGCHANGE()
+    ON_WM_SYSCOLORCHANGE()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -219,6 +229,7 @@ CMainFrame::CMainFrame()
     , m_regUseTaskDialog(L"Software\\TortoiseMerge\\UseTaskDialog", TRUE)
     , m_regIgnoreComments(L"Software\\TortoiseMerge\\IgnoreComments", FALSE)
     , m_regexIndex(-1)
+    , m_themeCallbackId(0)
 {
     m_bOneWay = (0 != ((DWORD)m_regOneWay));
     m_bCollapsed = !!(DWORD)m_regCollapsed;
@@ -270,13 +281,32 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
             TRACE(L"Failed to load ribbon UI (%08x)\n", hr);
             return -1; // fail to create
         }
+
+        m_themeCallbackId = CTheme::Instance().RegisterThemeChangeCallback(
+            [this]()
+            {
+                SetTheme(CTheme::Instance().IsDarkTheme());
+            });
+        SetTheme(CTheme::Instance().IsDarkTheme());
+
         BuildRegexSubitems();
         if (!m_wndRibbonStatusBar.Create(this))
         {
             TRACE0("Failed to create ribbon status bar\n");
             return -1; // fail to create
         }
-        m_wndRibbonStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_SEPARATOR, CString(MAKEINTRESOURCE(AFX_IDS_IDLEMESSAGE)), TRUE), L"");
+
+        // column info
+        CString sColumn;
+        sColumn.Format(IDS_INDICATOR_COLUMN, 0);
+        auto columnPane = new CMFCRibbonStatusBarPane(ID_INDICATOR_COLUMN, sColumn, FALSE);
+        m_wndRibbonStatusBar.AddElement(columnPane, L"");
+        sColumn.Format(IDS_INDICATOR_COLUMN, 999999);
+        columnPane->SetAlmostLargeText(sColumn);
+        // marked word counter
+        auto columnPaneMW = new CMFCRibbonStatusBarPane(ID_INDICATOR_MARKEDWORDS, L"", FALSE);
+        m_wndRibbonStatusBar.AddElement(columnPaneMW, L"");
+        columnPaneMW->SetAlmostLargeText(L"Marked words: l: XXXX | r: XXXX | b: XXXX");
 
         CString sTooltip(MAKEINTRESOURCE(IDS_ENCODING_COMBO_TOOLTIP));
         auto apBtnGroupLeft = std::make_unique<CMFCRibbonButtonsGroup>();
@@ -374,6 +404,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CMainFrame::OnDestroy()
 {
+    CTheme::Instance().RemoveRegisteredCallback(m_themeCallbackId);
     if (m_pRibbonFramework)
     {
         m_pRibbonFramework->Destroy();
@@ -1247,6 +1278,90 @@ void CMainFrame::DiffTwo(const CWorkingFile& file1, const CWorkingFile& file2)
     CAppUtils::LaunchApplication(sCmd, 0, false);
 }
 
+// Implementation helper only,
+// use CTheme::Instance::SetDarkTheme to actually set the theme.
+#ifndef UI_PKEY_DarkModeRibbon
+DEFINE_UIPROPERTYKEY(UI_PKEY_DarkModeRibbon, VT_BOOL, 2004);
+DEFINE_UIPROPERTYKEY(UI_PKEY_ApplicationButtonColor, VT_UI4, 2003);
+#endif
+void CMainFrame::SetTheme(bool bDark)
+{
+    if (!m_bUseRibbons)
+        return;
+
+    SetAccentColor();
+
+    if (bDark)
+    {
+        CComPtr<IPropertyStore> spPropertyStore;
+        HRESULT                 hr = m_pRibbonFramework->QueryInterface(&spPropertyStore);
+        if (SUCCEEDED(hr))
+        {
+            DarkModeHelper::Instance().AllowDarkModeForApp(TRUE);
+            DarkModeHelper::Instance().AllowDarkModeForWindow(GetSafeHwnd(), TRUE);
+            PROPVARIANT propvarDarkMode;
+            InitPropVariantFromBoolean(1, &propvarDarkMode);
+            spPropertyStore->SetValue(UI_PKEY_DarkModeRibbon, propvarDarkMode);
+            spPropertyStore->Commit();
+        }
+        SetClassLongPtr(GetSafeHwnd(), GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(BLACK_BRUSH));
+        BOOL darkFlag = TRUE;
+        DarkModeHelper::WINDOWCOMPOSITIONATTRIBDATA data = { DarkModeHelper::WINDOWCOMPOSITIONATTRIB::WCA_USEDARKMODECOLORS, &darkFlag, sizeof(darkFlag) };
+        DarkModeHelper::Instance().SetWindowCompositionAttribute(*this, &data);
+        DarkModeHelper::Instance().FlushMenuThemes();
+        DarkModeHelper::Instance().RefreshImmersiveColorPolicyState();
+
+        // this is not ideal, but the office2007 black theme is better than
+        // implementing a custom status bar with proper dark theme colors...
+        CMFCVisualManagerOffice2007::SetStyle(CMFCVisualManagerOffice2007::Office2007_ObsidianBlack);
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerOffice2007));
+    }
+    else
+    {
+        DarkModeHelper::Instance().AllowDarkModeForApp(FALSE);
+        DarkModeHelper::Instance().AllowDarkModeForWindow(GetSafeHwnd(), FALSE);
+        CComPtr<IPropertyStore> spPropertyStore;
+        HRESULT                 hr = m_pRibbonFramework->QueryInterface(&spPropertyStore);
+        if (SUCCEEDED(hr))
+        {
+            PROPVARIANT propvarDarkMode;
+            InitPropVariantFromBoolean(false, &propvarDarkMode);
+            spPropertyStore->SetValue(UI_PKEY_DarkModeRibbon, propvarDarkMode);
+            spPropertyStore->Commit();
+        }
+        SetClassLongPtr(GetSafeHwnd(), GCLP_HBRBACKGROUND, (LONG_PTR)GetSysColorBrush(COLOR_3DFACE));
+        BOOL darkFlag = FALSE;
+        DarkModeHelper::WINDOWCOMPOSITIONATTRIBDATA data = { DarkModeHelper::WINDOWCOMPOSITIONATTRIB::WCA_USEDARKMODECOLORS, &darkFlag, sizeof(darkFlag) };
+        DarkModeHelper::Instance().SetWindowCompositionAttribute(*this, &data);
+        DarkModeHelper::Instance().FlushMenuThemes();
+        DarkModeHelper::Instance().RefreshImmersiveColorPolicyState();
+        CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+    }
+    ::RedrawWindow(GetSafeHwnd(), nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_ERASE | RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW);
+}
+
+void CMainFrame::SetAccentColor()
+{
+    // set the accent color for the main button
+    Win10Colors::AccentColor accentColor;
+    if (SUCCEEDED(Win10Colors::GetAccentColor(accentColor)))
+    {
+        BYTE h, s, b;
+        CTheme::RGBToHSB(accentColor.accent, h, s, b);
+        UI_HSBCOLOR aColor = UI_HSB(h, s, b);
+
+        CComPtr<IPropertyStore> spPropertyStore;
+        HRESULT                 hr = m_pRibbonFramework->QueryInterface(&spPropertyStore);
+        if (SUCCEEDED(hr))
+        {
+            PROPVARIANT propvarAccentColor;
+            InitPropVariantFromUInt32(aColor, &propvarAccentColor);
+            spPropertyStore->SetValue(UI_PKEY_ApplicationButtonColor, propvarAccentColor);
+            spPropertyStore->Commit();
+        }
+    }
+}
+
 int CMainFrame::CheckResolved()
 {
     //only in three way diffs can be conflicts!
@@ -1765,6 +1880,7 @@ void CMainFrame::OnViewOptions()
     sTemp.LoadString(IDS_SETTINGSTITLE);
     CSettings dlg(sTemp);
     dlg.DoModal();
+    CTheme::Instance().SetDarkTheme(dlg.IsDarkMode());
     if (dlg.IsReloadNeeded())
     {
         if (CheckForSave(CHFSR_OPTIONS)==IDCANCEL)
@@ -2011,6 +2127,7 @@ void CMainFrame::ActivateFrame(int nCmdShow)
         // and finally, bring to top after showing
         BringToTop(nCmdShow);
     }
+    CTheme::Instance().SetDarkTheme(CTheme::Instance().IsDarkTheme());
 }
 
 BOOL CMainFrame::ReadWindowPlacement(WINDOWPLACEMENT * pwp)
@@ -2763,6 +2880,8 @@ void CMainFrame::OnEditCreateunifieddifffile()
                 }
             }
         }
+        else
+            return; // user cancelled
     }
 
 
@@ -3569,6 +3688,75 @@ void CMainFrame::OnUpdateThreeWayActions(CCmdUI * pCmdUI)
     pCmdUI->Enable();
 }
 
+void CMainFrame::OnUpdateColumnStatusBar(CCmdUI* pCmdUI)
+{
+    int column = 0;
+    auto pWndWithFocus = GetFocus();
+    if (pWndWithFocus)
+    {
+        if (pWndWithFocus == m_pwndBottomView)
+            column = m_pwndBottomView->GetCaretPosition().x;
+        if (pWndWithFocus == m_pwndLeftView)
+            column = m_pwndLeftView->GetCaretPosition().x;
+        if (pWndWithFocus == m_pwndRightView)
+            column = m_pwndRightView->GetCaretPosition().x;
+    }
+    CString sColumn;
+    sColumn.Format(IDS_INDICATOR_COLUMN, column);
+    pCmdUI->SetText(sColumn);
+    pCmdUI->Enable(true);
+}
+
+void CMainFrame::OnUpdateMarkedWords(CCmdUI* pCmdUI)
+{
+    CString sText;
+    CString sTmp;
+    if (IsViewGood(m_pwndLeftView) && m_pwndLeftView->GetMarkedWordCount())
+    {
+        sTmp.Format(L"L: %d", m_pwndLeftView->GetMarkedWordCount());
+        if (!sText.IsEmpty())
+            sText += L" | ";
+        sText += sTmp;
+    }
+    if (IsViewGood(m_pwndRightView) && m_pwndRightView->GetMarkedWordCount())
+    {
+        sTmp.Format(L"R: %d", m_pwndRightView->GetMarkedWordCount());
+        if (!sText.IsEmpty())
+            sText += L" | ";
+        sText += sTmp;
+    }
+    if (IsViewGood(m_pwndBottomView) && m_pwndBottomView->GetMarkedWordCount())
+    {
+        sTmp.Format(L"L: %d", m_pwndBottomView->GetMarkedWordCount());
+        if (!sText.IsEmpty())
+            sText += L" | ";
+        sText += sTmp;
+    }
+    if (!sText.IsEmpty())
+    {
+        CString sStatusBarText;
+        sStatusBarText.Format(IDS_INDICATOR_MARKEDWORDCOUNT, LPCWSTR(sText));
+        pCmdUI->SetText(sStatusBarText);
+        pCmdUI->Enable(true);
+    }
+}
+
+void CMainFrame::OnUpdateEnableIfSelection(CCmdUI* pCmdUI)
+{
+    bool bEnabled = false;
+    auto pWndWithFocus = GetFocus();
+    if (pWndWithFocus)
+    {
+        if (pWndWithFocus == m_pwndBottomView)
+            bEnabled = !m_pwndBottomView->GetSelectedText().IsEmpty();
+        if (pWndWithFocus == m_pwndLeftView)
+            bEnabled = !m_pwndLeftView->GetSelectedText().IsEmpty();
+        if (pWndWithFocus == m_pwndRightView)
+            bEnabled = !m_pwndRightView->GetSelectedText().IsEmpty();
+    }
+    pCmdUI->Enable(bEnabled);
+}
+
 void CMainFrame::OnRegexNoFilter()
 {
     if (CheckForSave(CHFSR_OPTIONS) == IDCANCEL)
@@ -3581,4 +3769,20 @@ void CMainFrame::OnRegexNoFilter()
 void CMainFrame::OnUpdateRegexNoFilter(CCmdUI * pCmdUI)
 {
     pCmdUI->SetCheck(m_regexIndex < 0);
+}
+
+void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
+{
+    __super::OnSettingChange(uFlags, lpszSection);
+
+    SetAccentColor();
+}
+
+void CMainFrame::OnSysColorChange()
+{
+    __super::OnSysColorChange();
+
+    CTheme::Instance().OnSysColorChanged();
+    CTheme::Instance().SetDarkTheme(CTheme::Instance().IsDarkTheme(), true);
+    SetAccentColor();
 }

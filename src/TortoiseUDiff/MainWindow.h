@@ -1,6 +1,7 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009-2013 - TortoiseSVN
+// Copyright (C) 2007, 2009-2013, 2020 - TortoiseSVN
+// Copyright (C) 2020 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,17 +59,19 @@ protected:
     LRESULT             DoCommand(int id);
 
     bool                Initialize();
+    void                SetTheme(bool bDark);
 
 private:
     void                SetAStyle(int style, COLORREF fore, COLORREF back = ::GetSysColor(COLOR_WINDOW), int size = -1, const char* face = nullptr);
     bool                IsUTF8(LPVOID pBuffer, size_t cb);
     void                InitEditor();
     void                SetupWindow(bool bUTF8);
+    void                UpdateLineCount();
 
 private:
     LRESULT             m_directFunction;
     LRESULT             m_directPointer;
-
+    int                 m_themeCallbackId;
     HWND                m_hWndEdit;
 
     CFindBar            m_FindBar;

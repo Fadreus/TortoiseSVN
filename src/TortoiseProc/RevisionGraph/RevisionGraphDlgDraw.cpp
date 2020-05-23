@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2016, 2018-2019 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013-2016, 2018-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,6 +31,7 @@
 #include "UpsideDownLayout.h"
 #include "ShowTreeStripes.h"
 #include "DPIAware.h"
+#include "Theme.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -81,7 +82,7 @@ void CRevisionGraphWnd::OnPaint()
     CRect rect = GetClientRect();
     if (IsUpdateJobRunning())
     {
-        dc.FillSolidRect(rect, ::GetSysColor(COLOR_APPWORKSPACE));
+        dc.FillSolidRect(rect, CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_APPWORKSPACE)));
         CWnd::OnPaint();
         return;
     }
@@ -89,7 +90,7 @@ void CRevisionGraphWnd::OnPaint()
     {
         CString sNoGraphText;
         sNoGraphText.LoadString(IDS_REVGRAPH_ERR_NOGRAPH);
-        dc.FillSolidRect(rect, RGB(255,255,255));
+        dc.FillSolidRect(rect, CTheme::Instance().GetThemeColor(RGB(255,255,255), true));
         dc.ExtTextOut(20,20,ETO_CLIPPED,NULL,sNoGraphText,NULL);
         return;
     }
@@ -309,18 +310,18 @@ void CRevisionGraphWnd::DrawNode(GraphicsDevice& graphics, const RectF& rect,
         && (nodeClassification.Is (CNodeClassification::PATH_ONLY_DELETED))
         && ((m_state.GetNodeStates()->GetFlags (node) & MASK) == 0))
     {
-        contour = m_Colors.GetColor (CColors::gdpDeletedNode);
+        contour = CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::gdpDeletedNode), true);
     }
 
     // calculate the GDI+ color values we need to draw the node
 
     Color background;
-    background.SetFromCOLORREF (GetSysColor(COLOR_WINDOW));
+    background.SetFromCOLORREF (CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOW)));
     Color textColor;
     if (nodeClassification.Is (CNodeClassification::IS_MODIFIED_WC))
-        textColor = m_Colors.GetColor (CColors::gdpWCNodeBorder);
+        textColor = CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::gdpWCNodeBorder), true);
     else
-        textColor.SetFromCOLORREF (GetSysColor(COLOR_WINDOWTEXT));
+        textColor.SetFromCOLORREF (CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOWTEXT)));
 
     Color brightColor = LimitedScaleColor (background, contour, 0.9f);
 
@@ -436,9 +437,9 @@ void CRevisionGraphWnd::DrawShadows (GraphicsDevice& graphics, const CRect& logR
     // shadow color to use
 
     Color background;
-    background.SetFromCOLORREF (GetSysColor(COLOR_WINDOW));
+    background.SetFromCOLORREF (CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOW)));
     Color textColor;
-    textColor.SetFromCOLORREF (GetSysColor(COLOR_WINDOWTEXT));
+    textColor.SetFromCOLORREF (CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOWTEXT)));
 
     Color shadowColor = LimitedScaleColor (background, ARGB (Color::Black), 0.5f);
 
@@ -684,7 +685,7 @@ void CRevisionGraphWnd::IndicateGlyphDirection
     // and the background color
 
     Color color;
-    color.SetFromCOLORREF (GetSysColor(COLOR_WINDOW));
+    color.SetFromCOLORREF (CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOW)));
     color.SetValue ((color.GetValue() & 0x807f7f7f) + 0x800000);
 
     SolidBrush brush (color);
@@ -767,7 +768,7 @@ void CRevisionGraphWnd::DrawMarker
 
     // color
 
-    Color lightColor (m_Colors.GetColor (CColors::ctMarkers, colorIndex));
+    Color lightColor (CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::ctMarkers, colorIndex), true));
     Color darkColor (Darken (lightColor));
     Color borderColor (0x80000000);
 
@@ -812,8 +813,8 @@ void CRevisionGraphWnd::DrawStripes (GraphicsDevice& graphics, const CSize& offs
             // draw the background stripe
 
             Color color (  (i & 1) == 0
-                         ? m_Colors.GetColor (CColors::gdpStripeColor1)
-                         : m_Colors.GetColor (CColors::gdpStripeColor2));
+                         ? CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::gdpStripeColor1), true)
+                         : CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::gdpStripeColor2), true));
             if (graphics.graphics)
             {
                 SolidBrush brush (color);
@@ -855,35 +856,35 @@ void CRevisionGraphWnd::DrawNodes (GraphicsDevice& graphics, Image* glyphs, cons
         switch (node.style)
         {
         case ILayoutNodeList::SNode::STYLE_DELETED:
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpDeletedNode), transparent, node.node, TSVNOctangle);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpDeletedNode), true), transparent, node.node, TSVNOctangle);
             break;
 
         case ILayoutNodeList::SNode::STYLE_ADDED:
             if (m_bTweakTagsColors && node.node->GetClassification().Is (CNodeClassification::IS_TAG))
-                overlayColor = m_Colors.GetColor(CColors::gdpTagOverlay);
+                overlayColor = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpTagOverlay), true);
             else if (m_bTweakTrunkColors && node.node->GetClassification().Is (CNodeClassification::IS_TRUNK))
-                overlayColor = m_Colors.GetColor(CColors::gdpTrunkOverlay);
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpAddedNode), overlayColor, node.node, TSVNRoundRect);
+                overlayColor = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpTrunkOverlay), true);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpAddedNode), true), overlayColor, node.node, TSVNRoundRect);
             break;
 
         case ILayoutNodeList::SNode::STYLE_RENAMED:
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpRenamedNode), overlayColor, node.node, TSVNOctangle);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpRenamedNode), true), overlayColor, node.node, TSVNOctangle);
             break;
 
         case ILayoutNodeList::SNode::STYLE_LAST:
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpLastCommitNode), transparent, node.node, TSVNEllipse);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpLastCommitNode), true), transparent, node.node, TSVNEllipse);
             break;
 
         case ILayoutNodeList::SNode::STYLE_MODIFIED:
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpModifiedNode), transparent, node.node, TSVNRectangle);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpModifiedNode), true), transparent, node.node, TSVNRectangle);
             break;
 
         case ILayoutNodeList::SNode::STYLE_MODIFIED_WC:
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpWCNode), transparent, node.node, TSVNEllipse);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpWCNode), true), transparent, node.node, TSVNEllipse);
             break;
 
         default:
-            DrawNode(graphics, noderect, m_Colors.GetColor(CColors::gdpUnchangedNode), transparent, node.node, TSVNRectangle);
+            DrawNode(graphics, noderect, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::gdpUnchangedNode), true), transparent, node.node, TSVNRectangle);
             break;
         }
 
@@ -906,7 +907,7 @@ void CRevisionGraphWnd::DrawConnections (GraphicsDevice& graphics, const CRect& 
     enum {MAX_POINTS = 100};
     CPoint points[MAX_POINTS];
 
-    CPen newpen(PS_SOLID, 0, GetSysColor(COLOR_WINDOWTEXT));
+    CPen newpen(PS_SOLID, 0, CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOWTEXT)));
     CPen * pOldPen = NULL;
     if (graphics.pDC)
         pOldPen = graphics.pDC->SelectObject(&newpen);
@@ -939,7 +940,7 @@ void CRevisionGraphWnd::DrawConnections (GraphicsDevice& graphics, const CRect& 
         else if (graphics.pSVG)
         {
             Color color;
-            color.SetFromCOLORREF(GetSysColor(COLOR_WINDOWTEXT));
+            color.SetFromCOLORREF(CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOWTEXT)));
             graphics.pSVG->PolyBezier(points, connection.numberOfPoints, color);
         }
     }
@@ -950,7 +951,7 @@ void CRevisionGraphWnd::DrawConnections (GraphicsDevice& graphics, const CRect& 
 
 void CRevisionGraphWnd::DrawTexts (GraphicsDevice& graphics, const CRect& logRect, const CSize& offset)
 {
-    COLORREF standardTextColor = GetSysColor(COLOR_WINDOWTEXT);
+    COLORREF standardTextColor = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOWTEXT));
     if (m_nFontSize <= 0)
         return;
 
@@ -976,7 +977,7 @@ void CRevisionGraphWnd::DrawTexts (GraphicsDevice& graphics, const CRect& logRec
         if (graphics.pDC)
         {
             graphics.pDC->SetTextColor (text.style == ILayoutTextList::SText::STYLE_WARNING
-                ? m_Colors.GetColor (CColors::gdpWCNodeBorder).ToCOLORREF()
+                ? CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::gdpWCNodeBorder), true).ToCOLORREF()
                 : standardTextColor );
             graphics.pDC->SelectObject (GetFont (FALSE, text.style != ILayoutTextList::SText::STYLE_DEFAULT));
             graphics.pDC->ExtTextOut ((textRect.left + textRect.right)/2, textRect.top, 0, &textRect, text.text, NULL);
@@ -986,7 +987,7 @@ void CRevisionGraphWnd::DrawTexts (GraphicsDevice& graphics, const CRect& logRec
             graphics.pSVG->CenteredText((textRect.left + textRect.right)/2, textRect.top+m_nFontSize+3, "Arial", m_nFontSize,
                 false, text.style != ILayoutTextList::SText::STYLE_DEFAULT,
                 text.style == ILayoutTextList::SText::STYLE_WARNING
-                ? m_Colors.GetColor (CColors::gdpWCNodeBorder)
+                ? CTheme::Instance().GetThemeColor(m_Colors.GetColor (CColors::gdpWCNodeBorder), true)
                 : standardTextColor, CUnicodeUtils::GetUTF8(text.text));
         }
     }
@@ -1042,7 +1043,7 @@ void CRevisionGraphWnd::DrawGraph(GraphicsDevice& graphics, const CRect& rect, i
             graphics.pDC = &memDC->GetDC();
         }
 
-        graphics.pDC->FillSolidRect(rect, GetSysColor(COLOR_WINDOW));
+        graphics.pDC->FillSolidRect(rect, CTheme::Instance().GetThemeColor(GetSysColor(COLOR_WINDOW)));
         graphics.pDC->SetBkMode(TRANSPARENT);
     }
 

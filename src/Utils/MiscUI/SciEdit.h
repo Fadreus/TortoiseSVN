@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013, 2015-2018 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013, 2015-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "scintilla.h"
 #include "SciLexer.h"
 #include "../../../ext/hunspell/hunspell.hxx"
-#include "../../../ext/hunspell/mythes.hxx"
 #include "ProjectProperties.h"
 #include "PersonalDictionary.h"
 #include <regex>
@@ -137,7 +136,6 @@ private:
     LRESULT     m_DirectFunction;
     LRESULT     m_DirectPointer;
     std::unique_ptr<Hunspell> pChecker;
-    std::unique_ptr<MyThes>   pThesaur;
     UINT        m_spellcodepage;
     std::map<CString, int> m_autolist;
     TCHAR       m_separator;
@@ -155,6 +153,7 @@ private:
     LruCache<std::wstring, BOOL> m_SpellingCache;
     bool        m_blockModifiedHandler;
     bool        m_bReadOnly;
+    int         m_themeCallbackId;
 
     static bool IsValidURLChar(unsigned char ch);
 protected:
@@ -175,10 +174,11 @@ protected:
     BOOL        IsMisspelled(const CString& sWord);
     DWORD       GetStyleAt(Sci_Position pos) { return (DWORD)Call(SCI_GETSTYLEAT, pos) & 0x1f; }
     bool        IsUrlOrEmail(const CStringA& sText);
-    CStringA    GetWordForSpellChecker(const CString& sWord);
-    CString     GetWordFromSpellChecker(const CStringA& sWordA);
+    std::string GetWordForSpellChecker(const CString& sWord);
+    CString     GetWordFromSpellChecker(const std::string& sWordA);
 
     afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
     afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
+    afx_msg void OnSysColorChange();
     DECLARE_MESSAGE_MAP()
 };

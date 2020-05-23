@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2019 - TortoiseSVN
+// Copyright (C) 2003-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -182,6 +182,7 @@ void CRepositoryBrowser::ConstructorInit(const SVNRev& rev)
     SecureZeroMemory(&m_arColumnWidths, sizeof(m_arColumnWidths));
     SecureZeroMemory(&m_arColumnAutoWidths, sizeof(m_arColumnAutoWidths));
     m_repository.revision = rev;
+    m_repository.isSVNParentPath = false;
     s_bSortLogical   = !CRegDWORD(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoStrCmpLogical", 0, false, HKEY_CURRENT_USER);
     if (s_bSortLogical)
         s_bSortLogical = !CRegDWORD(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoStrCmpLogical", 0, false, HKEY_LOCAL_MACHINE);
@@ -307,6 +308,7 @@ BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
     ON_NOTIFY(NM_CUSTOMDRAW, IDC_REPOTREE, &CRepositoryBrowser::OnNMCustomdrawRepotree)
     ON_NOTIFY(TVN_ITEMCHANGING, IDC_REPOTREE, &CRepositoryBrowser::OnTvnItemChangingRepotree)
     ON_NOTIFY(NM_SETCURSOR, IDC_REPOTREE, &CRepositoryBrowser::OnNMSetCursorRepotree)
+    ON_WM_SYSCOLORCHANGE()
 END_MESSAGE_MAP()
 
 SVNRev CRepositoryBrowser::GetRevision() const
@@ -419,7 +421,6 @@ BOOL CRepositoryBrowser::OnInitDialog()
     if (m_bSparseCheckoutMode)
         exStyle |= TVS_EX_MULTISELECT;
     m_RepoTree.SetExtendedStyle(exStyle, exStyle);
-
     SetWindowTheme(m_RepoList.GetSafeHwnd(), L"Explorer", NULL);
     SetWindowTheme(m_RepoTree.GetSafeHwnd(), L"Explorer", NULL);
 
@@ -522,6 +523,7 @@ void CRepositoryBrowser::InitRepo()
         if (!revString.IsEmpty())
             m_repository.revision = SVNRev(revString);
 
+        m_repository.isSVNParentPath = false;
         m_InitialUrl = m_InitialUrl.Left(questionMarkIndex);
     }
 
@@ -716,7 +718,9 @@ void CRepositoryBrowser::InitRepo()
             nID = IDI_REPO_FILE;
 
         if (IsAppThemed())
+        {
             CAppUtils::SetListCtrlBackgroundImage(m_RepoList.GetSafeHwnd(), nID);
+        }
     }
 }
 
@@ -911,6 +915,12 @@ LPARAM CRepositoryBrowser::OnAuthCancelled(WPARAM /*wParam*/, LPARAM /*lParam*/)
     m_cancelled = TRUE;
     m_lister.Cancel();
     return 0;
+}
+
+void CRepositoryBrowser::OnSysColorChange()
+{
+    __super::OnSysColorChange();
+    CTheme::Instance().OnSysColorChanged();
 }
 
 void CRepositoryBrowser::OnBnClickedHelp()
@@ -1163,7 +1173,7 @@ bool CRepositoryBrowser::ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChe
           || root.Compare (url.Left (root.GetLength()))
           || ((url.GetAt(root.GetLength()) != '/') && ((url.GetLength() > root.GetLength()) && (url.GetAt(root.GetLength()) != '/')));
 
-    if ((LONG(rev) != LONG(m_repository.revision)) || urlHasDifferentRoot)
+    if ((LONG(rev) != LONG(m_repository.revision)) || urlHasDifferentRoot || m_repository.isSVNParentPath)
     {
         ShowText(CString(MAKEINTRESOURCE(IDS_REPOBROWSE_WAIT)), true);
 
@@ -1173,6 +1183,8 @@ bool CRepositoryBrowser::ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChe
             m_ProjectProperties = ProjectProperties();
         m_InitialUrl = url;
         m_repository.revision = rev;
+        m_repository.isSVNParentPath = false;
+
         // if the revision changed, then invalidate everything
         m_bFetchChildren = false;
         ClearUI();
@@ -5017,12 +5029,12 @@ void CRepositoryBrowser::OnNMCustomdrawRepolist(NMHDR *pNMHDR, LRESULT *pResult)
 
         if (m_RepoList.GetItemCount() > (int)pLVCD->nmcd.dwItemSpec)
         {
-            COLORREF crText = GetSysColor(COLOR_WINDOWTEXT);
+            COLORREF crText = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
             CAutoReadLock locker(m_guard);
             CItem * pItem = (CItem*)m_RepoList.GetItemData((int)pLVCD->nmcd.dwItemSpec);
             if (pItem && pItem->unversioned)
             {
-                crText = GetSysColor(COLOR_GRAYTEXT);
+                crText = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
             }
             // Store the color back in the NMLVCUSTOMDRAW struct.
             pLVCD->clrText = crText;
@@ -5049,7 +5061,7 @@ void CRepositoryBrowser::OnNMCustomdrawRepotree(NMHDR *pNMHDR, LRESULT *pResult)
         if (pItem && pItem->unversioned)
         {
             // Store the color back in the NMLVCUSTOMDRAW struct.
-            pTVCD->clrText = GetSysColor(COLOR_GRAYTEXT);
+            pTVCD->clrText = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
         }
         if (pItem && pItem->dummy)
         {
@@ -5117,6 +5129,7 @@ bool CRepositoryBrowser::TrySVNParentPath()
         m_repository.root = m_InitialUrl;
         m_repository.revision = SVNRev::REV_HEAD;
         m_repository.peg_revision = SVNRev::REV_HEAD;
+        m_repository.isSVNParentPath = true;
 
         // insert our pseudo repo root into the tree view.
         CTreeItem * pTreeItem = new CTreeItem();

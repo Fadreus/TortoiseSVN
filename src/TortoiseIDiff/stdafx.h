@@ -1,4 +1,4 @@
-// stdafx.h : include file for standard system include files,
+﻿// stdafx.h : include file for standard system include files,
 // or project specific include files that are used frequently, but
 // are changed infrequently
 //
@@ -24,8 +24,12 @@
 
 #include "MyMemDC.h"
 
+#include <atlbase.h>
+
 #ifdef _WIN64
 #   define APP_X64_STRING   "x64"
 #else
 #   define APP_X64_STRING ""
 #endif
+
+#define REGSTRING_DARKTHEME L"Software\\TortoiseSVN\\IDiffDarkTheme"

@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2016, 2018-2019 - TortoiseSVN
+// Copyright (C) 2007-2016, 2018-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -357,6 +357,10 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 
         if (rev == SVN_INVALID_REVNUM)
         {
+            // sometimes we get more 'decrease depth' revisions than
+            // we get 'increase depth' revisions. So we ignore those.
+            if (depth <= 0)
+                return;
             --depth;
             if (options.GetReceiver() != NULL)
             {
@@ -530,7 +534,10 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
     if (startPath.IsRoot())
         path.SetFromSVN (URL);
     else
-        path.SetFromSVN (URL + startPath.GetPath().c_str());
+    {
+        auto unescapedURL = CPathUtils::PathUnescape(URL);
+        path.SetFromSVN (unescapedURL + startPath.GetPath().c_str());
+    }
 
     CString rooturl = CUnicodeUtils::GetUnicode (URL);
 

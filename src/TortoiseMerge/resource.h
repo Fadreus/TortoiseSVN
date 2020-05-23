@@ -48,6 +48,8 @@
 #define IDB_REGEX_FILTER                171
 #define IDS_SELECTFILE                  200
 #define IDS_SELECTDIFFFILE              201
+#define IDS_INDICATOR_COLUMN            202
+#define IDS_INDICATOR_MARKEDWORDCOUNT   203
 #define IDD_ENCODING                    300
 #define IDC_STATIC_ENCODING             301
 #define IDC_COMBO_ENCODING              302
@@ -208,6 +210,7 @@
 #define IDC_NAME3                       1511
 #define IDC_REPLACE                     1511
 #define IDC_REPLACEALL                  1512
+#define IDC_DARKMODE                    1513
 #define IDS_TEXTIDENTICAL_MAIN          1600
 #define IDS_TEXTIDENTICAL_WHITESPACE    1601
 #define IDS_TEXTIDENTICAL_ENCODING      1602
@@ -236,6 +239,8 @@
 #define ID_INDICATOR_LEFTTABMODESTART   2300
 #define ID_INDICATOR_RIGHTTABMODESTART  2320
 #define ID_INDICATOR_BOTTOMTABMODESTART 2340
+#define ID_INDICATOR_COLUMN             2350
+#define ID_INDICATOR_MARKEDWORDS        2351
 #define IDS_COMMONFILEFILTER            2500
 #define IDS_PATCHFILEFILTER             2501
 #define IDS_PATCH_SEARCHPATHTITLE       2700
@@ -413,9 +418,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        173
+#define _APS_NEXT_RESOURCE_VALUE        174
 #define _APS_NEXT_COMMAND_VALUE         33003
-#define _APS_NEXT_CONTROL_VALUE         1513
+#define _APS_NEXT_CONTROL_VALUE         1514
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

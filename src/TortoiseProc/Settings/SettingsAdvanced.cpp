@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015, 2018-2019 - TortoiseSVN
+// Copyright (C) 2009-2015, 2018-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -177,6 +177,10 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
 
+    settings[i].sName   = L"ShowNotifications";
+    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
+    settings[i++].def.b = true;
+
     settings[i].sName   = L"StyleCommitMessages";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
@@ -197,7 +201,7 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNone;
     settings[i++].def.b = false;
 
-    // 43 so far...
+    // 44 so far...
     ASSERT(i < _countof(settings));
 }
 

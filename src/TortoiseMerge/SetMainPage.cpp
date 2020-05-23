@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010, 2012-2014, 2016, 2018 - TortoiseSVN
+// Copyright (C) 2006-2010, 2012-2014, 2016, 2018, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #include "PathUtils.h"
 #include "SetMainPage.h"
 #include "MainFrm.h"
+#include "Theme.h"
 
 
 // CSetMainPage dialog
@@ -48,6 +49,7 @@ CSetMainPage::CSetMainPage()
     , m_bAutoAdd(TRUE)
     , m_nMaxInline(3000)
     , m_dwFontSize(0)
+    , m_themeCallbackId(0)
 {
     m_regBackup = CRegDWORD(L"Software\\TortoiseMerge\\Backup");
     m_regFirstDiffOnLoad = CRegDWORD(L"Software\\TortoiseMerge\\FirstDiffOnLoad", TRUE);
@@ -87,6 +89,7 @@ CSetMainPage::CSetMainPage()
 
 CSetMainPage::~CSetMainPage()
 {
+    CTheme::Instance().RemoveRegisteredCallback(m_themeCallbackId);
 }
 
 void CSetMainPage::DoDataExchange(CDataExchange* pDX)
@@ -207,6 +210,13 @@ BOOL CSetMainPage::OnInitDialog()
     m_cFontNames.SelectFont(m_sFontName);
 
     m_cFontNames.SendMessage(CB_SETITEMHEIGHT, (WPARAM)-1, m_cFontSizes.GetItemHeight(-1));
+
+    m_themeCallbackId = CTheme::Instance().RegisterThemeChangeCallback(
+        [this]()
+        {
+            CTheme::Instance().SetThemeForDialog(GetSafeHwnd(), CTheme::Instance().IsDarkTheme());
+        });
+    CTheme::Instance().SetThemeForDialog(GetSafeHwnd(), CTheme::Instance().IsDarkTheme());
 
     UpdateData(FALSE);
     return TRUE;  // return TRUE unless you set the focus to a control

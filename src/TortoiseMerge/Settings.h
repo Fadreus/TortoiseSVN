@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009, 2015, 2018 - TortoiseSVN
+// Copyright (C) 2006, 2009, 2015, 2018, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -81,6 +81,8 @@ private:
     CSetColorPage *     m_pColorPage;
     AeroControlBase     m_aeroControls;
 
+    int                 m_themeCallbackId;
+
 public:
     CSettings(UINT nIDCaption, CWnd* pParentWnd = nullptr, UINT iSelectPage = 0);
     CSettings(LPCTSTR pszCaption, CWnd* pParentWnd = nullptr, UINT iSelectPage = 0);
@@ -92,6 +94,7 @@ public:
     void SaveData();
 
     BOOL IsReloadNeeded() const;
+    bool IsDarkMode() const;
 protected:
     DECLARE_MESSAGE_MAP()
     virtual BOOL OnInitDialog();

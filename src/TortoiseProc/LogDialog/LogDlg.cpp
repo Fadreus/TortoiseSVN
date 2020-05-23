@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2019 - TortoiseSVN
+// Copyright (C) 2003-2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -65,6 +65,7 @@
 #include "..\..\ext\snarl\SnarlInterface.h"
 #include "ToastNotifications.h"
 #include "DPIAware.h"
+#include "Theme.h"
 #include <tlhelp32.h>
 #include <shlwapi.h>
 #include <fstream>
@@ -253,6 +254,7 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
     , m_bSystemShutDown(false)
     , m_pTreeDropTarget(NULL)
     , m_lastTooltipRect({0})
+    , m_themeCallbackId(0)
 {
     SecureZeroMemory(&m_SystemTray, sizeof(m_SystemTray));
     m_bFilterWithRegex =
@@ -390,6 +392,7 @@ BEGIN_MESSAGE_MAP(CLogDlg, CResizableStandAloneDialog)
     ON_WM_QUERYENDSESSION()
     ON_REGISTERED_MESSAGE(WM_TaskBarButtonCreated, OnTaskbarButtonCreated)
     ON_NOTIFY(LVN_BEGINDRAG, IDC_LOGMSG, &CLogDlg::OnLvnBegindragLogmsg)
+    ON_WM_SYSCOLORCHANGE()
 END_MESSAGE_MAP()
 
 void CLogDlg::SetParams(const CTSVNPath& path, const SVNRev& pegrev, const SVNRev& startrev, const SVNRev& endrev,
@@ -514,10 +517,27 @@ void CLogDlg::RestoreSavedDialogSettings()
 
 void CLogDlg::SetupLogMessageViewControl()
 {
+    auto pWnd = GetDlgItem(IDC_MSGVIEW);
     // set the font to use in the log message view, configured in the settings dialog
-    GetDlgItem(IDC_MSGVIEW)->SetFont(&m_logFont);
+    pWnd->SetFont(&m_logFont);
     // make the log message rich edit control send a message when the mouse pointer is over a link
-    GetDlgItem(IDC_MSGVIEW)->SendMessage(EM_SETEVENTMASK, NULL, ENM_LINK | ENM_SCROLL);
+    pWnd->SendMessage(EM_SETEVENTMASK, NULL, ENM_LINK | ENM_SCROLL);
+
+    CHARFORMAT2 format = { 0 };
+    format.cbSize = sizeof(CHARFORMAT2);
+    format.dwMask = CFM_COLOR | CFM_BACKCOLOR;
+    if (CTheme::Instance().IsDarkTheme())
+    {
+        format.crTextColor = CTheme::darkTextColor;
+        format.crBackColor = CTheme::darkBkColor;
+    }
+    else
+    {
+        format.crTextColor = GetSysColor(COLOR_WINDOWTEXT);
+        format.crBackColor = GetSysColor(COLOR_WINDOW);
+    }
+    pWnd->SendMessage(EM_SETCHARFORMAT, SCF_ALL, (LPARAM)&format);
+    pWnd->SendMessage(EM_SETBKGNDCOLOR, 0, (LPARAM)format.crBackColor);
 }
 
 void CLogDlg::SetupLogListControl()
@@ -592,7 +612,8 @@ void CLogDlg::ConfigureColumnsForLogListControl()
     ResizeAllListCtrlCols(true);
     m_LogList.SetRedraw(true);
 
-    SetWindowTheme(m_LogList.GetSafeHwnd(), L"Explorer", NULL);
+    if (!CTheme::Instance().IsDarkTheme())
+        SetWindowTheme(m_LogList.GetSafeHwnd(), L"Explorer", NULL);
     GetDlgItem(IDC_LOGLIST)->UpdateData(FALSE);
 }
 
@@ -616,7 +637,8 @@ void CLogDlg::ConfigureColumnsForChangedFileListControl()
     CAppUtils::ResizeAllListCtrlCols(&m_ChangedFileListCtrl);
     m_ChangedFileListCtrl.SetRedraw(true);
 
-    SetWindowTheme(m_ChangedFileListCtrl.GetSafeHwnd(), L"Explorer", NULL);
+    if (!CTheme::Instance().IsDarkTheme())
+        SetWindowTheme(m_ChangedFileListCtrl.GetSafeHwnd(), L"Explorer", NULL);
 }
 
 void CLogDlg::SetupFilterControlBitmaps()
@@ -803,6 +825,14 @@ BOOL CLogDlg::OnInitDialog()
 {
     CResizableStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
+
+    m_themeCallbackId = CTheme::Instance().RegisterThemeChangeCallback(
+        [this]()
+        {
+            SetTheme(CTheme::Instance().IsDarkTheme());
+        });
+
+
     ExtraInitialization();
     InitializeTaskBarListPtr();
     if (!m_bMonitoringMode)
@@ -840,6 +870,8 @@ BOOL CLogDlg::OnInitDialog()
     SetupButtonMenu();
     SetupAccessibility();
     SetupToolTips();
+
+    SetTheme(CTheme::Instance().IsDarkTheme());
 
     if (!m_bMonitoringMode)
     {
@@ -1058,7 +1090,7 @@ void CLogDlg::FillLogMessageCtrl(bool bShow /* = true*/)
             // combine ranges only separated by whitespace
             ReduceRanges(info.ranges, info.text);
 
-            CAppUtils::SetCharFormat(pMsgView, CFM_COLOR, m_Colors.GetColor(CColors::FilterMatch), info.ranges);
+            CAppUtils::SetCharFormat(pMsgView, CFM_COLOR, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::FilterMatch), true), info.ranges);
         }
 
         if (((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\StyleCommitMessages", TRUE)) == TRUE)
@@ -1265,6 +1297,21 @@ void CLogDlg::Refresh(bool autoGoOnline)
     GetDlgItem(IDC_LOGLIST)->UpdateData(FALSE);
 }
 
+void CLogDlg::SetTheme(bool bDark)
+{
+    if (m_hwndToolbar)
+    {
+        DarkModeHelper::Instance().AllowDarkModeForWindow(m_hwndToolbar, bDark);
+        SetWindowTheme(m_hwndToolbar, L"Explorer", nullptr);
+        auto hTT = (HWND)::SendMessage(m_hwndToolbar, TB_GETTOOLTIPS, 0, 0);
+        if (hTT)
+        {
+            DarkModeHelper::Instance().AllowDarkModeForWindow(hTT, bDark);
+            SetWindowTheme(hTT, L"Explorer", nullptr);
+        }
+    }
+}
+
 void CLogDlg::OnBnClickedNexthundred()
 {
     UpdateData();
@@ -1456,6 +1503,7 @@ void CLogDlg::OnClose()
 
 void CLogDlg::OnDestroy()
 {
+    CTheme::Instance().RemoveRegisteredCallback(m_themeCallbackId);
     if (m_pLogListAccServer)
     {
         ListViewAccServer::ClearProvider(m_LogList.GetSafeHwnd());
@@ -2495,6 +2543,7 @@ void CLogDlg::CreateFindDialog()
     {
         m_pFindDialog = new CFindReplaceDialog();
         m_pFindDialog->Create(TRUE, NULL, NULL, FR_HIDEUPDOWN | FR_HIDEWHOLEWORD, this);
+        CTheme::Instance().SetThemeForDialog(m_pFindDialog->GetSafeHwnd(), CTheme::Instance().IsDarkTheme());
     }
 }
 
@@ -3451,7 +3500,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR* pNMHDR, LRESULT* pResult)
     if (m_bLogThreadRunning)
         return;
 
-    static COLORREF crText = GetSysColor(COLOR_WINDOWTEXT);
+    static COLORREF crText = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
 
     switch (pLVCD->nmcd.dwDrawStage)
     {
@@ -3468,7 +3517,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR* pNMHDR, LRESULT* pResult)
 
             // Tell Windows to send draw notifications for each subitem.
             *pResult = CDRF_NOTIFYSUBITEMDRAW;
-            crText   = GetSysColor(COLOR_WINDOWTEXT);
+            crText   = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
             if (m_logEntries.GetVisibleCount() > pLVCD->nmcd.dwItemSpec)
             {
                 PLOGENTRYDATA data = m_logEntries.GetVisible(pLVCD->nmcd.dwItemSpec);
@@ -3480,14 +3529,14 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR* pNMHDR, LRESULT* pResult)
                         // with themes enabled)
                         if (!IsAppThemed() ||
                             ((pLVCD->nmcd.uItemState & CDIS_HOT) == 0))
-                            pLVCD->clrTextBk = GetSysColor(COLOR_MENU);
+                            pLVCD->clrTextBk = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_MENU));
                     }
                     if (data->GetChangedPaths().ContainsCopies())
-                        crText = m_Colors.GetColor(CColors::Modified);
+                        crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Modified), true);
                     if ((data->GetDepth()) || (m_mergedRevs.find(data->GetRevision()) != m_mergedRevs.end()))
-                        crText = GetSysColor(COLOR_GRAYTEXT);
+                        crText = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
                     if ((m_copyfromrev > data->GetRevision()) && !m_mergePath.IsEmpty())
-                        crText = GetSysColor(COLOR_GRAYTEXT);
+                        crText = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
                     if ((data->GetRevision() == m_wcRev) || data->GetUnread())
                     {
                         SelectObject(pLVCD->nmcd.hdc, data->GetUnread() ? m_unreadFont : m_wcRevFont);
@@ -3500,7 +3549,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR* pNMHDR, LRESULT* pResult)
             if (m_logEntries.GetVisibleCount() == pLVCD->nmcd.dwItemSpec)
             {
                 if (m_bStrictStopped)
-                    crText = GetSysColor(COLOR_GRAYTEXT);
+                    crText = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
             }
             // Store the color back in the NMLVCUSTOMDRAW struct.
             pLVCD->clrText = crText;
@@ -3659,7 +3708,7 @@ void CLogDlg::OnNMCustomdrawChangedFileList(NMHDR* pNMHDR, LRESULT* pResult)
         // Tell Windows to send draw notifications for each subitem.
         *pResult = CDRF_NOTIFYSUBITEMDRAW;
 
-        COLORREF crText  = GetSysColor(COLOR_WINDOWTEXT);
+        COLORREF crText  = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
         bool     bGrayed = false;
         if ((m_cShowPaths.GetState() & 0x0003) == BST_UNCHECKED)
         {
@@ -3667,7 +3716,7 @@ void CLogDlg::OnNMCustomdrawChangedFileList(NMHDR* pNMHDR, LRESULT* pResult)
             {
                 if (!m_currentChangedArray[pLVCD->nmcd.dwItemSpec].IsRelevantForStartPath())
                 {
-                    crText  = GetSysColor(COLOR_GRAYTEXT);
+                    crText  = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
                     bGrayed = true;
                 }
             }
@@ -3675,7 +3724,7 @@ void CLogDlg::OnNMCustomdrawChangedFileList(NMHDR* pNMHDR, LRESULT* pResult)
             {
                 if (m_currentChangedPathList[pLVCD->nmcd.dwItemSpec].GetSVNPathString().Left(m_sRelativeRoot.GetLength()).Compare(m_sRelativeRoot) != 0)
                 {
-                    crText  = GetSysColor(COLOR_GRAYTEXT);
+                    crText  = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
                     bGrayed = true;
                 }
             }
@@ -3685,17 +3734,17 @@ void CLogDlg::OnNMCustomdrawChangedFileList(NMHDR* pNMHDR, LRESULT* pResult)
         {
             DWORD action = m_currentChangedArray[pLVCD->nmcd.dwItemSpec].GetAction();
             if (action == LOGACTIONS_MODIFIED)
-                crText = m_Colors.GetColor(CColors::Modified);
+                crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Modified), true);
             if (action == LOGACTIONS_REPLACED)
-                crText = m_Colors.GetColor(CColors::Deleted);
+                crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Deleted), true);
             if (action == LOGACTIONS_ADDED)
-                crText = m_Colors.GetColor(CColors::Added);
+                crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Added), true);
             if (action == LOGACTIONS_DELETED)
-                crText = m_Colors.GetColor(CColors::Deleted);
+                crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Deleted), true);
             if (action == LOGACTIONS_MOVED)
-                crText = m_Colors.GetColor(CColors::Added);
+                crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Added), true);
             if (action == LOGACTIONS_MOVEREPLACED)
-                crText = m_Colors.GetColor(CColors::Deleted);
+                crText = CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::Deleted), true);
         }
         if (m_currentChangedArray.GetCount() > pLVCD->nmcd.dwItemSpec)
         {
@@ -3704,7 +3753,7 @@ void CLogDlg::OnNMCustomdrawChangedFileList(NMHDR* pNMHDR, LRESULT* pResult)
             if ((propsModifies == svn_tristate_true) && (textModifies != svn_tristate_true))
             {
                 // property only modification, content of entry hasn't changed: show in gray
-                crText = GetSysColor(COLOR_GRAYTEXT);
+                crText = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
             }
         }
 
@@ -3726,8 +3775,7 @@ CRect CLogDlg::DrawListColumnBackground(CListCtrl& listCtrl, NMLVCUSTOMDRAW* pLV
 {
     // Get the selected state of the
     // item being drawn.
-    LVITEM rItem;
-    SecureZeroMemory(&rItem, sizeof(LVITEM));
+    LVITEM rItem = {0};
     rItem.mask      = LVIF_STATE;
     rItem.iItem     = (int)pLVCD->nmcd.dwItemSpec;
     rItem.stateMask = LVIS_SELECTED | LVIS_FOCUSED;
@@ -3764,10 +3812,10 @@ CRect CLogDlg::DrawListColumnBackground(CListCtrl& listCtrl, NMLVCUSTOMDRAW* pLV
                 // unfortunately, the pLVCD->nmcd.uItemState does not contain valid
                 // information at this drawing stage. But we can check the whether the
                 // previous stage changed the background color of the item
-                if (pLVCD->clrTextBk == GetSysColor(COLOR_MENU))
+                if (pLVCD->clrTextBk == CTheme::Instance().GetThemeColor(GetSysColor(COLOR_MENU)))
                 {
                     HBRUSH brush;
-                    brush = ::CreateSolidBrush(::GetSysColor(COLOR_MENU));
+                    brush = ::CreateSolidBrush(CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_MENU)));
                     if (brush)
                     {
                         ::FillRect(pLVCD->nmcd.hdc, &rect, brush);
@@ -3792,16 +3840,16 @@ CRect CLogDlg::DrawListColumnBackground(CListCtrl& listCtrl, NMLVCUSTOMDRAW* pLV
         if (rItem.state & LVIS_SELECTED)
         {
             if (::GetFocus() == listCtrl.m_hWnd)
-                brush = ::CreateSolidBrush(::GetSysColor(COLOR_HIGHLIGHT));
+                brush = ::CreateSolidBrush(CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_HIGHLIGHT)));
             else
-                brush = ::CreateSolidBrush(::GetSysColor(COLOR_BTNFACE));
+                brush = ::CreateSolidBrush(CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE)));
         }
         else
         {
             if (pLogEntry && pLogEntry->GetChangedPaths().ContainsSelfCopy())
-                brush = ::CreateSolidBrush(::GetSysColor(COLOR_MENU));
+                brush = ::CreateSolidBrush(CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_MENU)));
             else
-                brush = ::CreateSolidBrush(::GetSysColor(COLOR_WINDOW));
+                brush = ::CreateSolidBrush(CTheme::Instance().IsDarkTheme() ? CTheme::darkBkColor : GetSysColor(COLOR_WINDOW));
         }
         if (brush == NULL)
             return rect;
@@ -3945,9 +3993,9 @@ LRESULT CLogDlg::DrawListItemWithMatches(CListCtrl& listCtrl, NMLVCUSTOMDRAW* pL
         if ((item.state & LVIS_SELECTED) && !IsAppThemed())
         {
             if (::GetFocus() == listCtrl.GetSafeHwnd())
-                textColor = ::GetSysColor(COLOR_HIGHLIGHTTEXT);
+                textColor = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_HIGHLIGHTTEXT));
             else
-                textColor = ::GetSysColor(COLOR_WINDOWTEXT);
+                textColor = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
         }
         SetTextColor(pLVCD->nmcd.hdc, textColor);
         SetBkMode(pLVCD->nmcd.hdc, TRANSPARENT);
@@ -3966,7 +4014,7 @@ LRESULT CLogDlg::DrawListItemWithMatches(CListCtrl& listCtrl, NMLVCUSTOMDRAW* pL
             drawPos = it->cpMin;
             if (it->cpMax - drawPos)
             {
-                SetTextColor(pLVCD->nmcd.hdc, m_Colors.GetColor(CColors::FilterMatch));
+                SetTextColor(pLVCD->nmcd.hdc, CTheme::Instance().GetThemeColor(m_Colors.GetColor(CColors::FilterMatch), true));
                 DrawText(pLVCD->nmcd.hdc, text.substr(drawPos).c_str(), it->cpMax - drawPos, &rc,
                          DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX | DT_END_ELLIPSIS);
                 DrawText(pLVCD->nmcd.hdc, text.substr(drawPos).c_str(), it->cpMax - drawPos, &rc,
@@ -4090,6 +4138,27 @@ LRESULT CLogDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
             {
                 SPC_NMHDR* pHdr = (SPC_NMHDR*)lParam;
                 DoSizeV3(pHdr->delta);
+            }
+            else
+            {
+                auto pNMHDR = reinterpret_cast<LPNMHDR>(lParam);
+                if ((pNMHDR->code == NM_CUSTOMDRAW) && (pNMHDR->hwndFrom == m_hwndToolbar))
+                {
+                    if (CTheme::Instance().IsDarkTheme())
+                    {
+                        auto pNMTB = reinterpret_cast<LPNMTBCUSTOMDRAW>(lParam);
+                        switch (pNMTB->nmcd.dwDrawStage)
+                        {
+                            case CDDS_PREPAINT:
+                                return CDRF_NOTIFYITEMDRAW;
+                            case CDDS_ITEMPREPAINT:
+                            {
+                                pNMTB->clrText = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
+                                return CDRF_DODEFAULT | TBCDRF_USECDCOLORS;
+                            }
+                        }
+                    }
+                }
             }
             break;
     }
@@ -7109,11 +7178,12 @@ bool CLogDlg::GetContextMenuInfoForChangedPaths(ContextMenuInfoForChangedPathsPt
 
     // find the working copy path of the selected item from the URL
     CString sUrlRoot = GetRepositoryRoot(m_path);
+    CString sUrlRootUnescaped = CPathUtils::PathUnescape(sUrlRoot);
     if (!sUrlRoot.IsEmpty())
     {
         const CLogChangedPath& changedlogpath = m_currentChangedArray[selIndex];
         pCmi->fileUrl                         = changedlogpath.GetPath();
-        pCmi->fileUrl                         = sUrlRoot + pCmi->fileUrl.Trim();
+        pCmi->fileUrl                         = sUrlRootUnescaped + pCmi->fileUrl.Trim();
         if (m_hasWC)
         {
             // firstfile = (e.g.) http://mydomain.com/repos/trunk/folder/file1
@@ -7584,6 +7654,11 @@ void CLogDlg::ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pC
             progDlg.SetTime(true);
             for (size_t i = 0; i < pCmi->ChangedLogPathIndices.size(); ++i)
             {
+                if (m_currentChangedArray[pCmi->ChangedLogPathIndices[i]].GetAction() == LOGACTIONS_DELETED)
+                    continue;
+                if (m_currentChangedArray[pCmi->ChangedLogPathIndices[i]].GetNodeKind() == svn_node_dir)
+                    continue;
+
                 const CString& schangedlogpath = m_currentChangedArray[pCmi->ChangedLogPathIndices[i]].GetPath();
 
                 SVNRev getrev = pCmi->Rev1;
@@ -7598,6 +7673,8 @@ void CLogDlg::ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pC
                 progDlg.SetLine(2, tempfile.GetWinPath(), true);
                 progDlg.SetProgress64(i, pCmi->ChangedLogPathIndices.size());
                 progDlg.ShowModeless(m_hWnd);
+                if (progDlg.HasUserCancelled())
+                    break;
 
                 SHCreateDirectoryEx(m_hWnd, tempfile.GetContainingDirectory().GetWinPath(),
                                     NULL);
@@ -8005,7 +8082,8 @@ void CLogDlg::InitMonitoringMode()
 
     DWORD exStyle = TVS_EX_AUTOHSCROLL | TVS_EX_DOUBLEBUFFER;
     m_projTree.SetExtendedStyle(exStyle, exStyle);
-    SetWindowTheme(m_projTree.GetSafeHwnd(), L"Explorer", NULL);
+    if (!CTheme::Instance().IsDarkTheme())
+        SetWindowTheme(m_projTree.GetSafeHwnd(), L"Explorer", NULL);
     m_nMonitorUrlIcon = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MONITORURL, 0, 0));
     m_nMonitorWCIcon  = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MONITORWC, 0, 0));
     m_nErrorOvl       = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MODIFIEDOVL, 0, 0));
@@ -8163,8 +8241,9 @@ void CLogDlg::RefreshMonitorProjTree()
             pMonitorItem->root               = m_monitoringFile.GetValue(mitem, L"root", L"");
             pMonitorItem->sMsgRegex          = m_monitoringFile.GetValue(mitem, L"MsgRegex", L"");
             pMonitorItem->projectproperties.LoadFromIni(m_monitoringFile, mitem);
-            pMonitorItem->lastErrorMsg = m_monitoringFile.GetValue(mitem, L"lastErrorMsg", L"");
-            pMonitorItem->authfailed   = _wtol(m_monitoringFile.GetValue(mitem, L"authfailed", L"0")) != 0;
+            pMonitorItem->lastErrorMsg    = m_monitoringFile.GetValue(mitem, L"lastErrorMsg", L"");
+            pMonitorItem->parentPath      = _wtoi(m_monitoringFile.GetValue(mitem, L"parentPath", L"0"));
+            pMonitorItem->authfailed      = _wtol(m_monitoringFile.GetValue(mitem, L"authfailed", L"0")) != 0;
             try
             {
                 pMonitorItem->msgregex = std::wregex(pMonitorItem->sMsgRegex, std::regex_constants::ECMAScript | std::regex_constants::icase);
@@ -8252,13 +8331,13 @@ HTREEITEM CLogDlg::InsertMonitorItem(MonitorItem* pMonitorItem, const CString& s
     tvinsert.hInsertAfter          = TVI_SORT;
     tvinsert.itemex.mask           = TVIF_CHILDREN | TVIF_DI_SETITEM | TVIF_PARAM | TVIF_TEXT | TVIF_IMAGE | TVIF_EXPANDEDIMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE;
     tvinsert.itemex.pszText        = LPSTR_TEXTCALLBACK;
-    tvinsert.itemex.cChildren      = pMonitorItem->WCPathOrUrl.IsEmpty() ? 1 : 0;
+    tvinsert.itemex.cChildren      = (pMonitorItem->WCPathOrUrl.IsEmpty() || pMonitorItem->parentPath) ? 1 : 0;
     tvinsert.itemex.state          = TVIS_EXPANDED | (pMonitorItem->UnreadItems ? TVIS_BOLD : 0) | ((pMonitorItem->authfailed || !pMonitorItem->lastErrorMsg.IsEmpty()) ? INDEXTOOVERLAYMASK(OVERLAY_MODIFIED) : 0);
     tvinsert.itemex.stateMask      = TVIS_EXPANDED | TVIS_OVERLAYMASK | TVIS_BOLD;
     tvinsert.itemex.lParam         = (LPARAM)pMonitorItem;
-    tvinsert.itemex.iImage         = pMonitorItem->WCPathOrUrl.IsEmpty() ? m_nIconFolder : bUrl ? m_nMonitorUrlIcon : m_nMonitorWCIcon;
-    tvinsert.itemex.iExpandedImage = pMonitorItem->WCPathOrUrl.IsEmpty() ? m_nOpenIconFolder : bUrl ? m_nMonitorUrlIcon : m_nMonitorWCIcon;
-    tvinsert.itemex.iSelectedImage = pMonitorItem->WCPathOrUrl.IsEmpty() ? m_nIconFolder : bUrl ? m_nMonitorUrlIcon : m_nMonitorWCIcon;
+    tvinsert.itemex.iImage         = (pMonitorItem->WCPathOrUrl.IsEmpty()|| pMonitorItem->parentPath) ? m_nIconFolder : bUrl ? m_nMonitorUrlIcon : m_nMonitorWCIcon;
+    tvinsert.itemex.iExpandedImage = (pMonitorItem->WCPathOrUrl.IsEmpty()|| pMonitorItem->parentPath) ? m_nOpenIconFolder : bUrl ? m_nMonitorUrlIcon : m_nMonitorWCIcon;
+    tvinsert.itemex.iSelectedImage = (pMonitorItem->WCPathOrUrl.IsEmpty()|| pMonitorItem->parentPath) ? m_nIconFolder : bUrl ? m_nMonitorUrlIcon : m_nMonitorWCIcon;
 
     // mark the parent as having children
     if (tvinsert.hParent && (tvinsert.hParent != TVI_ROOT))
@@ -8485,6 +8564,7 @@ void CLogDlg::MonitorEditProject(MonitorItem* pProject, const CString& sParentPa
         dlg.m_sPassword       = CStringUtils::Decrypt(pProject->password).get();
         dlg.m_monitorInterval = pProject->interval;
         dlg.m_sIgnoreRegex    = pProject->sMsgRegex;
+        dlg.m_isParentPath    = pProject->parentPath;
         dlg.m_sIgnoreUsers.Empty();
         for (const auto& s : pProject->authorstoignore)
         {
@@ -8509,9 +8589,10 @@ void CLogDlg::MonitorEditProject(MonitorItem* pProject, const CString& sParentPa
             // remove quotes in case the user put the url/path in quotes
             pEditProject->WCPathOrUrl.Trim(L"\" \t");
         }
-        pEditProject->interval = dlg.m_monitorInterval;
-        pEditProject->username = CStringUtils::Encrypt(dlg.m_sUsername);
-        pEditProject->password = CStringUtils::Encrypt(dlg.m_sPassword);
+        pEditProject->interval   = dlg.m_monitorInterval;
+        pEditProject->username   = CStringUtils::Encrypt(dlg.m_sUsername);
+        pEditProject->password   = CStringUtils::Encrypt(dlg.m_sPassword);
+        pEditProject->parentPath = dlg.m_isParentPath;
         pEditProject->username.Remove('\r');
         pEditProject->password.Remove('\r');
         pEditProject->username.Replace('\n', ' ');
@@ -8583,6 +8664,7 @@ void CLogDlg::SaveMonitorProjects(bool todisk)
         m_monitoringFile.SetValue(sSection, L"root", pItem->root);
         m_monitoringFile.SetValue(sSection, L"lastErrorMsg", pItem->lastErrorMsg);
         m_monitoringFile.SetValue(sSection, L"authfailed", pItem->authfailed ? L"1" : L"0");
+        m_monitoringFile.SetValue(sSection, L"parentPath", pItem->parentPath ? L"1" : L"0");
         pItem->projectproperties.SaveToIni(m_monitoringFile, sSection);
         sTmp.Empty();
         for (const auto& s : pItem->authorstoignore)
@@ -8744,6 +8826,7 @@ void CLogDlg::MonitorThread()
     _time64(&currenttime);
 
     CAutoReadLock locker(m_monitorguard);
+    m_monitorItemParentPathList.clear();
     for (auto& item : m_monitorItemListForThread)
     {
         if (m_bCancelled)
@@ -8753,90 +8836,234 @@ void CLogDlg::MonitorThread()
             continue;
         if (item.authfailed)
             continue; // if authentication failed before, don't try again
-        CTSVNPath WCPathOrUrl(item.WCPathOrUrl);
-        if ((item.lastchecked + (max(item.minminutesinterval, item.interval) * 60)) < currenttime)
+        if (item.parentPath)
         {
-            CString sCheckInfo;
-            sCheckInfo.Format(IDS_MONITOR_CHECKPROJECT, (LPCWSTR)item.Name);
-            if (!m_bCancelled)
-                SetDlgItemText(IDC_LOGINFO, sCheckInfo);
-            svn.SetAuthInfo(CStringUtils::Decrypt(item.username).get(), CStringUtils::Decrypt(item.password).get());
-            svn_revnum_t head = svn.GetHEADRevision(WCPathOrUrl, false);
-            if (m_bCancelled)
-                continue;
-            if (item.lastHEAD < 0)
-                item.lastHEAD = 0;
-            if ((head > 0) && (head != item.lastHEAD))
+            if ((item.lastchecked + (max(item.minminutesinterval, item.interval) * 60)) < currenttime)
             {
-                // new head revision: fetch the log
-                std::unique_ptr<const CCacheLogQuery> cachedData;
-                {
-                    CAutoWriteLock pathlock(m_monitorpathguard);
-                    m_pathCurrentlyChecked = item.WCPathOrUrl;
-                }
-                cachedData = svn.ReceiveLog(CTSVNPathList(WCPathOrUrl), SVNRev::REV_HEAD, head, item.lastHEAD, m_limit, false, false, true);
-                // Err will also be set if the user cancelled.
+                // we have to include the authentication in the URL itself
+                auto                       tempfile = CTempFiles::Instance().GetTempFilePath(true);
+                std::unique_ptr<CCallback> callback(new CCallback);
+                callback->SetAuthData(CStringUtils::Decrypt(item.username).get(), CStringUtils::Decrypt(item.password).get());
+                DeleteFile(tempfile.GetWinPath());
+                HRESULT hResUDL = URLDownloadToFile(NULL, item.WCPathOrUrl, tempfile.GetWinPath(), 0, callback.get());
                 if (m_bCancelled)
                     continue;
-                if ((svn.GetSVNError() == nullptr) && (item.lastHEAD >= 0))
+                if (hResUDL == S_OK)
                 {
-                    CString                  sUUID;
-                    CString                  sRoot  = svn.GetRepositoryRootAndUUID(WCPathOrUrl, true, sUUID);
-                    CString                  sUrl   = svn.GetURLFromPath(WCPathOrUrl);
-                    CString                  relUrl = sUrl.Mid(sRoot.GetLength());
-                    CCachedLogInfo*          cache  = cachedData->GetCache();
-                    const CPathDictionary*   paths  = &cache->GetLogInfo().GetPaths();
-                    CDictionaryBasedTempPath logPath(paths, (const char*)CUnicodeUtils::GetUTF8(relUrl));
-                    CLogCacheUtility         logUtil(cache, &m_ProjectProperties);
-
-                    for (svn_revnum_t rev = item.lastHEAD + 1; rev <= head; ++rev)
+                    // we got a web page! But we can't be sure that it's the page from SVNParentPath.
+                    // Use a regex to parse the website and find out...
+                    std::ifstream fs(tempfile.GetWinPath());
+                    std::string   in;
+                    if (!fs.bad())
                     {
-                        if (logUtil.IsCached(rev))
+                        in.reserve((unsigned int)fs.rdbuf()->in_avail());
+                        char c;
+                        while (fs.get(c))
                         {
-                            auto pLogItem = logUtil.GetRevisionData(rev);
-                            if (pLogItem)
+                            if (in.capacity() == in.size())
+                                in.reserve(in.capacity() * 3);
+                            in.append(1, c);
+                        }
+                        fs.close();
+                        DeleteFile(tempfile.GetWinPath());
+
+                        // make sure this is a html page from an SVNParentPathList
+                        // we do this by checking for header titles looking like
+                        // "<h2>Revision XX: /</h2> - if we find that, it's a html
+                        // page from inside a repository
+                        // some repositories show
+                        // "<h2>projectname - Revision XX: /trunk</h2>
+                        const char* reTitle = "<\\s*h2\\s*>[^/]+Revision\\s*\\d+:[^<]+<\\s*/\\s*h2\\s*>";
+                        // xsl transformed pages don't have an easy way to determine
+                        // the inside from outside of a repository.
+                        // We therefore check for <index rev="0" to make sure it's either
+                        // an empty repository or really an SVNParentPathList
+                        const char*      reTitle2 = "<\\s*index\\s*rev\\s*=\\s*\"0\"";
+                        const std::regex titex(reTitle, std::regex_constants::icase | std::regex_constants::ECMAScript);
+                        const std::regex titex2(reTitle2, std::regex_constants::icase | std::regex_constants::ECMAScript);
+                        if (std::regex_search(in.begin(), in.end(), titex, std::regex_constants::match_default))
+                        {
+                            CTraceToOutputDebugString::Instance()(_T("found repository url instead of SVNParentPathList\n"));
+                            continue;
+                        }
+
+                        const char* re  = "<\\s*LI\\s*>\\s*<\\s*A\\s+[^>]*HREF\\s*=\\s*\"([^\"]*)\"\\s*>([^<]+)<\\s*/\\s*A\\s*>\\s*<\\s*/\\s*LI\\s*>";
+                        const char* re2 = "<\\s*DIR\\s*name\\s*=\\s*\"([^\"]*)\"\\s*HREF\\s*=\\s*\"([^\"]*)\"\\s*/\\s*>";
+
+                        const std::regex           expression(re, std::regex_constants::icase | std::regex_constants::ECMAScript);
+                        const std::regex           expression2(re2, std::regex_constants::icase | std::regex_constants::ECMAScript);
+                        std::wstring               popupText;
+                        const std::sregex_iterator end;
+                        for (std::sregex_iterator i(in.begin(), in.end(), expression); i != end; ++i)
+                        {
+                            if (m_bCancelled)
+                                break;
+                            const std::smatch match = *i;
+                            // what[0] contains the whole string
+                            // what[1] contains the url part.
+                            // what[2] contains the name
+                            auto url = CUnicodeUtils::GetUnicode(std::string(match[1]).c_str());
+                            url      = item.WCPathOrUrl + _T("/") + url;
+
+                            // we found a new URL, add it to our list
+                            MonitorItem mi       = item;
+                            mi.Name              = CPathUtils::PathUnescape(std::string(match[2]).c_str()).TrimRight('/');
+                            mi.WCPathOrUrl       = url;
+                            mi.authfailed        = false;
+                            mi.parentPath        = false;
+                            mi.lastchecked       = 0;
+                            mi.lastcheckedrobots = 0;
+                            mi.lastErrorMsg.Empty();
+                            mi.lastHEAD    = 0;
+                            mi.unreadFirst = 0;
+                            mi.UnreadItems = 0;
+                            mi.uuid.Empty();
+                            m_monitorItemParentPathList.insert(std::pair<CString, MonitorItem>(item.WCPathOrUrl, mi));
+                        }
+                        if (m_bCancelled)
+                            continue;
+                        if (!regex_search(in.begin(), in.end(), titex2))
+                        {
+                            CTraceToOutputDebugString::Instance()(_T("found repository url instead of SVNParentPathList\n"));
+                            continue;
+                        }
+                        for (std::sregex_iterator i(in.begin(), in.end(), expression2); i != end; ++i)
+                        {
+                            if (m_bCancelled)
+                                break;
+                            const std::smatch match = *i;
+                            // what[0] contains the whole string
+                            // what[1] contains the url part.
+                            // what[2] contains the name
+                            auto url = CUnicodeUtils::GetUnicode(std::string(match[1]).c_str());
+                            url      = item.WCPathOrUrl + _T("/") + url;
+
+                            MonitorItem mi       = item;
+                            mi.Name              = CPathUtils::PathUnescape(std::string(match[2]).c_str()).TrimRight('/');
+                            mi.WCPathOrUrl       = url;
+                            mi.authfailed        = false;
+                            mi.parentPath        = false;
+                            mi.lastchecked       = 0;
+                            mi.lastcheckedrobots = 0;
+                            mi.lastErrorMsg.Empty();
+                            mi.lastHEAD    = 0;
+                            mi.unreadFirst = 0;
+                            mi.UnreadItems = 0;
+                            mi.uuid.Empty();
+                            m_monitorItemParentPathList.insert(std::pair<CString, MonitorItem>(item.WCPathOrUrl, mi));
+                        }
+                        if (m_bCancelled)
+                            continue;
+                    }
+                }
+                DeleteFile(tempfile.GetWinPath());
+            }
+        }
+        else
+        {
+            CTSVNPath WCPathOrUrl(item.WCPathOrUrl);
+            if ((item.lastchecked + (max(item.minminutesinterval, item.interval) * 60)) < currenttime)
+            {
+                CString sCheckInfo;
+                sCheckInfo.Format(IDS_MONITOR_CHECKPROJECT, (LPCWSTR)item.Name);
+                if (!m_bCancelled)
+                    SetDlgItemText(IDC_LOGINFO, sCheckInfo);
+                svn.SetAuthInfo(CStringUtils::Decrypt(item.username).get(), CStringUtils::Decrypt(item.password).get());
+                svn_revnum_t head = svn.GetHEADRevision(WCPathOrUrl, false);
+                if (m_bCancelled)
+                    continue;
+                if (item.lastHEAD < 0)
+                    item.lastHEAD = 0;
+                if ((head > 0) && (head != item.lastHEAD))
+                {
+                    // new head revision: fetch the log
+                    std::unique_ptr<const CCacheLogQuery> cachedData;
+                    {
+                        CAutoWriteLock pathlock(m_monitorpathguard);
+                        m_pathCurrentlyChecked = item.WCPathOrUrl;
+                    }
+                    cachedData = svn.ReceiveLog(CTSVNPathList(WCPathOrUrl), SVNRev::REV_HEAD, head, item.lastHEAD, m_limit, false, false, true);
+                    // Err will also be set if the user cancelled.
+                    if (m_bCancelled)
+                        continue;
+                    if ((svn.GetSVNError() == nullptr) && (item.lastHEAD >= 0))
+                    {
+                        CString                  sUUID;
+                        CString                  sRoot  = svn.GetRepositoryRootAndUUID(WCPathOrUrl, true, sUUID);
+                        CString                  sUrl   = svn.GetURLFromPath(WCPathOrUrl);
+                        CString                  relUrl = sUrl.Mid(sRoot.GetLength());
+                        CCachedLogInfo*          cache  = cachedData->GetCache();
+                        const CPathDictionary*   paths  = &cache->GetLogInfo().GetPaths();
+                        CDictionaryBasedTempPath logPath(paths, (const char*)CUnicodeUtils::GetUTF8(relUrl));
+                        CLogCacheUtility         logUtil(cache, &m_ProjectProperties);
+
+                        for (svn_revnum_t rev = item.lastHEAD + 1; rev <= head; ++rev)
+                        {
+                            if (logUtil.IsCached(rev))
                             {
-                                bool bIgnore = false;
-                                for (const auto& authortoignore : item.authorstoignore)
+                                auto pLogItem = logUtil.GetRevisionData(rev);
+                                if (pLogItem)
                                 {
-                                    if (_stricmp(pLogItem->GetAuthor().c_str(), authortoignore.c_str()) == 0)
+                                    bool bIgnore = false;
+                                    for (const auto& authortoignore : item.authorstoignore)
                                     {
-                                        bIgnore = true;
-                                        break;
-                                    }
-                                }
-                                if (!bIgnore && !item.sMsgRegex.IsEmpty())
-                                {
-                                    try
-                                    {
-                                        if (std::regex_match(pLogItem->GetMessageW().cbegin(),
-                                                             pLogItem->GetMessageW().cend(),
-                                                             item.msgregex))
+                                        if (_stricmp(pLogItem->GetAuthor().c_str(), authortoignore.c_str()) == 0)
                                         {
                                             bIgnore = true;
+                                            break;
                                         }
                                     }
-                                    catch (std::exception&)
+                                    if (!bIgnore && !item.sMsgRegex.IsEmpty())
                                     {
+                                        try
+                                        {
+                                            if (std::regex_match(pLogItem->GetMessageW().cbegin(),
+                                                                 pLogItem->GetMessageW().cend(),
+                                                                 item.msgregex))
+                                            {
+                                                bIgnore = true;
+                                            }
+                                        }
+                                        catch (std::exception&)
+                                        {
+                                        }
                                     }
-                                }
-                                if (bIgnore)
-                                    continue;
+                                    if (bIgnore)
+                                        continue;
 
-                                pLogItem->Finalize(cache, logPath);
-                                if (IsRevisionRelatedToUrl(logPath, pLogItem.get()))
-                                {
-                                    ++item.UnreadItems;
+                                    pLogItem->Finalize(cache, logPath);
+                                    if (IsRevisionRelatedToUrl(logPath, pLogItem.get()))
+                                    {
+                                        ++item.UnreadItems;
+                                    }
                                 }
                             }
                         }
+                        if (item.unreadFirst == 0)
+                            item.unreadFirst = item.lastHEAD;
+                        item.lastHEAD = head;
+                        item.root     = sRoot;
+                        item.uuid     = sUUID;
+                        item.lastErrorMsg.Empty();
                     }
-                    if (item.unreadFirst == 0)
-                        item.unreadFirst = item.lastHEAD;
-                    item.lastHEAD = head;
-                    item.root     = sRoot;
-                    item.uuid     = sUUID;
-                    item.lastErrorMsg.Empty();
+                    else
+                    {
+                        auto SVNError = svn.GetSVNError();
+                        if (SVNError)
+                        {
+                            if ((SVN_ERROR_IN_CATEGORY(SVNError->apr_err, SVN_ERR_AUTHN_CATEGORY_START)) ||
+                                (SVN_ERROR_IN_CATEGORY(SVNError->apr_err, SVN_ERR_AUTHZ_CATEGORY_START)) ||
+                                (SVNError->apr_err == SVN_ERR_RA_DAV_FORBIDDEN))
+                            {
+                                item.authfailed = true;
+                            }
+                            item.lastErrorMsg = svn.GetLastErrorMessage();
+                        }
+                        else
+                            item.lastErrorMsg.Empty();
+                    }
+                    // we should never get asked for authentication here!
+                    item.authfailed = item.authfailed || PromptShown();
                 }
                 else
                 {
@@ -8845,7 +9072,8 @@ void CLogDlg::MonitorThread()
                     {
                         if ((SVN_ERROR_IN_CATEGORY(SVNError->apr_err, SVN_ERR_AUTHN_CATEGORY_START)) ||
                             (SVN_ERROR_IN_CATEGORY(SVNError->apr_err, SVN_ERR_AUTHZ_CATEGORY_START)) ||
-                            (SVNError->apr_err == SVN_ERR_RA_DAV_FORBIDDEN))
+                            (SVNError->apr_err == SVN_ERR_RA_DAV_FORBIDDEN) ||
+                            (SVNError->apr_err == SVN_ERR_WC_NOT_WORKING_COPY))
                         {
                             item.authfailed = true;
                         }
@@ -8854,167 +9082,148 @@ void CLogDlg::MonitorThread()
                     else
                         item.lastErrorMsg.Empty();
                 }
-                // we should never get asked for authentication here!
-                item.authfailed = item.authfailed || PromptShown();
-            }
-            else
-            {
-                auto SVNError = svn.GetSVNError();
-                if (SVNError)
+                item.lastchecked = currenttime;
                 {
-                    if ((SVN_ERROR_IN_CATEGORY(SVNError->apr_err, SVN_ERR_AUTHN_CATEGORY_START)) ||
-                        (SVN_ERROR_IN_CATEGORY(SVNError->apr_err, SVN_ERR_AUTHZ_CATEGORY_START)) ||
-                        (SVNError->apr_err == SVN_ERR_RA_DAV_FORBIDDEN) ||
-                        (SVNError->apr_err == SVN_ERR_WC_NOT_WORKING_COPY))
+                    CAutoWriteLock pathlock(m_monitorpathguard);
+                    m_pathCurrentlyChecked.Empty();
+                }
+                if (!m_bCancelled)
+                    SetDlgItemText(IDC_LOGINFO, L"");
+            }
+            if (!item.authfailed && ((item.lastcheckedrobots + (60 * 60 * 24)) < currenttime))
+            {
+                if (m_bCancelled)
+                    continue;
+                // try to read the project properties
+                ProjectProperties props;
+                if (!props.ReadProps(WCPathOrUrl))
+                {
+                    if (WCPathOrUrl.IsUrl() && (WCPathOrUrl.GetSVNPathString().Find(L"trunk") < 0))
                     {
-                        item.authfailed = true;
+                        CTSVNPath trunkpath = WCPathOrUrl;
+                        trunkpath.AppendPathString(L"trunk");
+                        if (props.ReadProps(trunkpath))
+                            item.projectproperties = props;
                     }
-                    item.lastErrorMsg = svn.GetLastErrorMessage();
                 }
                 else
-                    item.lastErrorMsg.Empty();
-            }
-            item.lastchecked = currenttime;
-            {
-                CAutoWriteLock pathlock(m_monitorpathguard);
-                m_pathCurrentlyChecked.Empty();
-            }
-            if (!m_bCancelled)
-                SetDlgItemText(IDC_LOGINFO, L"");
-        }
-        if (!item.authfailed && ((item.lastcheckedrobots + (60 * 60 * 24)) < currenttime))
-        {
-            if (m_bCancelled)
-                continue;
-            // try to read the project properties
-            ProjectProperties props;
-            if (!props.ReadProps(WCPathOrUrl))
-            {
-                if (WCPathOrUrl.IsUrl() && (WCPathOrUrl.GetSVNPathString().Find(L"trunk") < 0))
-                {
-                    CTSVNPath trunkpath = WCPathOrUrl;
-                    trunkpath.AppendPathString(L"trunk");
-                    if (props.ReadProps(trunkpath))
-                        item.projectproperties = props;
-                }
-            }
-            else
-                item.projectproperties = props;
+                    item.projectproperties = props;
 
-            if (m_bCancelled)
-                continue;
-            std::wstring sRobotsURL = svn.GetURLFromPath(WCPathOrUrl);
-            sRobotsURL += _T("/svnrobots.txt");
-            std::wstring sRootRobotsURL;
-            std::wstring sDomainRobotsURL = sRobotsURL.substr(0, sRobotsURL.find('/', sRobotsURL.find(':') + 3)) + _T("/svnrobots.txt");
-            sRootRobotsURL                = svn.GetRepositoryRoot(WCPathOrUrl);
-            if (!sRootRobotsURL.empty())
-                sRootRobotsURL += _T("/svnrobots.txt");
-            CTSVNPath sFile = CTempFiles::Instance().GetTempFilePath(true);
-            OnOutOfScope(DeleteFile(sFile.GetWinPath()));
-            std::string                in;
-            std::unique_ptr<CCallback> callback(new CCallback);
-            if (callback == nullptr)
-                continue;
-            {
-                std::wstring sU;
-                std::wstring sP;
-                auto         pU = CStringUtils::Decrypt(item.username).get();
-                if (pU)
-                    sU = pU;
-                auto pP = CStringUtils::Decrypt(item.password).get();
-                if (pP)
-                    sP = pP;
-                callback->SetAuthData(sU, sP);
-            }
-            if (m_bCancelled)
-                continue;
-            if ((!sDomainRobotsURL.empty()) && (URLDownloadToFile(NULL, sDomainRobotsURL.c_str(), sFile.GetWinPath(), 0, callback.get()) == S_OK))
-            {
-                std::ifstream fs(sFile.GetWinPath());
-                if (!fs.bad())
+                if (m_bCancelled)
+                    continue;
+                std::wstring sRobotsURL = svn.GetURLFromPath(WCPathOrUrl);
+                sRobotsURL += _T("/svnrobots.txt");
+                std::wstring sRootRobotsURL;
+                std::wstring sDomainRobotsURL = sRobotsURL.substr(0, sRobotsURL.find('/', sRobotsURL.find(':') + 3)) + _T("/svnrobots.txt");
+                sRootRobotsURL                = svn.GetRepositoryRoot(WCPathOrUrl);
+                if (!sRootRobotsURL.empty())
+                    sRootRobotsURL += _T("/svnrobots.txt");
+                CTSVNPath sFile = CTempFiles::Instance().GetTempFilePath(true);
+                OnOutOfScope(DeleteFile(sFile.GetWinPath()));
+                std::string                in;
+                std::unique_ptr<CCallback> callback(new CCallback);
+                if (callback == nullptr)
+                    continue;
                 {
-                    OnOutOfScope(fs.close());
-                    in.reserve((unsigned int)fs.rdbuf()->in_avail());
-                    char c;
-                    while (fs.get(c))
-                    {
-                        if (in.capacity() == in.size())
-                            in.reserve(in.capacity() * 3);
-                        in.append(1, c);
-                    }
-                    if ((in.find("<html>") != std::string::npos) ||
-                        (in.find("<HTML>") != std::string::npos) ||
-                        (in.find("<head>") != std::string::npos) ||
-                        (in.find("<HEAD>") != std::string::npos))
-                        in.clear();
+                    std::wstring sU;
+                    std::wstring sP;
+                    auto         pU = CStringUtils::Decrypt(item.username).get();
+                    if (pU)
+                        sU = pU;
+                    auto pP = CStringUtils::Decrypt(item.password).get();
+                    if (pP)
+                        sP = pP;
+                    callback->SetAuthData(sU, sP);
                 }
-            }
-            if (m_bCancelled)
-                continue;
-            if (in.empty() && (!sRootRobotsURL.empty()) && (svn.Export(CTSVNPath(sRootRobotsURL.c_str()), sFile, SVNRev::REV_HEAD, SVNRev::REV_HEAD)))
-            {
-                std::ifstream fs(sFile.GetWinPath());
-                if (!fs.bad())
+                if (m_bCancelled)
+                    continue;
+                if ((!sDomainRobotsURL.empty()) && (URLDownloadToFile(NULL, sDomainRobotsURL.c_str(), sFile.GetWinPath(), 0, callback.get()) == S_OK))
                 {
-                    OnOutOfScope(fs.close());
-                    in.reserve((unsigned int)fs.rdbuf()->in_avail());
-                    char c;
-                    while (fs.get(c))
+                    std::ifstream fs(sFile.GetWinPath());
+                    if (!fs.bad())
                     {
-                        if (in.capacity() == in.size())
-                            in.reserve(in.capacity() * 3);
-                        in.append(1, c);
-                    }
-                }
-            }
-            if (m_bCancelled)
-                continue;
-            if (in.empty() && svn.Export(CTSVNPath(sRobotsURL.c_str()), sFile, SVNRev::REV_HEAD, SVNRev::REV_HEAD))
-            {
-                std::ifstream fs(sFile.GetWinPath());
-                if (!fs.bad())
-                {
-                    OnOutOfScope(fs.close());
-                    in.reserve((unsigned int)fs.rdbuf()->in_avail());
-                    char c;
-                    while (fs.get(c))
-                    {
-                        if (in.capacity() == in.size())
-                            in.reserve(in.capacity() * 3);
-                        in.append(1, c);
-                    }
-                }
-            }
-            // the format of the svnrobots.txt file is as follows:
-            // # comment
-            // checkinterval = XXX
-            //
-            // with 'checkinterval' being the minimum amount of time to wait
-            // between checks in minutes.
-
-            std::istringstream iss(in);
-            std::string        line;
-            int                minutes = 0;
-            while (getline(iss, line))
-            {
-                if (line.length())
-                {
-                    if (line.at(0) != '#')
-                    {
-                        if ((line.length() > 13) && (line.substr(0, 13).compare("checkinterval") == 0))
+                        OnOutOfScope(fs.close());
+                        in.reserve((unsigned int)fs.rdbuf()->in_avail());
+                        char c;
+                        while (fs.get(c))
                         {
-                            std::string num = line.substr(line.find('=') + 1);
-                            minutes         = atoi(num.c_str());
+                            if (in.capacity() == in.size())
+                                in.reserve(in.capacity() * 3);
+                            in.append(1, c);
+                        }
+                        if ((in.find("<html>") != std::string::npos) ||
+                            (in.find("<HTML>") != std::string::npos) ||
+                            (in.find("<head>") != std::string::npos) ||
+                            (in.find("<HEAD>") != std::string::npos))
+                            in.clear();
+                    }
+                }
+                if (m_bCancelled)
+                    continue;
+                if (in.empty() && (!sRootRobotsURL.empty()) && (svn.Export(CTSVNPath(sRootRobotsURL.c_str()), sFile, SVNRev::REV_HEAD, SVNRev::REV_HEAD)))
+                {
+                    std::ifstream fs(sFile.GetWinPath());
+                    if (!fs.bad())
+                    {
+                        OnOutOfScope(fs.close());
+                        in.reserve((unsigned int)fs.rdbuf()->in_avail());
+                        char c;
+                        while (fs.get(c))
+                        {
+                            if (in.capacity() == in.size())
+                                in.reserve(in.capacity() * 3);
+                            in.append(1, c);
                         }
                     }
                 }
-            }
-            item.lastcheckedrobots  = currenttime;
-            item.minminutesinterval = minutes;
-        }
+                if (m_bCancelled)
+                    continue;
+                if (in.empty() && svn.Export(CTSVNPath(sRobotsURL.c_str()), sFile, SVNRev::REV_HEAD, SVNRev::REV_HEAD))
+                {
+                    std::ifstream fs(sFile.GetWinPath());
+                    if (!fs.bad())
+                    {
+                        OnOutOfScope(fs.close());
+                        in.reserve((unsigned int)fs.rdbuf()->in_avail());
+                        char c;
+                        while (fs.get(c))
+                        {
+                            if (in.capacity() == in.size())
+                                in.reserve(in.capacity() * 3);
+                            in.append(1, c);
+                        }
+                    }
+                }
+                // the format of the svnrobots.txt file is as follows:
+                // # comment
+                // checkinterval = XXX
+                //
+                // with 'checkinterval' being the minimum amount of time to wait
+                // between checks in minutes.
 
-        svn.SetAuthInfo(L"", L"");
+                std::istringstream iss(in);
+                std::string        line;
+                int                minutes = 0;
+                while (getline(iss, line))
+                {
+                    if (line.length())
+                    {
+                        if (line.at(0) != '#')
+                        {
+                            if ((line.length() > 13) && (line.substr(0, 13).compare("checkinterval") == 0))
+                            {
+                                std::string num = line.substr(line.find('=') + 1);
+                                minutes         = atoi(num.c_str());
+                            }
+                        }
+                    }
+                }
+                item.lastcheckedrobots  = currenttime;
+                item.minminutesinterval = minutes;
+            }
+
+            svn.SetAuthInfo(L"", L"");
+        }
     }
     // if the thread is cancelled, then don't update the log label
     // here to avoid a deadlock situation in MonitorShowProject() when
@@ -9048,6 +9257,7 @@ void CLogDlg::OnMonitorThreadFinished()
     CString sTemp;
     int     changedprojects = 0;
     bool    hasUnreadItems  = false;
+    bool    hasNewChildren  = false;
     {
         CAutoReadLock locker(m_monitorguard);
         for (const auto& item : m_monitorItemListForThread)
@@ -9109,6 +9319,22 @@ void CLogDlg::OnMonitorThreadFinished()
                 m_projTree.SetItemState(hItem, ((pItem->authfailed || !pItem->lastErrorMsg.IsEmpty()) ? INDEXTOOVERLAYMASK(OVERLAY_MODIFIED) : 0), TVIS_OVERLAYMASK);
             }
         }
+        for (const auto& mip : m_monitorItemParentPathList)
+        {
+            auto hItem = FindMonitorItem(mip.second.WCPathOrUrl);
+            if (hItem == nullptr)
+            {
+                auto item = new MonitorItem();
+                *item = mip.second;
+
+                auto hParent = FindMonitorItem(mip.first);
+                if (hParent)
+                {
+                    InsertMonitorItem(item, GetTreePath(hParent));
+                    hasNewChildren = true;
+                }
+            }
+        }
     }
     {
         CAutoWriteLock locker(m_monitorguard);
@@ -9129,7 +9355,7 @@ void CLogDlg::OnMonitorThreadFinished()
             m_pTaskbarList->SetOverlayIcon(GetSafeHwnd(), m_hMonitorIconNewCommits, L"");
         }
     }
-
+    m_monitorItemParentPathList.clear();
     m_projTree.Invalidate();
 
     if (!m_sMonitorNotificationTitle.IsEmpty() && !m_sMonitorNotificationText.IsEmpty())
@@ -9138,7 +9364,9 @@ void CLogDlg::OnMonitorThreadFinished()
         SaveMonitorProjects(true);
     }
     else
-        SaveMonitorProjects(false);
+        SaveMonitorProjects(hasNewChildren);
+    if (hasNewChildren)
+        RefreshMonitorProjTree();
 
     SVNReInit();
 }
@@ -9344,7 +9572,7 @@ void CLogDlg::MonitorShowProject(HTREEITEM hItem, LRESULT* pResult)
         m_sMonitorMsgRegex.Empty();
         OnClickedCancelFilter(0, 0);
         GetDlgItem(IDC_LOGLIST)->UpdateData(FALSE);
-        if (pItem->WCPathOrUrl.IsEmpty())
+        if (pItem->WCPathOrUrl.IsEmpty() || pItem->parentPath)
             return;
         if (pItem->authfailed && !pItem->lastErrorMsg.IsEmpty())
         {
@@ -9559,7 +9787,7 @@ void CLogDlg::ShowContextMenuForMonitorTree(CWnd* /*pWnd*/, CPoint point)
         popup.AppendMenu(MF_SEPARATOR, NULL);
         popup.AppendMenuIcon(ID_LOGDLG_MONITOR_ADDSUBPROJECT, IDS_LOG_POPUP_MONITORADDSUB, IDI_MONITOR_ADD);
 
-        if (!::PathIsURL(pItem->WCPathOrUrl) && PathFileExists(pItem->WCPathOrUrl) && !pItem->WCPathOrUrl.IsEmpty())
+        if (!::PathIsURL(pItem->WCPathOrUrl) && PathFileExists(pItem->WCPathOrUrl) && !pItem->WCPathOrUrl.IsEmpty() && !pItem->parentPath)
         {
             popup.AppendMenu(MF_SEPARATOR, NULL);
             popup.AppendMenuIcon(ID_UPDATE, IDS_MENUUPDATE, IDI_UPDATE);
@@ -9567,7 +9795,7 @@ void CLogDlg::ShowContextMenuForMonitorTree(CWnd* /*pWnd*/, CPoint point)
             popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_OPENURL, IDI_URL);
             popup.AppendMenuIcon(ID_REPOBROWSE, IDS_LOG_BROWSEREPO, IDI_REPOBROWSE);
         }
-        else if (::PathIsURL(pItem->WCPathOrUrl) && !pItem->WCPathOrUrl.IsEmpty())
+        else if (::PathIsURL(pItem->WCPathOrUrl) && !pItem->WCPathOrUrl.IsEmpty() && !pItem->parentPath)
         {
             popup.AppendMenu(MF_SEPARATOR, NULL);
             popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_OPENURL, IDI_URL);
@@ -9880,4 +10108,12 @@ void CLogDlg::OnLvnBegindragLogmsg(NMHDR* pNMHDR, LRESULT* pResult)
     pdsrc->Release();
     pdsrc.release();
     pdobj->Release();
+}
+
+void CLogDlg::OnSysColorChange()
+{
+    __super::OnSysColorChange();
+    CTheme::Instance().OnSysColorChanged();
+    SendDlgItemMessage(IDC_MSGVIEW, WM_SYSCOLORCHANGE, 0, 0);
+    CMFCVisualManager::GetInstance()->RedrawAll();
 }

@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015, 2017 - TortoiseSVN
+// Copyright (C) 2003-2015, 2017, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,6 +28,7 @@
 #include "LinkControl.h"
 #include "Hooks.h"
 #include "LogDialog/LogDlgDataModel.h"
+#include "Theme.h"
 
 class CCmdLineParser;
 
@@ -170,6 +171,7 @@ private:
             , prop_state(svn_wc_notify_state_inapplicable)
             , rev(0)
             , color(::GetSysColor(COLOR_WINDOWTEXT))
+            , colorIsDirect(false)
             , bConflictedActionItem(false)
             , bTreeConflict(false)
             , bAuxItem(false)
@@ -201,6 +203,7 @@ private:
         svn_merge_range_t       merge_range;
         svn_revnum_t            rev;
         COLORREF                color;
+        bool                    colorIsDirect;
         CString                 owner;                      ///< lock owner
         bool                    bConflictedActionItem;      ///< Is this item a conflict?
         bool                    bTreeConflict;              ///< item is tree conflict
@@ -245,9 +248,11 @@ protected:
     afx_msg LRESULT OnTaskbarBtnCreated(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnCloseOnEnd(WPARAM /*wParam*/, LPARAM /*lParam*/);
     afx_msg void    OnBnClickedRetrynohooks();
+    afx_msg void    OnBnClickedRetryMerge();
     afx_msg void    OnBnClickedRetryDifferentUser();
     afx_msg LRESULT OnCheck(WPARAM wnd, LPARAM);
     afx_msg LRESULT OnResolveMsg(WPARAM, LPARAM);
+    afx_msg void    OnSysColorChange();
 
     DECLARE_MESSAGE_MAP()
 
@@ -271,7 +276,7 @@ private:
     void        ReportWarning(const CString& sWarning);
     void        ReportNotification(const CString& sNotification);
     void        ReportCmd(const CString& sCmd);
-    void        ReportString(CString sMessage, const CString& sMsgKind, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
+    void        ReportString(CString sMessage, const CString& sMsgKind, bool colorIsDirect, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
     void        AddItemToList(NotificationData * data);
     void        RemoveItemFromList(size_t index);
     CString     BuildInfoString();

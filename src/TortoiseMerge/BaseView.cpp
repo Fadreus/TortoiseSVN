@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2019 - TortoiseSVN
+// Copyright (C) 2003-2020 - TortoiseSVN
 // Copyright (C) 2019 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
@@ -30,6 +30,8 @@
 #include "EncodingDlg.h"
 #include "EditorConfigWrapper.h"
 #include "DPIAware.h"
+#include "Theme.h"
+#include "DarkModeHelper.h"
 
 // Note about lines:
 // We use three different kind of lines here:
@@ -47,7 +49,7 @@
 #define new DEBUG_NEW
 #endif
 
-#define HEADERHEIGHT 10
+#define HEADERHEIGHT (CDPIAware::Instance().Scale(10))
 
 #define IDT_SCROLLTIMER 101
 
@@ -81,6 +83,7 @@ CBaseView::CBaseView()
     , m_nOffsetChar(0)
     , m_nDigits(0)
     , m_nMouseLine(-1)
+    , m_nLDownLine(-1)
     , m_mouseInMargin(false)
     , m_bIsHidden(FALSE)
     , m_lineendings(EOL_AUTOLINE)
@@ -108,6 +111,8 @@ CBaseView::CBaseView()
     , m_bInsertMode(true)
     , m_bEditorConfigEnabled(false)
     , m_bEditorConfigLoaded(2) // 2 = not evaluated
+    , m_bDark(false)
+    , m_themeCallbackId(0)
 {
     m_ptCaretViewPos.x = 0;
     m_ptCaretViewPos.y = 0;
@@ -118,10 +123,13 @@ CBaseView::CBaseView()
     m_bViewLinenumbers = CRegDWORD(L"Software\\TortoiseMerge\\ViewLinenumbers", 1);
     m_bShowInlineDiff = CRegDWORD(L"Software\\TortoiseMerge\\DisplayBinDiff", TRUE);
     m_nInlineDiffMaxLineLength = CRegDWORD(L"Software\\TortoiseMerge\\InlineDiffMaxLineLength", 3000);
-    m_InlineAddedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineAdded", INLINEADDED_COLOR);
-    m_InlineRemovedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineRemoved", INLINEREMOVED_COLOR);
-    m_ModifiedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\ColorModifiedB", MODIFIED_COLOR);
-    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", GetSysColor(COLOR_3DSHADOW));
+    m_InlineAddedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\InlineAdded", INLINEADDED_COLOR);
+    m_InlineRemovedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\InlineRemoved", INLINEREMOVED_COLOR);
+    m_ModifiedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Colors\\ColorModifiedB", MODIFIED_COLOR);
+    m_InlineAddedDarkBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\DarkInlineAdded", INLINEADDED_DARK_COLOR);
+    m_InlineRemovedDarkBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\DarkInlineRemoved", INLINEREMOVED_DARK_COLOR);
+    m_ModifiedDarkBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Colors\\DarkColorModifiedB", MODIFIED_DARK_COLOR);
+    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", CTheme::Instance().GetThemeColor(GetSysColor(COLOR_3DSHADOW)));
     m_sWordSeparators = CRegString(L"Software\\TortoiseMerge\\WordSeparators", L"[]();:.,{}!@#$%^&*-+=|/\\<>'`~\"?");
     m_bIconLFs = CRegDWORD(L"Software\\TortoiseMerge\\IconLFs", 0);
     m_nTabSize = (int)(DWORD)CRegDWORD(L"Software\\TortoiseMerge\\TabSize", 4);
@@ -168,10 +176,18 @@ CBaseView::CBaseView()
                                  : m_lineendings];
     m_SaveParams.m_LineEndings = EOL::EOL_AUTOLINE;
     m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
+
+    m_themeCallbackId = CTheme::Instance().RegisterThemeChangeCallback(
+        [this]()
+        {
+            SetTheme(CTheme::Instance().IsDarkTheme());
+        });
+    SetTheme(CTheme::Instance().IsDarkTheme());
 }
 
 CBaseView::~CBaseView()
 {
+    CTheme::Instance().RemoveRegisteredCallback(m_themeCallbackId);
     ReleaseBitmap();
     DeleteFonts();
     DestroyIcon(m_hAddedIcon);
@@ -251,13 +267,10 @@ void CBaseView::DocumentUpdated()
     m_bOtherDiffChecked = false;
     m_nDigits = 0;
     m_nMouseLine = -1;
+    m_nLDownLine = -1;
     m_nTabSize = (int)(DWORD)CRegDWORD(L"Software\\TortoiseMerge\\TabSize", 4);
     m_nTabMode = (int)(DWORD)CRegDWORD(L"Software\\TortoiseMerge\\TabMode", TABMODE_NONE);
     m_bViewLinenumbers = CRegDWORD(L"Software\\TortoiseMerge\\ViewLinenumbers", 1);
-    m_InlineAddedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineAdded", INLINEADDED_COLOR);
-    m_InlineRemovedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineRemoved", INLINEREMOVED_COLOR);
-    m_ModifiedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\ColorModifiedB", MODIFIED_COLOR);
-    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", GetSysColor(COLOR_3DSHADOW));
     m_bIconLFs = CRegDWORD(L"Software\\TortoiseMerge\\IconLFs", 0);
     m_nInlineDiffMaxLineLength = CRegDWORD(L"Software\\TortoiseMerge\\InlineDiffMaxLineLength", 3000);
     m_Eols[EOL_AUTOLINE] = m_Eols[m_lineendings==EOL_AUTOLINE
@@ -267,6 +280,7 @@ void CBaseView::DocumentUpdated()
     DeleteFonts();
     ClearCurrentSelection();
     UpdateStatusBar();
+    SetTheme(CTheme::Instance().IsDarkTheme());
     Invalidate();
 }
 
@@ -1243,7 +1257,7 @@ void CBaseView::ScrollToLine(int nNewTopLine, BOOL bTrackScrollBar /*= TRUE*/)
 
 void CBaseView::DrawMargin(CDC *pdc, const CRect &rect, int nLineIndex)
 {
-    pdc->FillSolidRect(rect, ::GetSysColor(COLOR_SCROLLBAR));
+    pdc->FillSolidRect(rect, CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_SCROLLBAR)));
 
     if ((nLineIndex >= 0)&&(m_pViewData)&&(m_pViewData->GetCount()))
     {
@@ -1342,7 +1356,7 @@ void CBaseView::DrawMargin(CDC *pdc, const CRect &rect, int nLineIndex)
         int iconHeight = GetSystemMetrics(SM_CYSMICON);
         if (icon)
         {
-            ::DrawIconEx(pdc->m_hDC, rect.left + 2, rect.top + (rect.Height() - iconHeight) / 2, icon, iconWidth, iconHeight, 0, nullptr, DI_NORMAL);
+            ::DrawIconEx(pdc->m_hDC, rect.left + CDPIAware::Instance().Scale(2), rect.top + (rect.Height() - iconHeight) / 2, icon, iconWidth, iconHeight, 0, nullptr, DI_NORMAL);
         }
         if ((m_bViewLinenumbers)&&(m_nDigits))
         {
@@ -1372,11 +1386,11 @@ void CBaseView::DrawMargin(CDC *pdc, const CRect &rect, int nLineIndex)
                 }
                 if (!sLinenumber.IsEmpty())
                 {
-                    pdc->SetBkColor(::GetSysColor(COLOR_SCROLLBAR));
-                    pdc->SetTextColor(::GetSysColor(COLOR_WINDOWTEXT));
+                    pdc->SetBkColor(CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_SCROLLBAR)));
+                    pdc->SetTextColor(CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT));
 
                     pdc->SelectObject(GetFont());
-                    pdc->ExtTextOut(rect.left + iconWidth + 2, rect.top, ETO_CLIPPED, &rect, sLinenumber, nullptr);
+                    pdc->ExtTextOut(rect.left + iconWidth + CDPIAware::Instance().Scale(2), rect.top, ETO_CLIPPED, &rect, sLinenumber, nullptr);
                 }
             }
         }
@@ -1385,7 +1399,7 @@ void CBaseView::DrawMargin(CDC *pdc, const CRect &rect, int nLineIndex)
 
 int CBaseView::GetMarginWidth()
 {
-    int marginWidth = GetSystemMetrics(SM_CXSMICON) + 2 + 2;
+    int marginWidth = GetSystemMetrics(SM_CXSMICON) + CDPIAware::Instance().Scale(4);
 
     if ((m_bViewLinenumbers)&&(m_pViewData)&&(m_pViewData->GetCount()))
     {
@@ -1398,7 +1412,7 @@ int CBaseView::GetMarginWidth()
             m_nDigits = sMax.GetLength();
         }
         int nWidth = GetCharWidth();
-        marginWidth += (m_nDigits * nWidth) + 2;
+        marginWidth += (m_nDigits * nWidth) + CDPIAware::Instance().Scale(2);
     }
 
     return marginWidth;
@@ -1410,8 +1424,8 @@ void CBaseView::DrawHeader(CDC *pdc, const CRect &rect)
     COLORREF crBk, crFg;
     if (IsBottomViewGood())
     {
-        CDiffColors::GetInstance().GetColors(DIFFSTATE_NORMAL, crBk, crFg);
-        crBk = ::GetSysColor(COLOR_SCROLLBAR);
+        CDiffColors::GetInstance().GetColors(DIFFSTATE_NORMAL, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBk, crFg);
+        crBk = CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_SCROLLBAR));
     }
     else
     {
@@ -1420,7 +1434,7 @@ void CBaseView::DrawHeader(CDC *pdc, const CRect &rect)
         {
             state = DIFFSTATE_ADDED;
         }
-        CDiffColors::GetInstance().GetColors(state, crBk, crFg);
+        CDiffColors::GetInstance().GetColors(state, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBk, crFg);
     }
     pdc->SetBkColor(crBk);
     pdc->FillSolidRect(textrect, crBk);
@@ -1590,11 +1604,15 @@ bool CBaseView::IsViewLineRemoved(int nViewLine)
 
 COLORREF CBaseView::InlineDiffColor(int nLineIndex)
 {
+    if (m_bDark)
+        return IsLineRemoved(nLineIndex) ? m_InlineRemovedDarkBk : m_InlineAddedDarkBk;
     return IsLineRemoved(nLineIndex) ? m_InlineRemovedBk : m_InlineAddedBk;
 }
 
 COLORREF CBaseView::InlineViewLineDiffColor(int nViewLine)
 {
+    if (m_bDark)
+        return IsViewLineRemoved(nViewLine) ? m_InlineRemovedDarkBk : m_InlineAddedDarkBk;
     return IsViewLineRemoved(nViewLine) ? m_InlineRemovedBk : m_InlineAddedBk;
 }
 
@@ -1632,7 +1650,7 @@ void CBaseView::DrawLineEnding(CDC *pDC, const CRect &rc, int nLineIndex, const 
     }
     else
     {
-        CPen pen(PS_SOLID, 0, m_WhiteSpaceFg);
+        CPen pen(PS_SOLID, 0, CTheme::Instance().GetThemeColor(m_WhiteSpaceFg));
         CPen * oldpen = pDC->SelectObject(&pen);
         int yMiddle = origin.y + rc.Height()/2;
         int xMiddle = origin.x+GetCharWidth()/2;
@@ -1693,7 +1711,7 @@ void CBaseView::DrawLineEnding(CDC *pDC, const CRect &rc, int nLineIndex, const 
             case EOL_LS:    // Line Separator, U+2028
             case EOL_PS:    // Paragraph Separator, U+2029
                 // draw a horizontal line at the bottom of this line
-                pDC->FillSolidRect(rc.left, rc.bottom-1, rc.right, rc.bottom, GetSysColor(COLOR_WINDOWTEXT));
+                pDC->FillSolidRect(rc.left, rc.bottom-1, rc.right, rc.bottom, CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT));
                 pDC->MoveTo(origin.x+GetCharWidth()-1, rc.bottom-GetCharWidth()-2);
                 pDC->LineTo(origin.x, rc.bottom-2);
                 pDC->LineTo(origin.x+5, rc.bottom-2);
@@ -1727,7 +1745,11 @@ void CBaseView::DrawBlockLine(CDC *pDC, const CRect &rc, int nLineIndex)
         return;
 
     const int THICKNESS = 2;
-    COLORREF rectcol = GetSysColor(m_bFocused ? COLOR_WINDOWTEXT : COLOR_GRAYTEXT);
+    COLORREF rectcol = 0;
+    if (m_bFocused)
+        rectcol = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
+    else
+        rectcol = CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT));
 
     int nViewLineIndex = GetViewLineForScreen(nLineIndex);
     int nSubLine = GetSubLineOffset(nLineIndex);
@@ -1834,6 +1856,14 @@ void CBaseView::DrawTextLine(
                 }
                 second.background = crBk;
                 second.text = CAppUtils::IntenseColor(nIntenseColorScale, second.text);
+                if (CTheme::Instance().IsDarkTheme())
+                {
+                    int bkGray = (((int)GetRValue(crBk)) + GetGValue(crBk) + GetBValue(crBk)) / 3;
+                    int frGray = (((int)GetRValue(second.text)) + GetGValue(second.text) + GetBValue(second.text)) / 3;
+                    if (abs(bkGray - frGray) < 100)
+                        second.text = CAppUtils::IntenseColor(nIntenseColorScale, second.text);
+                    ;
+                }
             }
         }
     }
@@ -1853,7 +1883,7 @@ void CBaseView::DrawTextLine(
             // change color of affected parts
             const long int nIntenseColorScale = 30;
             std::map<int, linecolors_t>::iterator it = lineCols.lower_bound(nMarkStart+nStringPos);
-            for ( ; it != lineCols.end() && it->first < nMarkEnd; ++it)
+            for ( ; it != lineCols.end() && it->first < nMarkEnd+nStringPos; ++it)
             {
                 auto& second = it->second;
                 COLORREF crBk = CAppUtils::IntenseColor(nIntenseColorScale, second.background);
@@ -1865,7 +1895,7 @@ void CBaseView::DrawTextLine(
                 second.text = CAppUtils::IntenseColor(nIntenseColorScale, second.text);
             }
             searchLine = searchLine.Mid(nMarkEnd);
-            nStringPos = nMarkEnd;
+            nStringPos += nMarkEnd;
             nMarkStart = 0;
             nMarkEnd = 0;
         }
@@ -1965,7 +1995,7 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
     {
         // Draw line beyond the text
         COLORREF crBkgnd, crText;
-        CDiffColors::GetInstance().GetColors(DIFFSTATE_UNKNOWN, crBkgnd, crText);
+        CDiffColors::GetInstance().GetColors(DIFFSTATE_UNKNOWN, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBkgnd, crText);
         pDC->FillSolidRect(rc, crBkgnd);
         return;
     }
@@ -1976,13 +2006,13 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
         if (m_pViewData->GetHideState(viewLine) == HIDESTATE_MARKER)
         {
             COLORREF crBkgnd, crText;
-            CDiffColors::GetInstance().GetColors(DIFFSTATE_UNKNOWN, crBkgnd, crText);
+            CDiffColors::GetInstance().GetColors(DIFFSTATE_UNKNOWN, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBkgnd, crText);
             pDC->FillSolidRect(rc, crBkgnd);
 
             const int THICKNESS = 2;
-            COLORREF rectcol = GetSysColor(COLOR_WINDOWTEXT);
+            COLORREF rectcol = CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT);
             pDC->FillSolidRect(rc.left, rc.top + (rc.Height()/2), rc.Width(), THICKNESS, rectcol);
-            pDC->SetTextColor(GetSysColor(COLOR_GRAYTEXT));
+            pDC->SetTextColor(CTheme::Instance().GetThemeColor(GetSysColor(COLOR_GRAYTEXT)));
             pDC->SetBkColor(crBkgnd);
             CRect rect = rc;
             pDC->DrawText(L"{...}", &rect, DT_NOPREFIX|DT_SINGLELINE|DT_CENTER);
@@ -1992,8 +2022,7 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
 
     DiffStates diffState = m_pViewData->GetState(viewLine);
     COLORREF crBkgnd, crText;
-    CDiffColors::GetInstance().GetColors(diffState, crBkgnd, crText);
-
+    CDiffColors::GetInstance().GetColors(diffState, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBkgnd, crText);
     if (diffState == DIFFSTATE_CONFLICTED)
     {
         // conflicted lines are shown without 'text' on them
@@ -2041,7 +2070,7 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
         int y = rc.top + (rc.bottom-rc.top)/2;
         xpos -= m_nOffsetChar * GetCharWidth();
 
-        CPen pen(PS_SOLID, 0, m_WhiteSpaceFg);
+        CPen pen(PS_SOLID, 0, CTheme::Instance().GetThemeColor(m_WhiteSpaceFg));
         while (*pszChars)
         {
             switch (*pszChars)
@@ -2080,7 +2109,7 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
                         const int cyWhitespace = CDPIAware::Instance().Scale(2);
                         // draw 2-logical pixel rectangle, like Scintilla editor.
                         pDC->FillSolidRect(xpos + rc.left + GetCharWidth() / 2 - cxWhitespace/2, y,
-                                           cxWhitespace, cyWhitespace, m_WhiteSpaceFg);
+                                           cxWhitespace, cyWhitespace, CTheme::Instance().GetThemeColor(m_WhiteSpaceFg));
                     }
                     xpos += GetCharWidth();
                     nChars++;
@@ -3200,6 +3229,17 @@ void CBaseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
         m_bInsertMode = !m_bInsertMode;
         UpdateCaret();
         break;
+    case 'M':
+        if (bControl && m_pwndRight)
+        {
+            int nFirstViewLine = 0;
+            int nLastViewLine = 0;
+            if (GetViewSelection(nFirstViewLine, nLastViewLine))
+            {
+                m_pwndRight->MarkBlock(!m_pwndRight->GetViewMarked(nFirstViewLine));
+            }
+        }
+        break;
 
     }
     CView::OnKeyDown(nChar, nRepCnt, nFlags);
@@ -3208,6 +3248,7 @@ void CBaseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 void CBaseView::OnLButtonDown(UINT nFlags, CPoint point)
 {
     const int nClickedLine = GetButtonEventLineIndex(point);
+    m_nLDownLine = nClickedLine;
     if ((nClickedLine >= m_nTopLine)&&(nClickedLine < GetLineCount()))
     {
         POINT ptCaretPos;
@@ -3374,12 +3415,21 @@ void CBaseView::OnLButtonDblClk(UINT nFlags, CPoint point)
             m_sMarkedWord.Empty();
         }
 
-        if (m_pwndLeft)
-            m_pwndLeft->SetMarkedWord(m_sMarkedWord);
-        if (m_pwndRight)
-            m_pwndRight->SetMarkedWord(m_sMarkedWord);
-        if (m_pwndBottom)
-            m_pwndBottom->SetMarkedWord(m_sMarkedWord);
+        if (GetKeyState(VK_CONTROL) & 0x8000)
+        {
+            // if the ctrl key is pressed, only
+            // mark the words in this view
+            SetMarkedWord(m_sMarkedWord);
+        }
+        else
+        {
+            if (m_pwndLeft)
+                m_pwndLeft->SetMarkedWord(m_sMarkedWord);
+            if (m_pwndRight)
+                m_pwndRight->SetMarkedWord(m_sMarkedWord);
+            if (m_pwndBottom)
+                m_pwndBottom->SetMarkedWord(m_sMarkedWord);
+        }
 
         Invalidate();
         if (m_pwndLocator)
@@ -3392,7 +3442,7 @@ void CBaseView::OnLButtonDblClk(UINT nFlags, CPoint point)
 void CBaseView::OnLButtonTrippleClick( UINT /*nFlags*/, CPoint point )
 {
     const int nClickedLine = GetButtonEventLineIndex(point);
-    if (((point.y - HEADERHEIGHT) / GetLineHeight()) <= 0)
+    if (((point.y - (GetLineHeight() + HEADERHEIGHT)) / GetLineHeight()) <= 0)
     {
         if (!m_sConvertedFilePath.IsEmpty() && (GetKeyState(VK_CONTROL)&0x8000))
         {
@@ -3471,6 +3521,8 @@ void CBaseView::OnMouseMove(UINT nFlags, CPoint point)
             Invalidate();
             UpdateWindow();
         }
+        if (m_nLDownLine < 0)
+            return; // no scrolling if the click started on the header
         if (nMouseLine < m_nTopLine)
         {
             ScrollAllToLine(m_nTopLine-1, TRUE);
@@ -3827,6 +3879,7 @@ void CBaseView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
     CView::OnChar(nChar, nRepCnt, nFlags);
 
     bool bShift = !!(GetKeyState(VK_SHIFT)&0x8000);
+    bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
     bool bSkipSelectionClear = false;
 
     if (IsReadonly())
@@ -3962,7 +4015,7 @@ void CBaseView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
         m_pViewData->SetState(nViewLine, DIFFSTATE_EDITED);
         UpdateGoalPos();
     }
-    else if (nChar == VK_RETURN)
+    else if ((nChar == VK_RETURN) && !bControl)
     {
         // insert a new, fresh and empty line below the cursor
         RemoveSelectedText();
@@ -4503,6 +4556,7 @@ void CBaseView::BuildMarkedWordArray()
     m_arMarkedWordLines.clear();
     m_arMarkedWordLines.reserve(lineCount);
     bool bDoit = !m_sMarkedWord.IsEmpty();
+    m_MarkedWordCount = 0;
     for (int i = 0; i < lineCount; ++i)
     {
         if (bDoit)
@@ -4525,6 +4579,7 @@ void CBaseView::BuildMarkedWordArray()
                         if (eRight != eEnd)
                         {
                             found = 1;
+                            ++m_MarkedWordCount;
                             break;
                         }
                     }
@@ -4907,7 +4962,7 @@ LineColors & CBaseView::GetLineColors(int nViewLine)
     // set main line color
     COLORREF crBkgnd, crText;
     DiffStates diffState = m_pViewData->GetState(nViewLine);
-    CDiffColors::GetInstance().GetColors(diffState, crBkgnd, crText);
+    CDiffColors::GetInstance().GetColors(diffState, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBkgnd, crText);
     oLineColors.SetColor(0, crText, crBkgnd);
 
     do {
@@ -4978,19 +5033,19 @@ LineColors & CBaseView::GetLineColors(int nViewLine)
             }
             bool bInlineDiff = (diff->type == svn_diff__type_diff_modified);
 
-            CDiffColors::GetInstance().GetColors(diffState, crBkgnd, crText);
+            CDiffColors::GetInstance().GetColors(diffState, CTheme::Instance().IsDarkTheme() || CTheme::Instance().IsHighContrastModeDark(), crBkgnd, crText);
             if ((m_bShowInlineDiff)&&(bInlineDiff))
             {
                 crBkgnd = InlineViewLineDiffColor(nViewLine);
             }
             else if (m_pOtherView)
             {
-                crBkgnd = m_ModifiedBk;
+                crBkgnd = m_bDark ? m_ModifiedDarkBk : m_ModifiedBk;
             }
 
             if (len < diff->modified_length)
             {
-                removedPositions[nTextStartOffset] = m_InlineRemovedBk;
+                removedPositions[nTextStartOffset] = m_bDark ? m_InlineRemovedDarkBk : m_InlineRemovedBk;
             }
             oLineColors.SetColor(nTextStartOffset, crText, crBkgnd);
 
@@ -5050,6 +5105,8 @@ void CBaseView::FilterWhitespaces(CString& line)
 
 int CBaseView::GetButtonEventLineIndex(const POINT& point)
 {
+    if (point.y < (GetLineHeight() + HEADERHEIGHT))
+        return -1;
     const int nLineFromTop = (point.y - HEADERHEIGHT) / GetLineHeight();
     int nEventLine = nLineFromTop + m_nTopLine;
     nEventLine--;     //we need the index
@@ -5082,6 +5139,28 @@ void CBaseView::SaveUndoStep()
         CUndo::GetInstance().AddState(m_AllState, GetCaretViewPosition());
     }
     ResetUndoStep();
+}
+
+void CBaseView::SetTheme(bool bDark)
+{
+    m_bDark = bDark || CTheme::Instance().IsHighContrastModeDark();
+    DarkModeHelper::Instance().AllowDarkModeForWindow(GetSafeHwnd(), m_bDark);
+    CDiffColors::GetInstance().LoadRegistry();
+    BuildAllScreen2ViewVector();
+    if (IsWindow(GetSafeHwnd()))
+    {
+        if (m_bDark)
+        {
+            if (FAILED(SetWindowTheme(GetSafeHwnd(), L"DarkMode_Explorer", nullptr)))
+                SetWindowTheme(GetSafeHwnd(), L"Explorer", nullptr);
+        }
+        else
+        {
+            SetWindowTheme(GetSafeHwnd(), L"Explorer", nullptr);
+        }
+        Invalidate();
+    }
+    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", CTheme::Instance().GetThemeColor(GetSysColor(COLOR_3DSHADOW)));
 }
 
 void CBaseView::InsertViewData( int index, const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline )
@@ -5523,6 +5602,10 @@ void CBaseView::OnEditFindprevStart()
 
 bool CBaseView::StringFound(const CString& str, SearchDirection srchDir, int& start, int& end) const
 {
+    bool bStringFound;
+    
+    do
+    {
     if (srchDir == SearchPrevious)
     {
         int laststart = -1;
@@ -5537,7 +5620,7 @@ bool CBaseView::StringFound(const CString& str, SearchDirection srchDir, int& st
     else
         start = str.Find(m_sFindText, start);
     end = start + m_sFindText.GetLength();
-    bool bStringFound = (start >= 0);
+    bStringFound = (start >= 0);
     if (bStringFound && m_bWholeWord)
     {
         if (start)
@@ -5548,7 +5631,17 @@ bool CBaseView::StringFound(const CString& str, SearchDirection srchDir, int& st
             if (str.GetLength() > end)
                 bStringFound = IsWordSeparator(str.Mid(end, 1).GetAt(0));
         }
+
+        if (!bStringFound)
+        {
+            if (srchDir == SearchPrevious)
+                start--;
+            else
+                start = end;
+        }
     }
+    } while (!bStringFound && start >= 0);
+
     return bStringFound;
 }
 
@@ -6174,6 +6267,23 @@ void CBaseView::UseViewFileExceptEdited(CBaseView *pwndView)
     UseViewBlock(pwndView, 0, GetViewCount() - 1, fn);
 }
 
+int CBaseView::GetLargestSpaceStreak(const CString& line)
+{
+    int count = 0;
+    int maxstreak = 0;
+    for (int i = 0; i < line.GetLength(); ++i)
+    {
+        if (line[i] == ' ')
+            ++count;
+        else
+        {
+            maxstreak = std::max(count, maxstreak);
+            count = 0;
+        }
+    }
+    return std::max(count, maxstreak);
+}
+
 int CBaseView::GetIndentCharsForLine(int x, int y)
 {
     const int maxGuessLine = 100;
@@ -6185,31 +6295,32 @@ int CBaseView::GetIndentCharsForLine(int x, int y)
         // we can not test for spaces, since even if tabs are used,
         // spaces are used in a tabified file for alignment.
         if (line.Find('\t') >= 0)
-            nTabMode = 0;   // use tabs
-        else if (line.GetLength() > m_nTabSize)
-            nTabMode = 1;   // use spaces
+            nTabMode = 0; // use tabs
+        else if (GetLargestSpaceStreak(line) > m_nTabSize)
+            nTabMode = 1; // use spaces
 
-        if (m_nTabMode & TABMODE_SMARTINDENT)
+        // detect lines nearby
+        for (int i = y - 1, j = y + 1; nTabMode == -1; --i, ++j)
         {
-            // detect lines nearby
-            for (int i = y - 1, j = y + 1; nTabMode == -1; --i, ++j)
+            bool above = i >= 0 && i >= y - maxGuessLine;
+            bool below = j < GetViewCount() && j <= y + maxGuessLine;
+            if (!(above || below))
+                break;
+            auto ac = CString();
+            auto bc = CString();
+            if (above)
+                ac = GetViewLine(i);
+            if (below)
+                bc = GetViewLine(j);
+            if ((ac.Find('\t') >= 0) || (bc.Find('\t') >= 0))
             {
-                bool above = i > 0 && i >= y - maxGuessLine;
-                bool below = j < GetViewCount() && j <= y + maxGuessLine;
-                if (!(above || below))
-                    break;
-                auto ac = GetViewLine(i);
-                auto bc = GetViewLine(j);
-                if ((ac.Find('\t') >= 0) || (bc.Find('\t') >= 0))
-                {
-                    nTabMode = 0;
-                    break;
-                }
-                else if ((ac.GetLength() > m_nTabSize) && (bc.GetLength() > m_nTabSize))
-                {
-                    nTabMode = 1;
-                    break;
-                }
+                nTabMode = 0;
+                break;
+            }
+            else if ((GetLargestSpaceStreak(ac) > m_nTabSize) && (GetLargestSpaceStreak(bc) > m_nTabSize))
+            {
+                nTabMode = 1;
+                break;
             }
         }
     }

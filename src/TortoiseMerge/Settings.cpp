@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009-2010, 2014-2015, 2017-2018 - TortoiseSVN
+// Copyright (C) 2006, 2009-2010, 2014-2015, 2017-2018, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "Settings.h"
 #include "SetMainPage.h"
 #include "SetColorPage.h"
+#include "Theme.h"
 
 #define BOTTOMMARG 32
 
@@ -57,6 +58,7 @@ CSettings::CSettings(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
 
 CSettings::~CSettings()
 {
+    CTheme::Instance().RemoveRegisteredCallback(m_themeCallbackId);
     RemovePropPages();
 }
 
@@ -98,6 +100,11 @@ BOOL CSettings::IsReloadNeeded() const
     return bReload;
 }
 
+bool CSettings::IsDarkMode() const
+{
+    return (m_pColorPage->m_IsDarkMode);
+}
+
 BEGIN_MESSAGE_MAP(CSettings, CPropertySheet)
     ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
@@ -120,6 +127,15 @@ BOOL CSettings::OnInitDialog()
         m_aeroControls.SubclassOkCancelHelp(this);
         m_aeroControls.SubclassControl(this, ID_APPLY_NOW);
     }
+
+    m_themeCallbackId = CTheme::Instance().RegisterThemeChangeCallback(
+        [this]()
+        {
+            CTheme::Instance().SetThemeForDialog(GetSafeHwnd(), CTheme::Instance().IsDarkTheme());
+        });
+
+    CTheme::Instance().SetThemeForDialog(GetSafeHwnd(), CTheme::Instance().IsDarkTheme());
+
     return bResult;
 }
 
