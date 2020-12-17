@@ -25,17 +25,18 @@
 # Lübbe Onken <l.onken@rac.de>, 2011-2012, 2013-2016, 2017
 # Lübbe Onken <luebbe.opensource@gmail.com>, 2012-2015
 # Lübbe Onken <luebbe.opensource@gmail.com>, 2018-2019
+# Michael Tatarski <agentmoe@yahoo.de>, 2020
 # Mr.Update, 2019-2020
 # peu <peu@rekoba.de>, 2013
 # peu <peu@rekoba.de>, 2013
-# Stefan Kueng <tortoisesvn@gmail.com>, 2014,2019
+# Stefan Kueng <tortoisesvn@gmail.com>, 2014,2019-2020
 # Sven Strickroth <sstrickroth@googlemail.com>, 2012-2014
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-03-26 16:55+0000\n"
+"PO-Revision-Date: 2020-06-16 19:50+0000\n"
 "Last-Translator: Mr.Update\n"
 "Language-Team: German (http://www.transifex.com/luebbe/tortoisesvn/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -3579,6 +3580,16 @@ msgstr "Auswahl in die Zwischenablage verschieben\nAusschneiden"
 msgid "D&etails"
 msgstr "D&etails"
 
+#. Resource IDs: (1682)
+msgid "Dark theme"
+msgstr "Dunkle Systemfarbe"
+
+#. Resource IDs: (1683)
+msgid ""
+"Dark theme requires at least Win10 1803, and it must be enabled in the "
+"Windows system settings."
+msgstr "Die dunkle Systemfarbe ist in Windows 10 ab der Version 1803 verwendbar. Dazu muss sie in den Windows-Einstellungen aktiviert sein."
+
 #. Resource IDs: (1210, 1529, 3312, IDS_HEADER_DATE)
 msgid "Date"
 msgstr "Datum"
@@ -4210,7 +4221,7 @@ msgstr "Editor-Konfiguration aktivieren"
 
 #. Resource IDs: (1648)
 msgid "Enable drag context menu"
-msgstr "'Ziehen und Ablegen'-Kontextmenü aktivieren"
+msgstr "Ziehen-Kontextmenü aktivieren"
 
 #. Resource IDs: (5500)
 msgid "Enable log caching to speed up log and revision graph dialogs"
@@ -6127,7 +6138,7 @@ msgstr "Log-Puffer"
 
 #. Resource IDs: (295)
 msgid "Log Caching::Cached Repositories"
-msgstr "Log-Puffer::gepufferte Projektarchive"
+msgstr "Log-Puffer::Gepufferte Projektarchive"
 
 #. Resource IDs: (211)
 msgid "Log History"
@@ -10203,7 +10214,7 @@ msgid ""
 "To use TortoiseSVN please open the explorer and right-click on any folder you like\n"
 "to bring up the context menu where you will find all TortoiseSVN commands.\n"
 "And read the manual!"
-msgstr "TortoiseSVN ist eine Shell-Erweiterung.\nDas bedeutet, dass es in den Windows Explorer integriert ist. Um\nTortoiseSVN zu verwenden, öffnen Sie den Explorer und machen\nSie einen Rechtsklick, damit das Kontextmenü angezeigt wird.\nDort finden Sie sämtliche TortoiseSVN-Befehle.\nUnd lesen Sie das Handbuch!"
+msgstr "TortoiseSVN ist eine Shell-Erweiterung.\nDas bedeutet, dass es in den Windows Explorer integriert ist. Um TortoiseSVN zu verwenden, öffnen\nSie den Explorer und machen Sie einen Rechtsklick,\ndamit das Kontextmenü angezeigt wird.\nDort finden Sie sämtliche TortoiseSVN-Befehle.\nUnd lesen Sie das Handbuch!"
 
 #. Resource IDs: (3186)
 #, c-format
@@ -10557,6 +10568,10 @@ msgstr "Arbeitskopie hochstufen"
 msgid "Upgrading '%1!ls!'"
 msgstr "'%1!ls!' hochstufen"
 
+#. Resource IDs: (1684)
+msgid "Url points to SVNParentPath list"
+msgstr "URL zeigt auf SVNParentPath-Liste"
+
 #. Resource IDs: (1843)
 msgid "Urls"
 msgstr "URLs"
@@ -10749,7 +10764,7 @@ msgid ""
 "Example: 4-7,9,11,15-HEAD@pegrevision\r\n"
 "\r\n"
 "To merge all revisions (reintegrate/automatic merge), leave the box empty."
-msgstr "Verwenden Sie den Log-Dialog, um die zusammenzuführenden Revisionen auszuwählen oder geben Sie sie durch Komma getrennt ein. Ein Revisionsbereich wird durch einen Bindestrich angegeben.\r\n\r\nBeispiel: 4-7,9,11,15-HEAD@fixrevision\r\n\r\nLassen Sie das Feld leer, um alle Revisionen zusammenzuführen (Reintegrieren, automatisches Zusammenführen)."
+msgstr "Verwenden Sie den Log-Dialog, um die zusammenzuführenden Revisionen auszuwählen oder geben Sie sie durch Komma getrennt ein. Ein Bereich wird mittels Bindestrich angegeben.\r\n\r\nBeispiel: 4-7,9,11,15-HEAD@fixrevision\r\n\r\nLassen Sie das Feld leer, um alle Revisionen zusammenzuführen (Reintegrieren, automatisches Zusammenführen)."
 
 #. Resource IDs: (IDS_WARNBETTERPATCHPATHFOUND_TASK4)
 #, c-format

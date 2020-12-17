@@ -130,11 +130,11 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
             {
                 ::SetWindowPos(m_hWndEdit, HWND_TOP,
                     rect.left, rect.top,
-                    rect.right - rect.left, rect.bottom - rect.top - int(30 * CDPIAware::Instance().ScaleFactor()),
+                    rect.right - rect.left, rect.bottom - rect.top - int(30 * CDPIAware::Instance().ScaleFactor(hwnd)),
                     SWP_SHOWWINDOW);
                 ::SetWindowPos(m_FindBar, HWND_TOP,
-                    rect.left, rect.bottom - int(30 * CDPIAware::Instance().ScaleFactor()),
-                    rect.right - rect.left, int(30 * CDPIAware::Instance().ScaleFactor()),
+                    rect.left, rect.bottom - int(30 * CDPIAware::Instance().ScaleFactor(hwnd)),
+                    rect.right - rect.left, int(30 * CDPIAware::Instance().ScaleFactor(hwnd)),
                     SWP_SHOWWINDOW);
             }
             else
@@ -167,6 +167,15 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
     case WM_SYSCOLORCHANGE:
         CTheme::Instance().OnSysColorChanged();
         CTheme::Instance().SetDarkTheme(CTheme::Instance().IsDarkTheme(), true);
+        break;
+    case WM_DPICHANGED:
+    {
+        CDPIAware::Instance().Invalidate();
+        SendMessage(m_hWndEdit, WM_DPICHANGED, wParam, lParam);
+        const RECT* rect = reinterpret_cast<RECT*>(lParam);
+        SetWindowPos(*this, NULL, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+        ::RedrawWindow(*this, nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_ERASE | RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW);
+    }
         break;
     case COMMITMONITOR_FINDMSGNEXT:
         {
@@ -258,11 +267,11 @@ LRESULT CMainWindow::DoCommand(int id)
             GetClientRect(*this, &rect);
             ::SetWindowPos(m_hWndEdit, HWND_TOP,
                 rect.left, rect.top,
-                rect.right - rect.left, rect.bottom - rect.top - int(30 * CDPIAware::Instance().ScaleFactor()),
+                rect.right - rect.left, rect.bottom - rect.top - int(30 * CDPIAware::Instance().ScaleFactor(*this)),
                 SWP_SHOWWINDOW);
             ::SetWindowPos(m_FindBar, HWND_TOP,
-                rect.left, rect.bottom - int(30 * CDPIAware::Instance().ScaleFactor()),
-                rect.right - rect.left, int(30 * CDPIAware::Instance().ScaleFactor()),
+                rect.left, rect.bottom - int(30 * CDPIAware::Instance().ScaleFactor(*this)),
+                rect.right - rect.left, int(30 * CDPIAware::Instance().ScaleFactor(*this)),
                 SWP_SHOWWINDOW);
             ::SetFocus(m_FindBar);
             SendEditor(SCI_SETSELECTIONSTART, 0);
@@ -708,6 +717,7 @@ void CMainWindow::SetTheme(bool bDark)
         SetWindowTheme(*this, L"Explorer", nullptr);
         SetWindowTheme(m_hWndEdit, L"Explorer", nullptr);
     }
+    DarkModeHelper::Instance().RefreshTitleBarThemeColor(*this, bDark);
 
     if (bDark || CTheme::Instance().IsHighContrastModeDark())
     {

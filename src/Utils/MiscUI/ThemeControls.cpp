@@ -55,6 +55,11 @@ void CThemeMFCButton::OnDrawBorder(CDC* pDC, CRect& rectClient, UINT uiState)
 
 void CThemeMFCButton::OnDraw(CDC* pDC, const CRect& rect, UINT uiState)
 {
+    if (!CTheme::Instance().IsDarkTheme())
+    {
+        return __super::OnDraw(pDC, rect, uiState);
+    }
+
     if (IsPressed())
         pDC->FillSolidRect(rect, RGB(102, 102, 102));
     else if (m_bHighlighted)
@@ -148,7 +153,7 @@ void CThemeMFCButton::OnDraw(CDC* pDC, const CRect& rect, UINT uiState)
 
     if ((uiState & ODS_DISABLED) && m_bGrayDisabled)
     {
-        pDC->SetTextColor(GetGlobalData()->clrBtnHilite);
+        pDC->SetTextColor(CTheme::Instance().GetThemeColor(GetGlobalData()->clrBtnHilite));
 
         CRect rectShft = rectText;
         rectShft.OffsetRect(1, 1);
@@ -236,18 +241,28 @@ void CThemeMFCMenuButton::OnDraw(CDC* pDC, const CRect& rect, UINT uiState)
         else
             pDC->FillSolidRect(rectArrow, RGB(51, 51, 51));
 
-        auto hPen    = CreatePen(PS_SOLID, CDPIAware::Instance().Scale(1), RGB(180, 180, 180));
+        auto hPen    = CreatePen(PS_SOLID, CDPIAware::Instance().Scale(GetSafeHwnd(), 1), RGB(180, 180, 180));
         auto hOldPen = pDC->SelectObject(hPen);
 
         auto hBrush    = CreateSolidBrush(RGB(255, 255, 255));
         auto hOldBrush = pDC->SelectObject(hBrush);
 
-        auto  vmargin    = CDPIAware::Instance().Scale(6);
-        auto  hmargin    = CDPIAware::Instance().Scale(3);
-        POINT vertices[] = {{rectArrow.left + hmargin, rectArrow.bottom - vmargin},
-                            {rectArrow.left + hmargin, rectArrow.top + vmargin},
-                            {rectArrow.right - hmargin, (rectArrow.top + rectArrow.bottom) / 2}};
-        pDC->Polygon(vertices, _countof(vertices));
+        auto  vmargin    = CDPIAware::Instance().Scale(GetSafeHwnd(), 6);
+        auto  hmargin    = CDPIAware::Instance().Scale(GetSafeHwnd(), 3);
+        if (m_bRightArrow)
+        {
+            POINT vertices[] = { { rectArrow.left + hmargin, rectArrow.bottom - vmargin },
+                                 { rectArrow.left + hmargin, rectArrow.top + vmargin },
+                                 { rectArrow.right - hmargin, (rectArrow.top + rectArrow.bottom) / 2 } };
+            pDC->Polygon(vertices, _countof(vertices));
+        }
+        else
+        {
+            POINT vertices[] = { { rectArrow.left + hmargin, rectArrow.top + vmargin },
+                                 { rectArrow.right - hmargin, rectArrow.top + vmargin },
+                                 { (rectArrow.left + rectArrow.right) / 2, rectArrow.bottom - vmargin } };
+            pDC->Polygon(vertices, _countof(vertices));
+        }
 
         pDC->SelectObject(hOldBrush);
         DeleteObject(hBrush);

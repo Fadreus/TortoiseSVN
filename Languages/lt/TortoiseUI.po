@@ -12,8 +12,8 @@
 # Translators:
 # Andrius Burokas, 2018
 # Andrius Burokas, 2018
-# Evaldas Granickas <inactive+JVL60@transifex.com>, 2011
-# Evaldas Granickas <inactive+JVL60@transifex.com>, 2011
+# 566a5dd6f2469bfc7004200fb5070804_34b48cc <2ee35dd6e65bfaf8fdc4e93976a12804_7620>, 2011
+# 566a5dd6f2469bfc7004200fb5070804_34b48cc <2ee35dd6e65bfaf8fdc4e93976a12804_7620>, 2011
 # Lübbe Onken <luebbe.opensource@gmail.com>, 2013
 # Lübbe Onken <luebbe.opensource@gmail.com>, 2013
 # Paulius <pauliusdavyd@yahoo.com>, 2013
@@ -22,7 +22,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-03-26 01:43+0000\n"
+"PO-Revision-Date: 2020-05-17 13:41+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Lithuanian (http://www.transifex.com/luebbe/tortoisesvn/language/lt/)\n"
 "MIME-Version: 1.0\n"
@@ -3565,6 +3565,16 @@ msgstr ""
 #. Resource IDs: (1279)
 msgid "D&etails"
 msgstr "D&etalės"
+
+#. Resource IDs: (1682)
+msgid "Dark theme"
+msgstr ""
+
+#. Resource IDs: (1683)
+msgid ""
+"Dark theme requires at least Win10 1803, and it must be enabled in the "
+"Windows system settings."
+msgstr ""
 
 #. Resource IDs: (1210, 1529, 3312, IDS_HEADER_DATE)
 msgid "Date"
@@ -10542,6 +10552,10 @@ msgstr ""
 #. Resource IDs: (1579)
 #, c-format
 msgid "Upgrading '%1!ls!'"
+msgstr ""
+
+#. Resource IDs: (1684)
+msgid "Url points to SVNParentPath list"
 msgstr ""
 
 #. Resource IDs: (1843)

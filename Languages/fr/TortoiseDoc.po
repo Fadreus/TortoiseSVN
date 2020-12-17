@@ -18,7 +18,7 @@
 #   <clbaldock@gmail.com>, 2011
 # Clément <rousseau.clement@gmail.com>, 2011
 # Clément <rousseau.clement@gmail.com>, 2011
-# Dirk Hoffmann <Hoffmann@cppm.in2p3.fr>, 2015
+# Dirk Hoffmann <Hoffmann@cppm.in2p3.fr>, 2015,2020
 # Fabien Legrand <fab.legrand@gmail.com>, 2016
 # Fabrice Daugan <fabrice.daugan@gmail.com>, 2011
 # Groog <florentzimolo@gmail.com>, 2014
@@ -48,15 +48,16 @@
 # LoubiTek, 2018
 # ShevAbam, 2015
 # ShevAbam, 2015-2016
-# lkppo, 2012
+# 4a14a73d523224463300dea5e0502458_3dab472, 2012
+# Stéphane Aulery <saulery@legtux.org>, 2020
 # Thomas Lemoine, 2019-2020
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-03-26 01:30+0000\n"
-"Last-Translator: Transifex Bot <>\n"
+"PO-Revision-Date: 2020-07-20 19:40+0000\n"
+"Last-Translator: Dirk Hoffmann <Hoffmann@cppm.in2p3.fr>\n"
 "Language-Team: French (http://www.transifex.com/luebbe/tortoisesvn/language/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -326,10 +327,10 @@ msgid ""
 "Although most people just download the installer, you also have full read "
 "access to the source code of this program. You can browse it on this link "
 "<ulink "
-"url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>."
+"url=\"https://osdn.net/projects/tortoisesvn/scm/svn/\"><citetitle>https://osdn.net/projects/tortoisesvn/scm/svn/</citetitle></ulink>."
 " The current development line is located under <filename>/trunk/</filename>,"
 " and the released versions are located under <filename>/tags/</filename>."
-msgstr "Bien que la plupart des utilisateurs se contentent de télécharger l'application d'installation, vous avez un accès total en lecture au code source de ce logiciel. Vous pouvez le parcourir à l'adresse <ulink url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>. Le développement actuel est situé sous <filename>/trunk/</filename>, et les versions figées pour distribution (releases) sous <filename>/tags/</filename>."
+msgstr "Bien que la plûpart des utilisateurs téléchargent l'installateur, vous avez également accès à l'intégralité du code source du logiciel. Vous pouvez y naviguer en suivant le lien<ulink url=\"https://osdn.net/projects/tortoisesvn/scm/svn/\"><citetitle>https://osdn.net/projects/tortoisesvn/scm/svn/</citetitle></ulink>. La version actuelle de développement se trouve sous <filename>/trunk/</filename> et les versions publiées sous <filename>/tags/</filename>."
 
 #. (title)
 msgid "Development"
@@ -13098,17 +13099,17 @@ msgstr ""
 
 #. (para)
 msgid "Settings for the repository browser: <placeholder-1/>"
-msgstr ""
+msgstr "Configuration pour le navigateur du dépôt : <placeholder-1/>"
 
 #. (term)
 msgid "V2"
-msgstr ""
+msgstr "V2"
 
 #. (para)
 msgid ""
 "this version is much faster than <literal>V3</literal> and is the "
 "recommended version to use."
-msgstr ""
+msgstr "Cette version est beaucoup plus rapide que <literal>V3</literal>, et son usage est recommandé. "
 
 #. (para)
 msgid ""
@@ -13118,7 +13119,7 @@ msgstr ""
 
 #. (term)
 msgid "V3"
-msgstr ""
+msgstr "V3"
 
 #. (para)
 msgid ""
@@ -13252,6 +13253,25 @@ msgid ""
 "When using filtering in the log dialog, search terms are highlighted in the "
 "results using this colour."
 msgstr "Lors de l'utilisation de filtrage dans la boîte de dialogue du journal, les termes de recherche sont mis en évidence dans les résultats en utilisant cette couleur."
+
+#. (term)
+msgid "Dark theme"
+msgstr "Thème sombre"
+
+#. (para)
+msgid ""
+"The dialogs in TortoiseSVN can be shown in a dark mode on Windows 10 1809 "
+"and later. This feature also requires that dark mode for applications is "
+"enabled in the Windows 10 settings."
+msgstr ""
+
+#. (para)
+msgid "Note that not all controls in all dialogs are shown in a dark theme."
+msgstr ""
+
+#. (para)
+msgid "other settings: <placeholder-1/>"
+msgstr "autres paramètres :"
 
 #. (title)
 msgid "Revision Graph Settings"
@@ -14795,7 +14815,7 @@ msgstr ""
 #. (literal)
 #. (literal)
 msgid "force"
-msgstr ""
+msgstr "forcer"
 
 #. (guibutton)
 msgid "Retry without hooks"
@@ -15129,14 +15149,6 @@ msgid ""
 "dismiss the dialog as if you clicked on the OK button. If you don't want "
 "this, set this value to <literal>false</literal>."
 msgstr "Dans la plupart des dialogues de TortoiseSVN, vous pouvez utiliser <keycap>Ctrl + Entrée</keycap> pour fermer la boîte de dialogue comme si vous aviez cliqué sur le bouton OK. Si vous ne le souhaitez pas, mettez cette valeur à <literal>faux</ literal>."
-
-#. (para)
-msgid ""
-"The dialogs in TortoiseSVN can be shown in a dark mode on Windows 10 1809 "
-"and later. This dark mode is considered experimental, because not all "
-"controls are shown in dark mode and some controls look pretty basic. Set "
-"this to <literal>true</literal> to enable the dark theme."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -15611,6 +15623,15 @@ msgstr ""
 msgid ""
 "If the box for <literal>Path or Url</literal> is left empty, then a folder "
 "is added. This is useful to group monitored projects."
+msgstr ""
+
+#. (para)
+msgid ""
+"If you want to monitor all repositories served via the <ulink "
+"url=\"http://svnbook.red-"
+"bean.com/en/1.8/svn.serverconfig.httpd.html#svn.serverconfig.httpd.basic\"><citetitle>SVNParentPath</citetitle></ulink>"
+" directive, enter the root Url for your repositories and check the box "
+"<literal>Url points to SVNParentPath list</literal>."
 msgstr ""
 
 #. (para)
@@ -17121,32 +17142,28 @@ msgid ""
 "keep the documentation completely up to date. We maintain an <ulink "
 "url=\"https://tortoisesvn.net/faq.html\"><citetitle>online "
 "FAQ</citetitle></ulink> which contains a selection of the questions we are "
-"asked the most on the TortoiseSVN mailing lists "
-"<email>dev@tortoisesvn.tigris.org</email> and "
-"<email>users@tortoisesvn.tigris.org</email>."
+"asked the most on the TortoiseSVN mailing lists <ulink "
+"url=\"https://groups.google.com/forum/#!forum/tortoisesvn\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn</citetitle></ulink>"
+" and <ulink url=\"https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev</citetitle></ulink>"
 msgstr ""
 
 #. (para)
 msgid ""
-"We also maintain a project <ulink "
-"url=\"https://sourceforge.net/p/tortoisesvn/tickets/\"><citetitle>Issue "
-"Tracker</citetitle></ulink> which tells you about some of the things we have"
-" on our To-Do list, and bugs which have already been fixed. If you think you"
-" have found a bug, or want to request a new feature, check here first to see"
-" if someone else got there before you."
+"<ulink "
+"url=\"https://groups.google.com/forum/#!forum/tortoisesvn\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn</citetitle></ulink>"
+" is the one to use if you have questions about using TortoiseSVN."
 msgstr ""
-
-#. (para)
-msgid ""
-"<email>users@tortoisesvn.tigris.org</email> is the one to use if you have "
-"questions about using TortoiseSVN."
-msgstr "<email> users@tortoisesvn.tigris.org</email> est celle à utiliser si vous avez des questions sur l'utilisation de TortoiseSVN."
 
 #. (para)
 msgid ""
 "If you want to help out with the development of TortoiseSVN, then you should"
-" take part in discussions on <email>dev@tortoisesvn.tigris.org</email>."
-msgstr "Si vous voulez aider au développement de TortoiseSVN, il faut alors prendre part aux discussions sur <email>dev@tortoisesvn.tigris.org</email>."
+" take part in discussions on <ulink "
+"url=\"https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev</citetitle></ulink>"
+msgstr ""
 
 #. (para)
 msgid ""
@@ -18369,7 +18386,22 @@ msgstr ""
 msgid "An svn date revision can be in one of the following formats:"
 msgstr ""
 
-#. (option)
+#. (para)
+msgid ""
+"Opens the checkout dialog. The <option>/path</option> specifies the target "
+"directory and the <option>/url</option> specifies the URL to checkout from. "
+"If you specify the key <option>/blockpathadjustments</option>, the automatic"
+" checkout path adjustments are blocked. The <option>/revision:XXX</option> "
+"specifies the revision to check out."
+msgstr ""
+
+#. (para)
+msgid ""
+"If you specify <option>/outfile:\"path/to/file\"</option> the specified file"
+" will contain three lines after a checkout. The first line is the checkout "
+"path, the second line the url and the third the revision."
+msgstr ""
+
 #. (option)
 #. (option)
 #. (option)
@@ -18401,30 +18433,6 @@ msgstr ""
 #. (option)
 msgid "/path"
 msgstr "/path"
-
-#. (option)
-#. (option)
-#. (option)
-msgid "/url"
-msgstr "/url"
-
-#. (option)
-#. (option)
-msgid "/blockpathadjustments"
-msgstr "/blockpathadjustments"
-
-#. (option)
-msgid "/revision:XXX"
-msgstr "/revision:XXX"
-
-#. (entry)
-msgid ""
-"Opens the checkout dialog. The <placeholder-1/> specifies the target "
-"directory and the <placeholder-2/> specifies the URL to checkout from. If "
-"you specify the key <placeholder-3/>, the automatic checkout path "
-"adjustments are blocked. The <placeholder-4/> specifies the revision to "
-"check out."
-msgstr ""
 
 #. (option)
 #. (option)
@@ -18602,11 +18610,20 @@ msgstr "Marque un fichier en conflit indiqué dans <placeholder-1/> comme résol
 msgid "Creates a repository in <placeholder-1/>"
 msgstr "Crée un dépôt dans <placeholder-1/>"
 
+#. (option)
+#. (option)
+msgid "/url"
+msgstr "/url"
+
 #. (entry)
 msgid ""
 "Opens the switch dialog. The <placeholder-1/> specifies the target directory"
 " and <placeholder-2/> the URL to switch to."
 msgstr "Ouvre la fenêtre de dialogue . Le <placeholder-1/> spécifie le répertoire cible et <placeholder-2/>l'URL vers lequel se fera le changement."
+
+#. (option)
+msgid "/blockpathadjustments"
+msgstr "/blockpathadjustments"
 
 #. (entry)
 msgid ""
@@ -20612,7 +20629,7 @@ msgid ""
 "TortoiseMerge is an Open Source project. That means you have full read "
 "access to the source code of this program. You can browse it on this link "
 "<ulink "
-"url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>."
+"url=\"https://osdn.net/projects/tortoisesvn/scm/svn/\"><citetitle>https://osdn.net/projects/tortoisesvn/scm/svn/</citetitle></ulink>."
 " The most recent version (where we're currently working) is located under "
 "<filename>/trunk/</filename>, and the released versions are located under "
 "<filename>/tags/</filename>."
@@ -21399,7 +21416,7 @@ msgstr "Les caractères indiquant les espaces sont signalés d'une autre couleur
 
 #. (term)
 msgid "Use dark mode"
-msgstr ""
+msgstr "Utiliser le thème sombre"
 
 #. (listitem)
 msgid ""
@@ -21407,16 +21424,13 @@ msgid ""
 msgstr ""
 
 #. (title)
-msgid "keyboard shortcuts"
-msgstr "raccourcis clavier"
+#. (title)
+msgid "Keyboard Shortcuts"
+msgstr ""
 
 #. (para)
 msgid "List of keyboard shortcuts and commands."
 msgstr "Liste des raccourcis claviers et des commandes."
-
-#. (title)
-msgid "Keyboard shortcuts"
-msgstr "Raccourcis clavier"
 
 #. (term)
 msgid "Ctrl-Q, Ctrl-W, Escape"
@@ -21487,16 +21501,16 @@ msgid "Save as..."
 msgstr "Sauver sous..."
 
 #. (term)
-msgid "F7"
-msgstr "F7"
+msgid "F7, Ctrl-Down"
+msgstr ""
 
 #. (para)
 msgid "Go to next difference"
 msgstr "Aller à la prochaine différence"
 
 #. (term)
-msgid "Shift-F7"
-msgstr "Shift-F7"
+msgid "Shift-F7, Ctrl-Up"
+msgstr ""
 
 #. (para)
 msgid "Go to previous difference"
@@ -21551,11 +21565,9 @@ msgid "Toggles between collapsing unchanged sections or not"
 msgstr "Bascule le mode regroupement de sections inchangées"
 
 #. (term)
-#. (term)
 msgid "Ctrl-P"
 msgstr "Ctrl-P"
 
-#. (para)
 #. (para)
 msgid "Toggles between line wrapping"
 msgstr "Bascule le mode de retour à la ligne"
@@ -21595,6 +21607,14 @@ msgstr "Ctrl-Tab"
 #. (para)
 msgid "Switch between left/right/bottom view"
 msgstr "Basculer entre les vues gauche / droite / bas"
+
+#. (term)
+msgid "Ctrl-M"
+msgstr ""
+
+#. (para)
+msgid "Toggles between marking the selected change"
+msgstr ""
 
 #. (title)
 msgid "Automating TortoiseMerge"

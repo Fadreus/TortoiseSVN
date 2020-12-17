@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2016, 2018 - TortoiseSVN
+// Copyright (C) 2009-2016, 2018, 2020 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,6 +27,7 @@
 #define _WIN32_WINNT_WINTHRESHOLD 0x0A00
 #define  IsWindows10OrGreater() (IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0))
 #endif
+using namespace Gdiplus;
 
 
 enum ControlType
@@ -568,7 +569,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
                             int iState = GetStateFromBtnState(dwStyle, bHot, bFocus, dwCheckState, iPartId, FALSE);
 
-                            int bmWidth = int(ceil(13.0 * CDPIAware::Instance().GetDPI() / 96.0));
+                            int bmWidth = int(ceil(13.0 * CDPIAware::Instance().GetDPI(hWnd) / 96.0));
 
                             UINT uiHalfWidth = (RECTWIDTH(rcClient) - bmWidth)/2;
 

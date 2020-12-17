@@ -115,7 +115,9 @@ Gdiplus::Color CTheme::GetThemeColor(Gdiplus::Color clr, bool fixed /*= false*/)
 {
     if (m_dark || (fixed && m_isHighContrastModeDark))
     {
-        return GetThemeColor(clr.ToCOLORREF(), fixed);
+        Gdiplus::Color color;
+        color.SetFromCOLORREF(GetThemeColor(clr.ToCOLORREF(), fixed));
+        return color;
     }
 
     return clr;
@@ -151,9 +153,11 @@ bool CTheme::SetThemeForDialog(HWND hWnd, bool bDark)
     {
         RemoveWindowSubclass(hWnd, MainSubclassProc, SubclassID);
     }
+    AdjustThemeForChildrenProc(hWnd, bDark ? TRUE : FALSE);
     EnumChildWindows(hWnd, AdjustThemeForChildrenProc, bDark ? TRUE : FALSE);
     EnumThreadWindows(GetCurrentThreadId(), AdjustThemeForChildrenProc, bDark ? TRUE : FALSE);
     ::RedrawWindow(hWnd, nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_ERASE | RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW);
+    DarkModeHelper::Instance().RefreshTitleBarThemeColor(hWnd, bDark);
     return true;
 }
 
@@ -223,11 +227,11 @@ BOOL CTheme::AdjustThemeForChildrenProc(HWND hwnd, LPARAM lParam)
                  (wcscmp(szWndClassName, L"ComboLBox") == 0) ||
                  (wcscmp(szWndClassName, WC_COMBOBOX) == 0))
         {
-            SetWindowTheme(hwnd, L"DarkMode_Explorer", nullptr);
+            SetWindowTheme(hwnd, L"Explorer", nullptr);
             HWND hCombo = hwnd;
             if (wcscmp(szWndClassName, WC_COMBOBOXEX) == 0)
             {
-                SendMessage(hwnd, CBEM_SETWINDOWTHEME, 0, (LPARAM)L"DarkMode_Explorer");
+                SendMessage(hwnd, CBEM_SETWINDOWTHEME, 0, (LPARAM)L"Explorer");
                 hCombo = (HWND)SendMessage(hwnd, CBEM_GETCOMBOCONTROL, 0, 0);
             }
             if (hCombo)
@@ -241,9 +245,9 @@ BOOL CTheme::AdjustThemeForChildrenProc(HWND hwnd, LPARAM lParam)
                     DarkModeHelper::Instance().AllowDarkModeForWindow(info.hwndItem, (BOOL)lParam);
                     DarkModeHelper::Instance().AllowDarkModeForWindow(info.hwndCombo, (BOOL)lParam);
 
-                    SetWindowTheme(info.hwndList, L"DarkMode_Explorer", nullptr);
-                    SetWindowTheme(info.hwndItem, L"DarkMode_Explorer", nullptr);
-                    SetWindowTheme(info.hwndCombo, L"DarkMode_Explorer", nullptr);
+                    SetWindowTheme(info.hwndList, L"Explorer", nullptr);
+                    SetWindowTheme(info.hwndItem, L"Explorer", nullptr);
+                    SetWindowTheme(info.hwndCombo, L"CFD", nullptr);
                 }
             }
         }
@@ -276,6 +280,10 @@ BOOL CTheme::AdjustThemeForChildrenProc(HWND hwnd, LPARAM lParam)
             SendMessage(hwnd, PBM_SETBKCOLOR, 0, (LPARAM)darkBkColor);
             SendMessage(hwnd, PBM_SETBARCOLOR, 0, (LPARAM)RGB(50, 50, 180));
         }
+        else if (wcscmp(szWndClassName, REBARCLASSNAME) == 0)
+        {
+            SetWindowTheme(hwnd, L"DarkModeNavBar", nullptr);
+        }
         else if (wcscmp(szWndClassName, L"Auto-Suggest Dropdown") == 0)
         {
             SetWindowTheme(hwnd, L"Explorer", nullptr);
@@ -302,12 +310,10 @@ BOOL CTheme::AdjustThemeForChildrenProc(HWND hwnd, LPARAM lParam)
                 {
                     ListView_SetTextColor(hwnd, color);
                 }
-                if (SUCCEEDED(::GetThemeColor(hTheme, 0, 0, TMT_FILLCOLOR, &color)))
-                {
-                    ListView_SetTextBkColor(hwnd, color);
-                    ListView_SetBkColor(hwnd, color);
-                }
             }
+            COLORREF color = GetSysColor(COLOR_WINDOW);
+            ListView_SetTextBkColor(hwnd, color);
+            ListView_SetBkColor(hwnd, color);
             auto hTT = ListView_GetToolTips(hwnd);
             if (hTT)
             {
@@ -403,9 +409,9 @@ BOOL CTheme::AdjustThemeForChildrenProc(HWND hwnd, LPARAM lParam)
         {
             SetWindowTheme(hwnd, nullptr, nullptr);
         }
-        else if (wcscmp(szWndClassName, PROGRESS_CLASS) == 0)
+        else if (wcscmp(szWndClassName, REBARCLASSNAME) == 0)
         {
-            SetWindowTheme(hwnd, nullptr, nullptr);
+            SetWindowTheme(hwnd, L"Explorer", nullptr);
         }
         else if (wcscmp(szWndClassName, L"Auto-Suggest Dropdown") == 0)
         {
@@ -765,7 +771,7 @@ LRESULT CTheme::ButtonSubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
                             int iState = GetStateFromBtnState(dwStyle, bHot, bFocus, dwCheckState, iPartId, FALSE);
 
-                            int bmWidth = int(ceil(13.0 * CDPIAware::Instance().GetDPI() / 96.0));
+                            int bmWidth = int(ceil(13.0 * CDPIAware::Instance().GetDPI(hWnd) / 96.0));
 
                             UINT uiHalfWidth = (RECTWIDTH(rcClient) - bmWidth) / 2;
 

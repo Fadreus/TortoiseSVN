@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-03-26 01:30+0000\n"
+"PO-Revision-Date: 2020-07-11 00:23+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Serbian (http://www.transifex.com/luebbe/tortoisesvn/language/sr/)\n"
 "MIME-Version: 1.0\n"
@@ -292,10 +292,10 @@ msgid ""
 "Although most people just download the installer, you also have full read "
 "access to the source code of this program. You can browse it on this link "
 "<ulink "
-"url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>."
+"url=\"https://osdn.net/projects/tortoisesvn/scm/svn/\"><citetitle>https://osdn.net/projects/tortoisesvn/scm/svn/</citetitle></ulink>."
 " The current development line is located under <filename>/trunk/</filename>,"
 " and the released versions are located under <filename>/tags/</filename>."
-msgstr "Мада већина људи скине инстолер ви такође имате пун приступ за читање изворног кода овог програма. Можете претражити линк <ulink url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>. Текућа развојна линија смештена је под <filename>/trunk/</filename>, а реализована верзија се налази под <filename>/tags/</filename>."
+msgstr ""
 
 #. (title)
 msgid "Development"
@@ -13219,6 +13219,25 @@ msgid ""
 "results using this colour."
 msgstr "Када се користи филтрирање у дијалогу дневника тражени појмови су осветљени коришћењем ове боје."
 
+#. (term)
+msgid "Dark theme"
+msgstr ""
+
+#. (para)
+msgid ""
+"The dialogs in TortoiseSVN can be shown in a dark mode on Windows 10 1809 "
+"and later. This feature also requires that dark mode for applications is "
+"enabled in the Windows 10 settings."
+msgstr ""
+
+#. (para)
+msgid "Note that not all controls in all dialogs are shown in a dark theme."
+msgstr ""
+
+#. (para)
+msgid "other settings: <placeholder-1/>"
+msgstr ""
+
 #. (title)
 msgid "Revision Graph Settings"
 msgstr "Ревизиони Граф Подешавање"
@@ -15098,14 +15117,6 @@ msgstr "У већини дијалога у ТортоисеСВН, можете
 
 #. (para)
 msgid ""
-"The dialogs in TortoiseSVN can be shown in a dark mode on Windows 10 1809 "
-"and later. This dark mode is considered experimental, because not all "
-"controls are shown in dark mode and some controls look pretty basic. Set "
-"this to <literal>true</literal> to enable the dark theme."
-msgstr ""
-
-#. (para)
-msgid ""
 "Set this to <literal>true</literal> if you want a dialog to pop up for every"
 " command showing the command line used to start TortoiseProc.exe."
 msgstr "Подесите на <literal>истина</literal> ако желите да дијалог искочи за сваку командну линију која се користи да се покрене ТортоисеПроц.еxе."
@@ -15578,6 +15589,15 @@ msgid ""
 "If the box for <literal>Path or Url</literal> is left empty, then a folder "
 "is added. This is useful to group monitored projects."
 msgstr "Ако је бокс за <literal>Путања или Урл</literal> остао празан онда је фолдер додат. Ово је корисно да се групишу посматрани пројекти. "
+
+#. (para)
+msgid ""
+"If you want to monitor all repositories served via the <ulink "
+"url=\"http://svnbook.red-"
+"bean.com/en/1.8/svn.serverconfig.httpd.html#svn.serverconfig.httpd.basic\"><citetitle>SVNParentPath</citetitle></ulink>"
+" directive, enter the root Url for your repositories and check the box "
+"<literal>Url points to SVNParentPath list</literal>."
+msgstr ""
 
 #. (para)
 msgid ""
@@ -17087,32 +17107,28 @@ msgid ""
 "keep the documentation completely up to date. We maintain an <ulink "
 "url=\"https://tortoisesvn.net/faq.html\"><citetitle>online "
 "FAQ</citetitle></ulink> which contains a selection of the questions we are "
-"asked the most on the TortoiseSVN mailing lists "
-"<email>dev@tortoisesvn.tigris.org</email> and "
-"<email>users@tortoisesvn.tigris.org</email>."
-msgstr "Пошто се ТортоисеСВН развија све време понекад је тешко држати документацију комплетно усклађену. Ми одржавамо <ulink url=\"http://tortoisesvn.net/faq.html\"><citetitle>online FAQ</citetitle></ulink> који садржи избор питања коју већина поставља на ТортоисеСВН мејлинг листама <email>dev@tortoisesvn.tigris.org</email> и <email>users@tortoisesvn.tigris.org</email>."
+"asked the most on the TortoiseSVN mailing lists <ulink "
+"url=\"https://groups.google.com/forum/#!forum/tortoisesvn\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn</citetitle></ulink>"
+" and <ulink url=\"https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev</citetitle></ulink>"
+msgstr ""
 
 #. (para)
 msgid ""
-"We also maintain a project <ulink "
-"url=\"https://sourceforge.net/p/tortoisesvn/tickets/\"><citetitle>Issue "
-"Tracker</citetitle></ulink> which tells you about some of the things we have"
-" on our To-Do list, and bugs which have already been fixed. If you think you"
-" have found a bug, or want to request a new feature, check here first to see"
-" if someone else got there before you."
-msgstr "Ми такође одржавамо пројекат <ulink url=\"https://sourceforge.net/p/tortoisesvn/tickets/\"><citetitle>Issue Tracker</citetitle></ulink> који вам кажу о неким стварима које имамо на То-До листи, и багови који су већ фиксирани. Ако мислите да сте нашли баг или желите да захтевате нову особину проверите најпре да видите да ли је још неко нашао исти пре вас."
-
-#. (para)
-msgid ""
-"<email>users@tortoisesvn.tigris.org</email> is the one to use if you have "
-"questions about using TortoiseSVN."
-msgstr "<email>users@tortoisesvn.tigris.org</email>користите ако имате питања о коришћењу ТортоисеСВН."
+"<ulink "
+"url=\"https://groups.google.com/forum/#!forum/tortoisesvn\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn</citetitle></ulink>"
+" is the one to use if you have questions about using TortoiseSVN."
+msgstr ""
 
 #. (para)
 msgid ""
 "If you want to help out with the development of TortoiseSVN, then you should"
-" take part in discussions on <email>dev@tortoisesvn.tigris.org</email>."
-msgstr "Ако желите да помогнете у развоју ТортоисеСВН, треба да узмете учешће у дискусијама на <email>dev@tortoisesvn.tigris.org</email>."
+" take part in discussions on <ulink "
+"url=\"https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev\"><citetitle>https://groups.google.com/forum/#!forum/tortoisesvn-"
+"dev</citetitle></ulink>"
+msgstr ""
 
 #. (para)
 msgid ""
@@ -18335,7 +18351,22 @@ msgstr "Отвара дијалог дневника. <option>/path</option> : <
 msgid "An svn date revision can be in one of the following formats:"
 msgstr "Свн датум ревизије може бити у једном од следећих формата:"
 
-#. (option)
+#. (para)
+msgid ""
+"Opens the checkout dialog. The <option>/path</option> specifies the target "
+"directory and the <option>/url</option> specifies the URL to checkout from. "
+"If you specify the key <option>/blockpathadjustments</option>, the automatic"
+" checkout path adjustments are blocked. The <option>/revision:XXX</option> "
+"specifies the revision to check out."
+msgstr ""
+
+#. (para)
+msgid ""
+"If you specify <option>/outfile:\"path/to/file\"</option> the specified file"
+" will contain three lines after a checkout. The first line is the checkout "
+"path, the second line the url and the third the revision."
+msgstr ""
+
 #. (option)
 #. (option)
 #. (option)
@@ -18367,30 +18398,6 @@ msgstr "Свн датум ревизије може бити у једном о�
 #. (option)
 msgid "/path"
 msgstr "/путања"
-
-#. (option)
-#. (option)
-#. (option)
-msgid "/url"
-msgstr "/урл"
-
-#. (option)
-#. (option)
-msgid "/blockpathadjustments"
-msgstr "/blockpathadjustments"
-
-#. (option)
-msgid "/revision:XXX"
-msgstr "/revision:XXX"
-
-#. (entry)
-msgid ""
-"Opens the checkout dialog. The <placeholder-1/> specifies the target "
-"directory and the <placeholder-2/> specifies the URL to checkout from. If "
-"you specify the key <placeholder-3/>, the automatic checkout path "
-"adjustments are blocked. The <placeholder-4/> specifies the revision to "
-"check out."
-msgstr "Отвара дијалог преузимања. <placeholder-1/> специфицире циљни фолдер и <placeholder-2/> специфицире УРЛ из ког се  преузима. Ако специфицирате тастер <placeholder-3/>, блокира се аутоматско подешавање путање преузимања. <placeholder-4/> специфицира ревизију преузимања."
 
 #. (option)
 #. (option)
@@ -18568,11 +18575,20 @@ msgstr "Означава конфликтне фајлове специфици�
 msgid "Creates a repository in <placeholder-1/>"
 msgstr "Креира спремиште у <placeholder-1/>"
 
+#. (option)
+#. (option)
+msgid "/url"
+msgstr "/урл"
+
 #. (entry)
 msgid ""
 "Opens the switch dialog. The <placeholder-1/> specifies the target directory"
 " and <placeholder-2/> the URL to switch to."
 msgstr "Отвара дијалог скретања. <placeholder-1/> одређује циљни директоријум и <placeholder-2/> УРЛ за скретање."
+
+#. (option)
+msgid "/blockpathadjustments"
+msgstr "/blockpathadjustments"
 
 #. (entry)
 msgid ""
@@ -20578,11 +20594,11 @@ msgid ""
 "TortoiseMerge is an Open Source project. That means you have full read "
 "access to the source code of this program. You can browse it on this link "
 "<ulink "
-"url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>."
+"url=\"https://osdn.net/projects/tortoisesvn/scm/svn/\"><citetitle>https://osdn.net/projects/tortoisesvn/scm/svn/</citetitle></ulink>."
 " The most recent version (where we're currently working) is located under "
 "<filename>/trunk/</filename>, and the released versions are located under "
 "<filename>/tags/</filename>."
-msgstr "ТортоисеМерге је пројекат отвореног кода. То значи да имате пун приступ читању изворног кода програма. Можете га претраживати  на овом линку <ulink url=\"https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/\"><citetitle>https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/</citetitle></ulink>. Најскорија верзија (где ми тренутно радимо) лоцирана је на <filename>/trunk/</filename>, а извршна верзија је лоцирана на <filename>/tags/</filename>."
+msgstr ""
 
 #. (para)
 msgid "for the hard work on TortoiseMerge"
@@ -21373,16 +21389,13 @@ msgid ""
 msgstr ""
 
 #. (title)
-msgid "keyboard shortcuts"
-msgstr "скраћенице тастатуре"
+#. (title)
+msgid "Keyboard Shortcuts"
+msgstr ""
 
 #. (para)
 msgid "List of keyboard shortcuts and commands."
 msgstr "Листа скраћеница тастатуре и команди."
-
-#. (title)
-msgid "Keyboard shortcuts"
-msgstr "Скраћенице тастатуре"
 
 #. (term)
 msgid "Ctrl-Q, Ctrl-W, Escape"
@@ -21453,16 +21466,16 @@ msgid "Save as..."
 msgstr "Сачувај као..."
 
 #. (term)
-msgid "F7"
-msgstr "Ф7"
+msgid "F7, Ctrl-Down"
+msgstr ""
 
 #. (para)
 msgid "Go to next difference"
 msgstr "Иди на следећу разлику"
 
 #. (term)
-msgid "Shift-F7"
-msgstr "Шифтт-Ф7"
+msgid "Shift-F7, Ctrl-Up"
+msgstr ""
 
 #. (para)
 msgid "Go to previous difference"
@@ -21517,11 +21530,9 @@ msgid "Toggles between collapsing unchanged sections or not"
 msgstr "Пребацивање између сажимања неизмењених делова или не"
 
 #. (term)
-#. (term)
 msgid "Ctrl-P"
 msgstr "Цтрл-П"
 
-#. (para)
 #. (para)
 msgid "Toggles between line wrapping"
 msgstr "Измене између прелома линија"
@@ -21561,6 +21572,14 @@ msgstr "Цтрл-Таб"
 #. (para)
 msgid "Switch between left/right/bottom view"
 msgstr "Прелаз између левог/десног/доњег прегледа"
+
+#. (term)
+msgid "Ctrl-M"
+msgstr ""
+
+#. (para)
+msgid "Toggles between marking the selected change"
+msgstr ""
 
 #. (title)
 msgid "Automating TortoiseMerge"

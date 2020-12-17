@@ -3880,6 +3880,7 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
     {
         for (auto it:wcroots)
         {
+            CHooks::Instance().clear();
             DWORD exitcode = 0;
             CString error;
             ProjectProperties pp;
@@ -3927,6 +3928,7 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
         {
             for (auto it:wcroots)
             {
+                CHooks::Instance().clear();
                 DWORD exitcode = 0;
                 CString error;
                 ProjectProperties pp;

@@ -24,8 +24,8 @@
 # Maxim Gutsul <maximgutsul@gmail.com>, 2017
 # Nikolay Falileev <kelvinkolyan@mail.ru>, 2017
 # Nikolay Osinin <nikolay.osinin@gmail.com>, 2011-2012
-# rlagutin <inactive+drbeep@transifex.com>, 2014
-# rlagutin <inactive+drbeep@transifex.com>, 2014
+# 82f4f02557fd4886d250a2aa0aecb530_0f90749 <0cd40767d55b0248271195f29db18a8d_208365>, 2014
+# 82f4f02557fd4886d250a2aa0aecb530_0f90749 <0cd40767d55b0248271195f29db18a8d_208365>, 2014
 # Dmitriy Mamonov <sassy.but.classic@gmail.com>, 2013
 # Сергей Аксёнов <aksenov007bond@gmail.com>, 2016
 # Alexander Shchekaturov <shcham@gmail.com>, 2013
@@ -41,7 +41,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-03-26 01:43+0000\n"
+"PO-Revision-Date: 2020-05-17 13:41+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Russian (http://www.transifex.com/luebbe/tortoisesvn/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -3584,6 +3584,16 @@ msgstr "Вырезать выбранное и положить в буфер о
 #. Resource IDs: (1279)
 msgid "D&etails"
 msgstr "По&дробнее"
+
+#. Resource IDs: (1682)
+msgid "Dark theme"
+msgstr ""
+
+#. Resource IDs: (1683)
+msgid ""
+"Dark theme requires at least Win10 1803, and it must be enabled in the "
+"Windows system settings."
+msgstr ""
 
 #. Resource IDs: (1210, 1529, 3312, IDS_HEADER_DATE)
 msgid "Date"
@@ -10562,6 +10572,10 @@ msgstr "Преобразовать рабочую копию"
 #, c-format
 msgid "Upgrading '%1!ls!'"
 msgstr "Обновление '%1!ls!'"
+
+#. Resource IDs: (1684)
+msgid "Url points to SVNParentPath list"
+msgstr ""
 
 #. Resource IDs: (1843)
 msgid "Urls"

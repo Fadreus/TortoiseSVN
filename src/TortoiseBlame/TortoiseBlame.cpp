@@ -32,12 +32,19 @@
 #include "LoadIconEx.h"
 #include "Theme.h"
 #include "DarkModeHelper.h"
+#include "Monitor.h"
 
 #include <algorithm>
 #include <cctype>
 #include <regex>
 #include <strsafe.h>
 #include <VersionHelpers.h>
+#include <dwmapi.h>
+
+#pragma warning(push)
+#pragma warning(disable: 4458) // declaration of 'xxx' hides class member
+#include <gdiplus.h>
+#pragma warning(pop)
 
 #define MAX_LOADSTRING 1000
 
@@ -50,6 +57,7 @@
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "Shlwapi.lib")
+#pragma comment(lib, "Dwmapi.lib")
 
 // Global Variables:
 TCHAR        szTitle[MAX_LOADSTRING]       = {0}; // The title bar text
@@ -128,11 +136,6 @@ TortoiseBlame::TortoiseBlame()
 
     SetupColoring();
     SecureZeroMemory(&m_fr, sizeof(m_fr));
-
-    NONCLIENTMETRICS metrics = {0};
-    metrics.cbSize           = sizeof(NONCLIENTMETRICS);
-    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
-    m_uiFont = CreateFontIndirect(&metrics.lfMessageFont);
 }
 
 TortoiseBlame::~TortoiseBlame()
@@ -437,10 +440,12 @@ BOOL TortoiseBlame::OpenFile(const TCHAR* fileName)
             if (((unsigned char)lineptr[0] == 0xEF) && ((unsigned char)lineptr[1] == 0xBB) && ((unsigned char)lineptr[2] == 0xBF))
             {
                 lineptr += 3;
+                strLen -= 3;
             }
             if (((unsigned char)lineptr[0] == 0xBB) && ((unsigned char)lineptr[1] == 0xEF) && ((unsigned char)lineptr[2] == 0xBF))
             {
                 lineptr += 3;
+                strLen -= 3;
             }
             // check each line for illegal utf8 sequences. If one is found, we treat
             // the file as ASCII, otherwise we assume an UTF8 file.
@@ -801,11 +806,12 @@ void TortoiseBlame::StartSearch()
     m_fr.lStructSize   = sizeof(m_fr);
     m_fr.hwndOwner     = wMain;
     m_fr.lpstrFindWhat = m_szFindWhat;
-    m_fr.wFindWhatLen  = 80;
+    m_fr.wFindWhatLen  = _countof(m_szFindWhat);
     m_fr.Flags         = FR_HIDEWHOLEWORD | FR_DOWN;
     m_fr.Flags |= bCase ? FR_MATCHCASE : 0;
 
     currentDialog = FindText(&m_fr);
+    CTheme::Instance().SetThemeForDialog(currentDialog, CTheme::Instance().IsDarkTheme());
 }
 
 void TortoiseBlame::DoSearchNext()
@@ -1444,6 +1450,7 @@ void TortoiseBlame::SetTheme(bool bDark)
         SendEditor(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
         SendEditor(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     }
+    DarkModeHelper::Instance().RefreshTitleBarThemeColor(wMain, bDark);
     if (bDark || CTheme::Instance().IsHighContrastModeDark())
     {
         for (int c = 0; c <= STYLE_DEFAULT; ++c)
@@ -1503,13 +1510,13 @@ LONG TortoiseBlame::GetBlameWidth()
     TCHAR buf[MAX_PATH] = {0};
     swprintf_s(buf, L"*%8d ", 88888888);
     ::GetTextExtentPoint(hDC, buf, (int)wcslen(buf), &width);
-    m_revWidth = width.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+    m_revWidth = width.cx + CDPIAware::Instance().Scale(wBlame, BLAMESPACE);
     blamewidth += m_revWidth;
     if (ShowDate)
     {
         swprintf_s(buf, L"%30s", L"31.08.2001 06:24:14");
         ::GetTextExtentPoint32(hDC, buf, (int)wcslen(buf), &width);
-        m_dateWidth = width.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+        m_dateWidth = width.cx + CDPIAware::Instance().Scale(wBlame, BLAMESPACE);
         blamewidth += m_dateWidth;
     }
     if (ShowAuthor)
@@ -1521,7 +1528,7 @@ LONG TortoiseBlame::GetBlameWidth()
             if (width.cx > maxwidth.cx)
                 maxwidth = width;
         }
-        m_authorWidth = maxwidth.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+        m_authorWidth = maxwidth.cx + CDPIAware::Instance().Scale(wBlame, BLAMESPACE);
         blamewidth += m_authorWidth;
     }
     if (ShowPath)
@@ -1533,7 +1540,7 @@ LONG TortoiseBlame::GetBlameWidth()
             if (width.cx > maxwidth.cx)
                 maxwidth = width;
         }
-        m_pathWidth = maxwidth.cx + CDPIAware::Instance().Scale(BLAMESPACE);
+        m_pathWidth = maxwidth.cx + CDPIAware::Instance().Scale(wBlame, BLAMESPACE);
         blamewidth += m_pathWidth;
     }
     ::SelectObject(hDC, oldfont);
@@ -1550,13 +1557,22 @@ void TortoiseBlame::CreateFont(int fontSize)
         DeleteObject(m_font);
     if (m_italicFont)
         DeleteObject(m_italicFont);
+    if (m_uiFont)
+        DeleteObject(m_uiFont);
+
+
+    NONCLIENTMETRICS metrics = { 0 };
+    metrics.cbSize = sizeof(NONCLIENTMETRICS);
+    SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
+    metrics.lfMessageFont.lfHeight = (LONG)(CDPIAware::Instance().ScaleFactorSystemToWindow(wBlame) * metrics.lfMessageFont.lfHeight);
+    m_uiFont = CreateFontIndirect(&metrics.lfMessageFont);
 
     LOGFONT lf             = {0};
     lf.lfWeight            = FW_NORMAL;
     HDC hDC                = ::GetDC(wBlame);
     lf.lfCharSet           = DEFAULT_CHARSET;
     if (fontSize == 0)
-        lf.lfHeight = -CDPIAware::Instance().PointsToPixels((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10));
+        lf.lfHeight = -CDPIAware::Instance().PointsToPixels(wBlame, (DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10));
     else
         lf.lfHeight = -fontSize;
     CRegStdString fontname = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Consolas");
@@ -1586,6 +1602,8 @@ void TortoiseBlame::DrawBlame(HDC hDC)
     RECT     rc;
     BOOL     sel = FALSE;
     GetClientRect(wBlame, &rc);
+    ::SetBkColor(hDC, m_windowColor);
+    ::ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &rc, nullptr, 0, nullptr);
     for (LRESULT i = line; i < (line + linesonscreen); ++i)
     {
         sel = FALSE;
@@ -1625,7 +1643,10 @@ void TortoiseBlame::DrawBlame(HDC hDC)
             else
                 wcscpy_s(buf, L"     ----       ");
             rc.right = rc.left + m_revWidth;
-            ::ExtTextOut(hDC, 0, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)wcslen(buf), 0);
+            RECT drawRC = rc;
+            drawRC.left = 0;
+            drawRC.top = (LONG)Y;
+            ::DrawText(hDC, buf, (int)wcslen(buf), &drawRC, DT_HIDEPREFIX | DT_NOPREFIX | DT_SINGLELINE);
             int Left = m_revWidth;
             if (ShowDate)
             {
@@ -1638,14 +1659,20 @@ void TortoiseBlame::DrawBlame(HDC hDC)
             {
                 rc.right = rc.left + Left + m_authorWidth;
                 swprintf_s(buf, L"%-30s            ", author.c_str());
-                ::ExtTextOut(hDC, Left, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)wcslen(buf), 0);
+                drawRC = rc;
+                drawRC.left = Left;
+                drawRC.top = (LONG)Y;
+                ::DrawText(hDC, buf, (int)wcslen(buf), &drawRC, DT_HIDEPREFIX | DT_NOPREFIX | DT_SINGLELINE);
                 Left += m_authorWidth;
             }
             if (ShowPath && !m_mergedPaths.empty())
             {
                 rc.right = rc.left + Left + m_pathWidth;
                 swprintf_s(buf, L"%-60s            ", m_mergedPaths[i].c_str());
-                ::ExtTextOut(hDC, Left, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)wcslen(buf), 0);
+                drawRC = rc;
+                drawRC.left = Left;
+                drawRC.top = (LONG)Y;
+                ::DrawText(hDC, buf, (int)wcslen(buf), &drawRC, DT_HIDEPREFIX | DT_NOPREFIX | DT_SINGLELINE);
                 Left += m_authorWidth;
             }
             if ((i == m_selectedLine) && (currentDialog))
@@ -1672,10 +1699,7 @@ void TortoiseBlame::DrawBlame(HDC hDC)
         }
         else
         {
-            ::SetBkColor(hDC, m_windowColor);
-            std::fill_n(buf, _countof(buf), ' ');
-            ::ExtTextOut(hDC, 0, (int)Y, ETO_CLIPPED, &rc, buf, _countof(buf) - 1, 0);
-            Y += height;
+            break;
         }
     }
 }
@@ -1691,7 +1715,7 @@ void TortoiseBlame::DrawHeader(HDC hDC)
     ::SetBkColor(hDC, CTheme::Instance().GetThemeColor(::GetSysColor(COLOR_BTNFACE)));
     ::SetTextColor(hDC, CTheme::Instance().IsDarkTheme() ? CTheme::darkTextColor : GetSysColor(COLOR_WINDOWTEXT));
     RECT edgerc   = rc;
-    edgerc.bottom = edgerc.top + CDPIAware::Instance().Scale(HEADER_HEIGHT) / 2;
+    edgerc.bottom = edgerc.top + CDPIAware::Instance().Scale(wHeader, HEADER_HEIGHT) / 2;
     DrawEdge(hDC, &edgerc, EDGE_BUMP, BF_FLAT | BF_RECT | BF_ADJUST);
 
     // draw the path first
@@ -1705,25 +1729,25 @@ void TortoiseBlame::DrawHeader(HDC hDC)
         if (str2.size() >= MAX_PATH)
             str2 = str2.substr(0, MAX_PATH - 2);
         wcscpy_s(pathbuf, str2.c_str());
-        PathCompactPath(hDC, pathbuf, edgerc.right - edgerc.left - CDPIAware::Instance().Scale(LOCATOR_WIDTH));
+        PathCompactPath(hDC, pathbuf, edgerc.right - edgerc.left - CDPIAware::Instance().Scale(wHeader, LOCATOR_WIDTH));
     }
     else
     {
         wcscpy_s(pathbuf, szViewtitle.c_str());
-        PathCompactPath(hDC, pathbuf, edgerc.right - edgerc.left - CDPIAware::Instance().Scale(LOCATOR_WIDTH));
+        PathCompactPath(hDC, pathbuf, edgerc.right - edgerc.left - CDPIAware::Instance().Scale(wHeader, LOCATOR_WIDTH));
     }
     DrawText(hDC, pathbuf, -1, &edgerc, DT_SINGLELINE | DT_VCENTER);
 
-    rc.top = rc.top + CDPIAware::Instance().Scale(HEADER_HEIGHT) / 2;
+    rc.top = rc.top + CDPIAware::Instance().Scale(wHeader, HEADER_HEIGHT) / 2;
     DrawEdge(hDC, &rc, EDGE_BUMP, BF_FLAT | BF_RECT | BF_ADJUST);
 
     RECT drawRc = rc;
 
     TCHAR szText[MAX_LOADSTRING] = {0};
     LoadString(app.hResource, IDS_HEADER_REVISION, szText, MAX_LOADSTRING);
-    drawRc.left = CDPIAware::Instance().Scale(LOCATOR_WIDTH);
+    drawRc.left = CDPIAware::Instance().Scale(wHeader, LOCATOR_WIDTH);
     DrawText(hDC, szText, -1, &drawRc, DT_SINGLELINE | DT_VCENTER);
-    int Left = m_revWidth + CDPIAware::Instance().Scale(LOCATOR_WIDTH);
+    int Left = m_revWidth + CDPIAware::Instance().Scale(wHeader, LOCATOR_WIDTH);
     if (ShowDate)
     {
         LoadString(app.hResource, IDS_HEADER_DATE, szText, MAX_LOADSTRING);
@@ -1875,6 +1899,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     CCrashReportTSVN crasher(L"TortoiseBlame " _T(APP_X64_STRING));
     CCrashReport::Instance().AddUserInfoToReport(L"CommandLine", GetCommandLine());
 
+    Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+    ULONG_PTR           gdiplusToken;
+    Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
     HMODULE hSciLexerDll = ::LoadLibrary(L"SciLexer.DLL");
     if (hSciLexerDll == NULL)
         return FALSE;
@@ -1981,6 +2009,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     }
     langDLL.Close();
     FreeLibrary(hSciLexerDll);
+    Gdiplus::GdiplusShutdown(gdiplusToken);
     return (int)msg.wParam;
 }
 
@@ -2078,9 +2107,10 @@ BOOL InitInstance(HINSTANCE hResource, int nCmdShow)
         return FALSE;
     }
 
-    CRegStdDWORD pos(L"Software\\TortoiseSVN\\TBlamePos", 0);
-    CRegStdDWORD width(L"Software\\TortoiseSVN\\TBlameSize", 0);
-    CRegStdDWORD state(L"Software\\TortoiseSVN\\TBlameState", 0);
+    auto         monHash = GetMonitorSetupHash();
+    CRegStdDWORD pos(L"Software\\TortoiseSVN\\TBlamePos" + monHash, 0);
+    CRegStdDWORD width(L"Software\\TortoiseSVN\\TBlameSize" + monHash, 0);
+    CRegStdDWORD state(L"Software\\TortoiseSVN\\TBlameState" + monHash, 0);
     if (DWORD(pos) && DWORD(width))
     {
         RECT rc;
@@ -2172,8 +2202,8 @@ void TortoiseBlame::InitSize()
     RECT blamerc;
     RECT sourcerc;
     ::GetClientRect(wMain, &rc);
-    ::SetWindowPos(wHeader, 0, rc.left, rc.top, rc.right - rc.left, CDPIAware::Instance().Scale(HEADER_HEIGHT), 0);
-    rc.top += CDPIAware::Instance().Scale(HEADER_HEIGHT);
+    ::SetWindowPos(wHeader, 0, rc.left, rc.top, rc.right - rc.left, CDPIAware::Instance().Scale(wMain, HEADER_HEIGHT), 0);
+    rc.top += CDPIAware::Instance().Scale(wMain, HEADER_HEIGHT);
     blamerc.left    = rc.left;
     blamerc.top     = rc.top;
     LONG w          = GetBlameWidth();
@@ -2185,15 +2215,15 @@ void TortoiseBlame::InitSize()
     sourcerc.right  = rc.right;
     if (m_colorby != COLORBYNONE)
     {
-        ::OffsetRect(&blamerc, CDPIAware::Instance().Scale(LOCATOR_WIDTH), 0);
-        ::OffsetRect(&sourcerc, CDPIAware::Instance().Scale(LOCATOR_WIDTH), 0);
-        sourcerc.right -= CDPIAware::Instance().Scale(LOCATOR_WIDTH);
+        ::OffsetRect(&blamerc, CDPIAware::Instance().Scale(wMain, LOCATOR_WIDTH), 0);
+        ::OffsetRect(&sourcerc, CDPIAware::Instance().Scale(wMain, LOCATOR_WIDTH), 0);
+        sourcerc.right -= CDPIAware::Instance().Scale(wMain, LOCATOR_WIDTH);
     }
     InvalidateRect(wMain, NULL, FALSE);
     ::SetWindowPos(wEditor, 0, sourcerc.left, sourcerc.top, sourcerc.right - sourcerc.left, sourcerc.bottom - sourcerc.top, 0);
     ::SetWindowPos(wBlame, 0, blamerc.left, blamerc.top, blamerc.right - blamerc.left, blamerc.bottom - blamerc.top, 0);
     if (m_colorby != COLORBYNONE)
-        ::SetWindowPos(wLocator, 0, 0, blamerc.top, CDPIAware::Instance().Scale(LOCATOR_WIDTH), blamerc.bottom - blamerc.top, SWP_SHOWWINDOW);
+        ::SetWindowPos(wLocator, 0, 0, blamerc.top, CDPIAware::Instance().Scale(wMain, LOCATOR_WIDTH), blamerc.bottom - blamerc.top, SWP_SHOWWINDOW);
     else
         ::ShowWindow(wLocator, SW_HIDE);
 }
@@ -2381,9 +2411,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
         case WM_CLOSE:
         {
-            CRegStdDWORD pos(L"Software\\TortoiseSVN\\TBlamePos", 0);
-            CRegStdDWORD width(L"Software\\TortoiseSVN\\TBlameSize", 0);
-            CRegStdDWORD state(L"Software\\TortoiseSVN\\TBlameState", 0);
+            auto         monHash = GetMonitorSetupHash();
+            CRegStdDWORD pos(L"Software\\TortoiseSVN\\TBlamePos_" + monHash, 0);
+            CRegStdDWORD width(L"Software\\TortoiseSVN\\TBlameSize_" + monHash, 0);
+            CRegStdDWORD state(L"Software\\TortoiseSVN\\TBlameState_" + monHash, 0);
             RECT         rc;
             GetWindowRect(app.wMain, &rc);
             if ((rc.left >= 0) && (rc.top >= 0))
@@ -2404,9 +2435,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             ::SetFocus(app.wBlame);
             break;
         case WM_SYSCOLORCHANGE:
+        case WM_SETTINGCHANGE:
+            SendMessage(app.wEditor, message, wParam, lParam);
             CTheme::Instance().OnSysColorChanged();
             CTheme::Instance().SetDarkTheme(CTheme::Instance().IsDarkTheme(), true);
             return 0;
+            break;
+        case WM_DPICHANGED:
+        {
+            SendMessage(app.wEditor, message, wParam, lParam);
+            CDPIAware::Instance().Invalidate();
+            const RECT* rect = reinterpret_cast<RECT*>(lParam);
+            SetWindowPos(hWnd, NULL, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, SWP_NOZORDER | SWP_NOACTIVATE);
+            app.CreateFont(0);
+            ::RedrawWindow(hWnd, nullptr, nullptr, RDW_FRAME | RDW_INVALIDATE | RDW_ERASE | RDW_INTERNALPAINT | RDW_ALLCHILDREN | RDW_UPDATENOW);
+        }
             break;
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);

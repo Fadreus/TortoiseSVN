@@ -30,6 +30,7 @@
 #include "EditWordBreak.h"
 #include "Theme.h"
 #include "DarkModeHelper.h"
+#include "DPIAware.h"
 #include <Dwmapi.h>
 #pragma comment(lib, "Dwmapi.lib")
 #pragma comment(lib, "htmlhelp.lib")
@@ -37,6 +38,7 @@
 #define DIALOG_BLOCKHORIZONTAL 1
 #define DIALOG_BLOCKVERTICAL 2
 
+std::wstring GetMonitorSetupHash();
 
 /**
  * \ingroup TortoiseProc
@@ -68,6 +70,7 @@ protected:
         m_height = 0;
         m_width = 0;
         m_themeCallbackId = 0;
+        m_dpi = 0;
 
         SetBackgroundIcon(IDI_AEROBACKGROUND, 256, 256);
     }
@@ -104,6 +107,8 @@ protected:
         if (CustomBreak)
             SetUrlWordBreakProcToChildWindows(GetSafeHwnd(), CustomBreak == 2);
 
+        m_dpi = CDPIAware::Instance().GetDPI(GetSafeHwnd());
+
         return FALSE;
     }
 
@@ -129,7 +134,6 @@ protected:
             {
                 CTheme::Instance().SetDarkTheme(!CTheme::Instance().IsDarkTheme());
             }
-
         }
         return BaseType::PreTranslateMessage(pMsg);
     }
@@ -359,12 +363,13 @@ protected:
         m_nResizeBlock = block;
     }
 
-    void EnableSaveRestore(LPCTSTR pszSection, bool bRectOnly = FALSE)
+    void EnableSaveRestore(LPCWSTR pszSection, bool bRectOnly = FALSE)
     {
         // call the base method with the bHorzResize and bVertResize parameters
         // figured out from the resize block flags.
-        BaseType::EnableSaveRestore(pszSection, bRectOnly, (m_nResizeBlock&DIALOG_BLOCKHORIZONTAL) == 0, (m_nResizeBlock&DIALOG_BLOCKVERTICAL) == 0);
-    };
+        std::wstring monitorSetupSection = pszSection + GetMonitorSetupHash();
+        BaseType::EnableSaveRestore(monitorSetupSection.c_str(), bRectOnly, (m_nResizeBlock & DIALOG_BLOCKHORIZONTAL) == 0, (m_nResizeBlock & DIALOG_BLOCKVERTICAL) == 0);
+    }
 
     void SetTheme(bool bDark);
 
@@ -376,6 +381,7 @@ protected:
     long            m_width;
     long            m_height;
     int             m_themeCallbackId;
+    int             m_dpi;
     DECLARE_MESSAGE_MAP()
 private:
     HCURSOR OnQueryDragIcon()
@@ -408,6 +414,16 @@ protected:
         SetUUIDOverlayIcon(m_hWnd);
         return 0;
     }
+
+    afx_msg void OnSysColorChange()
+    {
+        BaseType::OnSysColorChange();
+        CTheme::Instance().OnSysColorChanged();
+        SetTheme(CTheme::Instance().IsDarkTheme());
+    }
+
+    LRESULT OnDPIChanged(WPARAM, LPARAM lParam);
+
 
     HICON           m_hIcon;
     HICON           m_hBkgndIcon;
@@ -442,19 +458,7 @@ protected:
     // overloaded method, but since this dialog class is for non-resizable dialogs,
     // the bHorzResize and bVertResize params are ignored and passed as false
     // to the base method.
-    void EnableSaveRestore(LPCTSTR pszSection, bool bRectOnly = FALSE, BOOL bHorzResize = TRUE, BOOL bVertResize = TRUE)
-    {
-        UNREFERENCED_PARAMETER(bHorzResize);
-        UNREFERENCED_PARAMETER(bVertResize);
-
-        m_sSection = pszSection;
-
-        m_bEnableSaveRestore = true;
-        m_bRectOnly = bRectOnly;
-
-        // restore immediately
-        LoadWindowRect(pszSection, bRectOnly, false, false);
-    };
+    void EnableSaveRestore(LPCWSTR pszSection, bool bRectOnly = FALSE, BOOL bHorzResize = TRUE, BOOL bVertResize = TRUE);
     virtual ULONG GetGestureStatus(CPoint /*ptTouch*/) override
     {
         return 0;
