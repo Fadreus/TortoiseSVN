@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2009-2010, 2013-2014, 2016-2017, 2020 - TortoiseSVN
+// Copyright (C) 2006-2007, 2009-2010, 2013-2014, 2016-2017, 2020-2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "TortoiseMerge.h"
 #include "AboutDlg.h"
 #include "svn_version.h"
 #include "svn_diff.h"
@@ -45,13 +44,11 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_SUPPORTLINK, m_cSupportLink);
 }
 
-
 BEGIN_MESSAGE_MAP(CAboutDlg, CStandAloneDialog)
     ON_WM_TIMER()
     ON_WM_MOUSEMOVE()
     ON_WM_CLOSE()
 END_MESSAGE_MAP()
-
 
 BOOL CAboutDlg::OnInitDialog()
 {
@@ -61,14 +58,14 @@ BOOL CAboutDlg::OnInitDialog()
     m_aeroControls.SubclassControl(this, IDOK);
 
     //set the version string
-    CString temp, boxtitle;
-    boxtitle.Format(IDS_ABOUTVERSIONBOX, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE));
-    SetDlgItemText(IDC_VERSIONBOX, boxtitle);
-    const svn_version_t * diffver = svn_diff_version();
-    temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE),
-        diffver->major, diffver->minor, diffver->patch, (LPCWSTR)CString(diffver->tag),
-        APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
-        APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION);
+    CString temp, boxTitle;
+    boxTitle.Format(IDS_ABOUTVERSIONBOX, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, TEXT(TSVN_PLATFORM), TEXT(TSVN_VERDATE));
+    SetDlgItemText(IDC_VERSIONBOX, boxTitle);
+    const svn_version_t* diffVer = svn_diff_version();
+    temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, TEXT(TSVN_PLATFORM), TEXT(TSVN_VERDATE),
+                diffVer->major, diffVer->minor, diffVer->patch, static_cast<LPCWSTR>(CString(diffVer->tag)),
+                APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
+                APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION);
     SetDlgItemText(IDC_VERSIONABOUT, temp);
     this->SetWindowText(L"TortoiseMerge");
 
@@ -82,9 +79,9 @@ BOOL CAboutDlg::OnInitDialog()
     SetTimer(ID_DROPTIMER, 300, nullptr);
 
     m_cWebLink.SetURL(L"https://tortoisesvn.net");
-    m_cSupportLink.SetURL(L"https://tortoisesvn.tigris.org/contributors.html");
+    m_cSupportLink.SetURL(L"https://tortoisesvn.net/support.html");
 
-    return TRUE;  // return TRUE unless you set the focus to a control
+    return TRUE; // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
@@ -92,34 +89,34 @@ void CAboutDlg::OnTimer(UINT_PTR nIDEvent)
 {
     if (nIDEvent == ID_EFFECTTIMER)
     {
-        m_waterEffect.Render((DWORD*)m_renderSrc.GetDIBits(), (DWORD*)m_renderDest.GetDIBits());
+        m_waterEffect.Render(static_cast<DWORD*>(m_renderSrc.GetDIBits()), static_cast<DWORD*>(m_renderDest.GetDIBits()));
         CClientDC dc(this);
-        CPoint ptOrigin(CDPIAware::Instance().Scale(GetSafeHwnd(), 15), CDPIAware::Instance().Scale(GetSafeHwnd(), 20));
-        m_renderDest.Draw(&dc,ptOrigin);
+        CPoint    ptOrigin(CDPIAware::Instance().Scale(GetSafeHwnd(), 15), CDPIAware::Instance().Scale(GetSafeHwnd(), 20));
+        m_renderDest.Draw(&dc, ptOrigin);
     }
     if (nIDEvent == ID_DROPTIMER)
     {
         CRect r;
-        r.left = CDPIAware::Instance().Scale(GetSafeHwnd(), 15);
-        r.top = CDPIAware::Instance().Scale(GetSafeHwnd(), 20);
-        r.right = r.left + m_renderSrc.GetWidth();
+        r.left   = CDPIAware::Instance().Scale(GetSafeHwnd(), 15);
+        r.top    = CDPIAware::Instance().Scale(GetSafeHwnd(), 20);
+        r.right  = r.left + m_renderSrc.GetWidth();
         r.bottom = r.top + m_renderSrc.GetHeight();
-        m_waterEffect.Blob(random(r.left,r.right), random(r.top, r.bottom), 2, 400, m_waterEffect.m_iHpage);
+        m_waterEffect.Blob(RANDOM(r.left, r.right), RANDOM(r.top, r.bottom), 2, 400, m_waterEffect.m_iHpage);
     }
     CStandAloneDialog::OnTimer(nIDEvent);
 }
 
 void CAboutDlg::OnMouseMove(UINT nFlags, CPoint point)
 {
-    auto dpix15 = CDPIAware::Instance().Scale(GetSafeHwnd(), 15);
-    auto dpiy20 = CDPIAware::Instance().Scale(GetSafeHwnd(), 20);
+    auto  dpix15 = CDPIAware::Instance().Scale(GetSafeHwnd(), 15);
+    auto  dpiy20 = CDPIAware::Instance().Scale(GetSafeHwnd(), 20);
     CRect r;
-    r.left = dpix15;
-    r.top = dpiy20;
-    r.right = r.left + m_renderSrc.GetWidth();
+    r.left   = dpix15;
+    r.top    = dpiy20;
+    r.right  = r.left + m_renderSrc.GetWidth();
     r.bottom = r.top + m_renderSrc.GetHeight();
 
-    if(r.PtInRect(point) != FALSE)
+    if (r.PtInRect(point) != FALSE)
     {
         // dibs are drawn upside down...
         point.y -= dpiy20;
@@ -129,7 +126,6 @@ void CAboutDlg::OnMouseMove(UINT nFlags, CPoint point)
             m_waterEffect.Blob(point.x - dpix15, point.y, CDPIAware::Instance().Scale(GetSafeHwnd(), 10), 1600, m_waterEffect.m_iHpage);
         else
             m_waterEffect.Blob(point.x - dpix15, point.y, CDPIAware::Instance().Scale(GetSafeHwnd(), 5), 50, m_waterEffect.m_iHpage);
-
     }
 
     CStandAloneDialog::OnMouseMove(nFlags, point);

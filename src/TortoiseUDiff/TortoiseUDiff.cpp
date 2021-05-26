@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010-2012, 2014-2015, 2020 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010-2012, 2014-2015, 2020-2021 - TortoiseSVN
 // Copyright (C) 2011-2016 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
@@ -25,8 +25,9 @@
 #include "LangDll.h"
 #include "Monitor.h"
 #include "../Utils/CrashReport.h"
+#include "ResString.h"
+#include "registry.h"
 
-#include <algorithm>
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
 
@@ -34,24 +35,24 @@
 
 HINSTANCE hResource; // the resource dll
 
-int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE /*hPrevInstance*/,
-                       LPTSTR    lpCmdLine,
-                       int       /*nCmdShow*/)
+int APIENTRY wWinMain(HINSTANCE hInstance,
+                      HINSTANCE /*hPrevInstance*/,
+                      LPWSTR lpCmdLine,
+                      int /*nCmdShow*/)
 {
     SetDllDirectory(L"");
-    SetTaskIDPerUUID();
-    MSG msg;
+    setTaskIDPerUuid();
+    MSG    msg;
     HACCEL hAccelTable;
 
-    CCrashReportTSVN crasher(L"TortoiseUDiff " _T(APP_X64_STRING));
+    CCrashReportTSVN crasher(L"TortoiseUDiff " TEXT(APP_X64_STRING));
     CCrashReport::Instance().AddUserInfoToReport(L"CommandLine", GetCommandLine());
-    CRegStdDWORD loc = CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033);
-    long langId = loc;
+    CRegStdDWORD loc    = CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033);
+    long         langId = loc;
     CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 
-    CLangDll langDLL;
-    hResource = langDLL.Init(L"TortoiseUDiff", langId);
+    CLangDll langDll;
+    hResource = langDll.Init(L"TortoiseUDiff", langId);
     if (!hResource)
         hResource = hInstance;
 
@@ -66,14 +67,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
     INITCOMMONCONTROLSEX used = {
         sizeof(INITCOMMONCONTROLSEX),
-        ICC_STANDARD_CLASSES | ICC_BAR_CLASSES
-    };
+        ICC_STANDARD_CLASSES | ICC_BAR_CLASSES};
     InitCommonControlsEx(&used);
-
-
-    HMODULE hSciLexerDll = ::LoadLibrary(L"SciLexer.DLL");
-    if (!hSciLexerDll)
-        return FALSE;
 
     CMainWindow mainWindow(hResource);
     auto        monHash = GetMonitorSetupHash();
@@ -96,10 +91,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     }
 
     if (!mainWindow.RegisterAndCreateWindow())
-    {
-        FreeLibrary(hSciLexerDll);
         return 0;
-    }
 
     bool bLoadedSuccessfully = false;
     if ((lpCmdLine[0] == L'\0') || (parser.HasKey(L"p")))
@@ -123,10 +115,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     }
 
     if (!bLoadedSuccessfully)
-    {
-        FreeLibrary(hSciLexerDll);
         return 0;
-    }
 
     ::ShowWindow(mainWindow.GetHWNDEdit(), SW_SHOW);
     ::SetFocus(mainWindow.GetHWNDEdit());
@@ -143,6 +132,5 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
         }
     }
 
-    FreeLibrary(hSciLexerDll);
-    return (int) msg.wParam;
+    return static_cast<int>(msg.wParam);
 }

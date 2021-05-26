@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2011, 2013, 2020 - TortoiseSVN
+// Copyright (C) 2011, 2013, 2020-2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,10 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "TortoiseMerge.h"
 #include "GotoLineDlg.h"
-#include <afxdialogex.h>
-
 
 // CGotoLineDlg dialog
 
@@ -32,7 +29,6 @@ CGotoLineDlg::CGotoLineDlg(CWnd* pParent /*=nullptr*/)
     , m_nLow(-1)
     , m_nHigh(-1)
 {
-
 }
 
 CGotoLineDlg::~CGotoLineDlg()
@@ -46,12 +42,8 @@ void CGotoLineDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_NUMBER, m_cNumber);
 }
 
-
 BEGIN_MESSAGE_MAP(CGotoLineDlg, CStandAloneDialog)
 END_MESSAGE_MAP()
-
-
-
 
 BOOL CGotoLineDlg::OnInitDialog()
 {
@@ -67,11 +59,10 @@ BOOL CGotoLineDlg::OnInitDialog()
     return FALSE;
 }
 
-
 void CGotoLineDlg::OnOK()
 {
     UpdateData();
-    if ((m_nLine < m_nLow)||(m_nLine > m_nHigh))
+    if ((m_nLine < m_nLow) || (m_nLine > m_nHigh))
     {
         CString sError;
         sError.Format(IDS_GOTO_OUTOFRANGE, m_nLow, m_nHigh);

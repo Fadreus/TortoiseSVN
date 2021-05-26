@@ -28,7 +28,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-07-11 00:23+0000\n"
+"PO-Revision-Date: 2021-01-16 09:36+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Portuguese (http://www.transifex.com/luebbe/tortoisesvn/language/pt/)\n"
 "MIME-Version: 1.0\n"
@@ -4607,6 +4607,10 @@ msgstr "Estado Remoto e Local"
 msgid "modifications"
 msgstr "modificações"
 
+#. (primary)
+msgid "(+)"
+msgstr ""
+
 #. (title)
 #. (title)
 msgid "Check for Modifications"
@@ -4638,6 +4642,13 @@ msgstr "Se clicares em <guibutton>Verificar repositório</guibutton> podes entã
 #. (para)
 msgid "Locally modified items."
 msgstr "Itens modificados localmente."
+
+#. (para)
+msgid ""
+"if unchanged files are inside a directory that's been moved, the status will"
+" show a <literal>+</literal> sign in the <guilabel>status</guilabel> column,"
+" and it will be colored in blue as well."
+msgstr ""
 
 #. (para)
 msgid ""
@@ -6735,8 +6746,7 @@ msgstr "WinMerge"
 
 #. (para)
 msgid ""
-"<ulink "
-"url=\"https://winmerge.sourceforge.net/\"><citetitle>WinMerge</citetitle></ulink>"
+"<ulink url=\"https://winmerge.org/\"><citetitle>WinMerge</citetitle></ulink>"
 " is a great open-source diff tool which can also handle directories."
 msgstr ""
 
@@ -12416,9 +12426,9 @@ msgid ""
 "Subversion such as <ulink "
 "url=\"http://www.viewvc.org/\"><citetitle>ViewVC</citetitle></ulink> and "
 "<ulink "
-"url=\"http://websvn.tigris.org/\"><citetitle>WebSVN</citetitle></ulink>. "
+"url=\"https://websvnphp.github.io/\"><citetitle>WebSVN</citetitle></ulink>. "
 "TortoiseSVN provides a means to link with these viewers."
-msgstr "Existem disponíveis vários visualizadores de repositório web-based para o uso com o Subversion, tais como o <ulink url=\"http://www.viewvc.org/\"><citetitle>ViewVC</citetitle></ulink> e o <ulink url=\"http://websvn.tigris.org/\"><citetitle>WebSVN</citetitle></ulink>. O TortoiseSVN providência um meio de ligar-se com esses visualizadores."
+msgstr ""
 
 #. (para)
 msgid ""
@@ -17139,13 +17149,6 @@ msgstr ""
 
 #. (para)
 msgid ""
-"If you want to help with the translation of the TortoiseSVN user interface "
-"or the documentation, send an e-mail to "
-"<email>translators@tortoisesvn.tigris.org</email>."
-msgstr "Se queres ajudar na tradução do interface de utilizador do TortoiseSVN ou da documentação, envia um e-mail para <email>translators@tortoisesvn.tigris.org</email>."
-
-#. (para)
-msgid ""
 "If you have a question which is not answered anywhere else, the best place "
 "to ask it is on one of the mailing lists: <placeholder-1/>"
 msgstr "Se tens uma questão que ainda não foi respondida em nenhum lado, o melhor local para a colocar será numa das listas de correio: <placeholder-1/>"
@@ -17192,6 +17195,10 @@ msgid ""
 "Menu</guimenu><guimenuitem>SVN Move versioned files "
 "here</guimenuitem></menuchoice>."
 msgstr "A forma recomendada será através do <action>arrastar à direita</action> os ficheiros para uma nova localização. Simplesmente <action>clica à direita</action> nos ficheiros que queres mover/copiar, isto sem largar o botão do rato. Arrasta então os ficheiros para uma nova localização e largando em seguida o botão do rato. O menu de contexto aparecerá, onde então poderás escolher <menuchoice><guimenu>Menu de Contexto</guimenu><guimenuitem>SVN Copiar para aqui arquivos versionados</guimenuitem></menuchoice> ou <menuchoice><guimenu>Menu de Contexto</guimenu><guimenuitem>SVN Mover para aqui item(s) versionados</guimenuitem></menuchoice>."
+
+#. (title)
+msgid "The TortoiseSVN right drag context menu for moving files"
+msgstr ""
 
 #. (title)
 msgid "Force users to enter a log message"

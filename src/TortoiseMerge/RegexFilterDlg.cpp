@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2013-2014, 2016, 2020 - TortoiseSVN
+// Copyright (C) 2013-2014, 2016, 2020-2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,11 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "TortoiseMerge.h"
 #include "RegexFilterDlg.h"
-#include <afxdialogex.h>
 #include <regex>
-
 
 // CRegexFilterDlg dialog
 
@@ -44,13 +41,10 @@ void CRegexFilterDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_REPLACE, m_sReplace);
 }
 
-
 BEGIN_MESSAGE_MAP(CRegexFilterDlg, CStandAloneDialog)
 END_MESSAGE_MAP()
 
-
 // CRegexFilterDlg message handlers
-
 
 BOOL CRegexFilterDlg::OnInitDialog()
 {
@@ -59,7 +53,7 @@ BOOL CRegexFilterDlg::OnInitDialog()
     UpdateData(FALSE);
 
     GetDlgItem(IDC_NAME)->SetFocus();
-    return FALSE;  // return TRUE unless you set the focus to a control
+    return FALSE; // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
@@ -83,12 +77,12 @@ void CRegexFilterDlg::OnOK()
 
 void CRegexFilterDlg::ShowEditBalloon(UINT nIdControl, UINT nIdText, UINT nIdTitle, int nIcon)
 {
-    CString text = CString(MAKEINTRESOURCE(nIdText));
-    CString title = CString(MAKEINTRESOURCE(nIdTitle));
+    CString        text  = CString(MAKEINTRESOURCE(nIdText));
+    CString        title = CString(MAKEINTRESOURCE(nIdTitle));
     EDITBALLOONTIP bt;
     bt.cbStruct = sizeof(bt);
-    bt.pszText = text;
+    bt.pszText  = text;
     bt.pszTitle = title;
-    bt.ttiIcon = nIcon;
-    SendDlgItemMessage(nIdControl, EM_SHOWBALLOONTIP, 0, (LPARAM)&bt);
+    bt.ttiIcon  = nIcon;
+    SendDlgItemMessage(nIdControl, EM_SHOWBALLOONTIP, 0, reinterpret_cast<LPARAM>(&bt));
 }

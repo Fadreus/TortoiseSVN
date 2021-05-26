@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - TortoiseSVN
+// Copyright (C) 2003-2006, 2021, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,22 +17,22 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
 
-
-extern char * g_pConfigDir;
+extern char* g_pConfigDir;
 
 /**
  * \ingroup SVN
- * Global class to set the path to the directory where the config files are
+ * Global class to set the path to the directory where the m_config files are
  * stored. This is used to override the default path from the command line with
- * the /configdir:"path\to\config\dir" param (as the CL client has with the
- * --config-dir param.
+ * the /configdir:"path\to\m_config\dir" param (as the CL client has with the
+ * --m_config-dir param.
  */
 class SVNGlobal
 {
 public:
     SVNGlobal();
     ~SVNGlobal();
-    void SetConfigDir(CString sConfigDir);
+    static void SetConfigDir(CString sConfigDir);
 };
 
+// ReSharper disable once CppInconsistentNaming
 extern SVNGlobal g_SVNGlobal;

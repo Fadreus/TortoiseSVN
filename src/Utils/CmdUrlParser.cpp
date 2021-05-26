@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2009, 2012, 2014, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,24 +20,22 @@
 #include "CmdUrlParser.h"
 #include "PathUtils.h"
 
-CmdUrlParser::CmdUrlParser(const CString &url) : m_cmdUrl(url)
+CmdUrlParser::CmdUrlParser(const CString &url)
+    : m_cmdUrl(url)
 {
-
 }
 
 CmdUrlParser::~CmdUrlParser()
 {
-
 }
 
-CString CmdUrlParser::GetCommandLine()
+CString CmdUrlParser::GetCommandLine() const
 {
     CString sCmdLine;
-    CString temp;
-    int pos = 0;
-    for(;;)
+    int     pos = 0;
+    for (;;)
     {
-        temp = m_cmdUrl.Tokenize(L"?", pos);
+        CString temp = m_cmdUrl.Tokenize(L"?", pos);
         if (temp.IsEmpty())
         {
             break;
@@ -47,8 +45,8 @@ CString CmdUrlParser::GetCommandLine()
 
         if (temp.Left(8).CompareNoCase(L"command:") == 0)
         {
-            CString cmd = temp.Mid(8);
-            bool isCmdAllowed = false;
+            CString cmd          = temp.Mid(8);
+            bool    isCmdAllowed = false;
 
             if (cmd.CompareNoCase(L"update") == 0)
                 isCmdAllowed = true;
@@ -72,9 +70,11 @@ CString CmdUrlParser::GetCommandLine()
                 isCmdAllowed = true;
             else if (cmd.CompareNoCase(L"log") == 0)
                 isCmdAllowed = true;
+            else if (cmd.CompareNoCase(L"properties") == 0)
+                isCmdAllowed = true;
 
             if (!isCmdAllowed)
-                return CString();   // command is not on the allowed list, return empty command line
+                return CString(); // command is not on the allowed list, return empty command line
         }
         temp = CPathUtils::PathUnescape(temp);
         // if the param has spaces in it, enquote it
@@ -94,14 +94,15 @@ CString CmdUrlParser::GetCommandLine()
 }
 
 #ifdef _DEBUG
-static class CmdUrlParserTest
+[[maybe_unused]] static class CmdUrlParserTest
 {
 public:
     CmdUrlParserTest()
     {
         CmdUrlParser p(L"tsvncmd:command:showcompare?url1:https://svn/trunk/Scripts/Desert Storm.ini?url2:https://svn/trunk/Scripts/Desert Storm.ini?revision1:229?revision2:230");
-        CString cmdline = p.GetCommandLine();
-        ATLASSERT(cmdline==L" /command:showcompare /url1:\"https://svn/trunk/Scripts/Desert Storm.ini\" /url2:\"https://svn/trunk/Scripts/Desert Storm.ini\" /revision1:229 /revision2:230");
+        CString      cmdline = p.GetCommandLine();
+        ATLASSERT(cmdline == L" /command:showcompare /url1:\"https://svn/trunk/Scripts/Desert Storm.ini\" /url2:\"https://svn/trunk/Scripts/Desert Storm.ini\" /revision1:229 /revision2:230");
     }
+    // ReSharper disable once CppInconsistentNaming
 } CmdUrlParserTestObject;
 #endif

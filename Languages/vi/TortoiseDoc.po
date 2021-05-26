@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-07-11 00:23+0000\n"
+"PO-Revision-Date: 2021-01-16 09:36+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Vietnamese (http://www.transifex.com/luebbe/tortoisesvn/language/vi/)\n"
 "MIME-Version: 1.0\n"
@@ -4596,6 +4596,10 @@ msgstr "Trạng thái địa phương và từ xa"
 msgid "modifications"
 msgstr "các sửa đổi"
 
+#. (primary)
+msgid "(+)"
+msgstr ""
+
 #. (title)
 #. (title)
 msgid "Check for Modifications"
@@ -4627,6 +4631,13 @@ msgstr "Nếu bạn bấm vào <guibutton>Kiểm tra Kho</guibutton> thì bạn 
 #. (para)
 msgid "Locally modified items."
 msgstr "Các mục thay đổi tại địa phương."
+
+#. (para)
+msgid ""
+"if unchanged files are inside a directory that's been moved, the status will"
+" show a <literal>+</literal> sign in the <guilabel>status</guilabel> column,"
+" and it will be colored in blue as well."
+msgstr ""
 
 #. (para)
 msgid ""
@@ -6724,8 +6735,7 @@ msgstr "WinMerge"
 
 #. (para)
 msgid ""
-"<ulink "
-"url=\"https://winmerge.sourceforge.net/\"><citetitle>WinMerge</citetitle></ulink>"
+"<ulink url=\"https://winmerge.org/\"><citetitle>WinMerge</citetitle></ulink>"
 " is a great open-source diff tool which can also handle directories."
 msgstr ""
 
@@ -12405,9 +12415,9 @@ msgid ""
 "Subversion such as <ulink "
 "url=\"http://www.viewvc.org/\"><citetitle>ViewVC</citetitle></ulink> and "
 "<ulink "
-"url=\"http://websvn.tigris.org/\"><citetitle>WebSVN</citetitle></ulink>. "
+"url=\"https://websvnphp.github.io/\"><citetitle>WebSVN</citetitle></ulink>. "
 "TortoiseSVN provides a means to link with these viewers."
-msgstr "Có một số trình xem kho lưu trữ dựa trên web có sẵn để sử dụng với Subversion <ulink url=\"http://www.viewvc.org/\"><citetitle> ViewVC </citetitle></ulink> và <ulink url=\"http://websvn.tigris.org/\"><citetitle> WebSVN </citetitle></ulink> . TortoiseSVN cung cấp phương tiện để liên kết với những chương trình xem n."
+msgstr ""
 
 #. (para)
 msgid ""
@@ -17128,13 +17138,6 @@ msgstr ""
 
 #. (para)
 msgid ""
-"If you want to help with the translation of the TortoiseSVN user interface "
-"or the documentation, send an e-mail to "
-"<email>translators@tortoisesvn.tigris.org</email>."
-msgstr "Nếu bạn muốn giúp đỡ với bản dịch của giao diện người dùng TortoiseSVN hoặc tài liệu hướng dẫn, gửi e-mail <email> translators@tortoisesvn.tigris.org </email> ."
-
-#. (para)
-msgid ""
 "If you have a question which is not answered anywhere else, the best place "
 "to ask it is on one of the mailing lists: <placeholder-1/>"
 msgstr "Nếu bạn có một câu hỏi mà không trả lời bất cứ nơi nào khác, nơi tốt nhất để yêu cầu nó là một trong những danh sách gửi thư: <placeholder-1/>"
@@ -17181,6 +17184,10 @@ msgid ""
 "Menu</guimenu><guimenuitem>SVN Move versioned files "
 "here</guimenuitem></menuchoice>."
 msgstr "Cách đề nghị là <action> kéo phải </action> các tập tin đến vị trí mới. Đơn giản chỉ cần <action> nhấp chuột phải </action> trên các tập tin mà bạn muốn di chuyển / sao chép mà không phải thả nút chuột. Sau đó kéo các tập tin đến vị trí mới và thả chuột. Một trình đơn ngữ cảnh sẽ xuất hiện nơi bạn có thể chọn <menuchoice><guimenu> Trình Đơn Ngữ Cảnh </guimenu><guimenuitem> SVN Sao chép tập tin được phiên bản ở đây </guimenuitem></menuchoice> . hoặc <menuchoice><guimenu> Trình Đơn Ngữ Cảnh </guimenu><guimenuitem> SVN Di chuyển các tập tin được phiên bản ở đây </guimenuitem></menuchoice> ."
+
+#. (title)
+msgid "The TortoiseSVN right drag context menu for moving files"
+msgstr ""
 
 #. (title)
 msgid "Force users to enter a log message"

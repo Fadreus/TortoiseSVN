@@ -11,8 +11,9 @@
 # Authors:
 # Translators:
 # Adrià Vilanova Martínez <jocdeladria@gmail.com>, 2012
+# Albert Olivé <albert.olivemorros@gmail.com>, 2020
 # el_libre como el chaval <el.libre@gmail.com>, 2011
-# Joan Monguillot <jmonguillot@gmail.com>, 2013-2018,2020
+# Joan Monguillot <jmonguillot@gmail.com>, 2013-2018,2020-2021
 # el_libre como el chaval <el.libre@gmail.com>, 2011
 # Lübbe Onken <luebbe.opensource@gmail.com>, 2013
 # Haommin <tfs.msimangu@gmail.com>, 2014
@@ -21,7 +22,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-05-18 15:20+0000\n"
+"PO-Revision-Date: 2021-01-15 18:02+0000\n"
 "Last-Translator: Joan Monguillot <jmonguillot@gmail.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/luebbe/tortoisesvn/language/ca/)\n"
 "MIME-Version: 1.0\n"
@@ -1831,7 +1832,7 @@ msgstr "Avorta"
 
 #. Resource IDs: (cmdAbout_LabelTitle_RESID)
 msgid "Abou&t TortoiseMerge"
-msgstr "Quant&t al TortoiseMerge"
+msgstr "Quan&t al TortoiseMerge"
 
 #. Resource IDs: (134)
 msgid "About"
@@ -2414,9 +2415,13 @@ msgstr "e&xpressió ID d'error:"
 msgid "Bug-ID is:"
 msgstr "ID d'error és:"
 
-#. Resource IDs: (1856)
+#. Resource IDs: (1856, 384)
 msgid "Bug-IDs"
 msgstr "IDs d'errors"
+
+#. Resource IDs: (385)
+msgid "Bug-Urls"
+msgstr "Bug-Urls"
 
 #. Resource IDs: (327)
 msgid "Bugtraq Regex Tester - TortoiseSVN"
@@ -8034,6 +8039,10 @@ msgstr "Resol conflicte utilitzant  'el meu '"
 msgid "Resolve conflict using 'theirs'"
 msgstr "Resol conflicte usant  'el seu'"
 
+#. Resource IDs: (3681)
+msgid "Resolve conflicts"
+msgstr "Resol conflictes"
+
 #. Resource IDs: (1168, 3332)
 msgid "Resolved"
 msgstr "Resolt"
@@ -10299,6 +10308,18 @@ msgstr "URL:"
 msgid "URL: "
 msgstr "URL: "
 
+#. Resource IDs: (383)
+msgid "URLs to TortoiseSvn compare"
+msgstr "URLs per al comparador del TortoiseSvn"
+
+#. Resource IDs: (382)
+msgid "URLs to view revision for path in webviewer"
+msgstr "URLs per visualitzar la revisió del camí al visor web"
+
+#. Resource IDs: (381)
+msgid "URLs to view revision in webviewer"
+msgstr "URLs per visualitzar la revisió al visor web"
+
 #. Resource IDs: (1847)
 msgid "URLs with revision"
 msgstr "URLs amb revisió"
@@ -11985,7 +12006,7 @@ msgid ""
 "URL pointing to the web viewer for the repository for a specific file and revision.\r\n"
 "The string %REVISION% in the URL is replaced with the revision number,\r\n"
 "the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr "webviewer:pathrevision\r\nURL del repositori per a un fitxer i una revisió específics, pel visualitzador web.\r\nLa cadena %REVISION% a la URL és reemplaçada pel número de revisió.\r\nLa cadena %PATH% és reemplaçada amb el path relatiu del fitxer (respecte l'arrel del repositori)."
+msgstr "webviewer:pathrevision\r\nURL apuntant al visor web pel repositori per a un fitxer i una revisió específics.\r\nLa cadena %REVISION% a la URL es reemplaça pel número de revisió, la cadena %PATH% es reemplaça amb el camí del fitxer respecte l'arrel del repositori."
 
 #. Resource IDs: (9260)
 #, c-format
@@ -11993,7 +12014,7 @@ msgid ""
 "webviewer:revision\r\n"
 "URL pointing to the web viewer for the repository for a specific revision.\r\n"
 "The string %REVISION% in that URL is replaced with the revision number."
-msgstr "webviewer:revision\r\nURL apuntant al repositori per a una revisió específica.\r\nLa cadena %REVISION% d'aquesta URL és reemplaçada pel número de revisió. ."
+msgstr "webviewer:revision\r\nURL apuntant al visor web pel repositori per a una revisió específica.\r\nLa cadena %REVISION% d'aquesta URL es reemplaça pel número de revisió."
 
 #. Resource IDs: (3909)
 msgid "week"

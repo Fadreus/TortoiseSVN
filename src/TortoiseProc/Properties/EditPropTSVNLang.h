@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010, 2012 - TortoiseSVN
+// Copyright (C) 2010, 2012, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,31 +20,35 @@
 #include "EditPropBase.h"
 #include "StandAloneDlg.h"
 
-class CEditPropTSVNLang : public CStandAloneDialog, public EditPropBase
+class CEditPropTSVNLang : public CStandAloneDialog
+    , public EditPropBase
 {
     DECLARE_DYNAMIC(CEditPropTSVNLang)
 
 public:
-    CEditPropTSVNLang(CWnd* pParent = NULL);   // standard constructor
-    virtual ~CEditPropTSVNLang();
+    CEditPropTSVNLang(CWnd* pParent = nullptr); // standard constructor
+    ~CEditPropTSVNLang() override;
 
-    virtual bool            HasMultipleProperties() { return true; }
+    bool HasMultipleProperties() override { return true; }
 
-    enum { IDD = IDD_EDITPROPTSVNLANG };
+    enum
+    {
+        IDD = IDD_EDITPROPTSVNLANG
+    };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    virtual void OnOK();
+    void         DoDataExchange(CDataExchange* pDX) override; // DDX/DDV support
+    BOOL         OnInitDialog() override;
+    void         OnOK() override;
     afx_msg void OnBnClickedHelp();
 
     DECLARE_MESSAGE_MAP()
 
     INT_PTR DoModal() override { return CStandAloneDialog::DoModal(); }
 
-    static BOOL CALLBACK EnumLocalesProc(LPTSTR lpLocaleString);
+    static BOOL CALLBACK EnumLocalesProc(LPWSTR lpLocaleString);
 
 private:
-    BOOL                m_bKeepEnglish;
-    static CComboBox    m_langCombo;
+    BOOL             m_bKeepEnglish;
+    static CComboBox m_langCombo;
 };

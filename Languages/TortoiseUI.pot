@@ -1881,6 +1881,10 @@ msgstr ""
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr ""
 
+#. Resource IDs: (1481)
+msgid "Allow mixed revisions (not recommended)"
+msgstr ""
+
 #. Resource IDs: (1896)
 msgid "Already merged"
 msgstr ""
@@ -2206,8 +2210,12 @@ msgstr ""
 msgid "Bug-ID is:"
 msgstr ""
 
-#. Resource IDs: (1856)
+#. Resource IDs: (1856, 384)
 msgid "Bug-IDs"
+msgstr ""
+
+#. Resource IDs: (385)
+msgid "Bug-Urls"
 msgstr ""
 
 #. Resource IDs: (327)
@@ -7313,6 +7321,10 @@ msgstr ""
 msgid "Resolve conflict using 'theirs'"
 msgstr ""
 
+#. Resource IDs: (3681)
+msgid "Resolve conflicts"
+msgstr ""
+
 #. Resource IDs: (1168, 3332)
 msgid "Resolved"
 msgstr ""
@@ -9194,6 +9206,18 @@ msgstr ""
 
 #. Resource IDs: (1191)
 msgid "URL: "
+msgstr ""
+
+#. Resource IDs: (383)
+msgid "URLs to TortoiseSvn compare"
+msgstr ""
+
+#. Resource IDs: (382)
+msgid "URLs to view revision for path in webviewer"
+msgstr ""
+
+#. Resource IDs: (381)
+msgid "URLs to view revision in webviewer"
 msgstr ""
 
 #. Resource IDs: (1847)

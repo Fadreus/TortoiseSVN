@@ -16,13 +16,14 @@
 # Dragos Mihalache <mddragos@yahoo.com>, 2017
 # Ioan-Paul Pirau <ioanpaulpirau@gmail.com>, 2013
 # Lübbe Onken <luebbe.opensource@gmail.com>, 2011
+# Raul Opruta <raul.opruta@roedu.net>, 2020
 # zveriu <zveriu@gmail.com>, 2011
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2020-05-17 13:41+0000\n"
+"PO-Revision-Date: 2021-01-11 19:31+0000\n"
 "Last-Translator: Transifex Bot <>\n"
 "Language-Team: Romanian (http://www.transifex.com/luebbe/tortoisesvn/language/ro/)\n"
 "MIME-Version: 1.0\n"
@@ -447,7 +448,7 @@ msgstr ""
 msgid ""
 "&Cancel\n"
 "Do not revert."
-msgstr ""
+msgstr "&Renunta\nNu reveniți"
 
 #. Resource IDs: (1434)
 msgid ""
@@ -2415,9 +2416,13 @@ msgstr "E&xpresie Bug-ID:"
 msgid "Bug-ID is:"
 msgstr "Bug ID este:"
 
-#. Resource IDs: (1856)
+#. Resource IDs: (1856, 384)
 msgid "Bug-IDs"
 msgstr "Bug ID-uri"
+
+#. Resource IDs: (385)
+msgid "Bug-Urls"
+msgstr ""
 
 #. Resource IDs: (327)
 msgid "Bugtraq Regex Tester - TortoiseSVN"
@@ -8035,6 +8040,10 @@ msgstr "Rezolvă conflictele folosind 'ale mele'"
 msgid "Resolve conflict using 'theirs'"
 msgstr "Rezolvă conflictele folosind 'ale lor'"
 
+#. Resource IDs: (3681)
+msgid "Resolve conflicts"
+msgstr ""
+
 #. Resource IDs: (1168, 3332)
 msgid "Resolved"
 msgstr "Rezolvat"
@@ -10299,6 +10308,18 @@ msgstr "URL:"
 #. Resource IDs: (1191)
 msgid "URL: "
 msgstr "URL: "
+
+#. Resource IDs: (383)
+msgid "URLs to TortoiseSvn compare"
+msgstr ""
+
+#. Resource IDs: (382)
+msgid "URLs to view revision for path in webviewer"
+msgstr ""
+
+#. Resource IDs: (381)
+msgid "URLs to view revision in webviewer"
+msgstr ""
 
 #. Resource IDs: (1847)
 msgid "URLs with revision"

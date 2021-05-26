@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2014 - TortoiseSVN
+// Copyright (C) 2007-2009, 2014, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,23 +24,23 @@
 
 bool LockCommand::Execute()
 {
-    bool bRet = false;
+    bool     bRet = false;
     CLockDlg lockDlg;
     lockDlg.m_pathList = pathList;
     ProjectProperties props;
     props.ReadPropsPathList(pathList);
     lockDlg.SetProjectProperties(&props);
-    if (pathList.AreAllPathsFiles() && !DWORD(CRegDWORD(L"Software\\TortoiseSVN\\ShowLockDlg", TRUE)) && !props.nMinLockMsgSize)
+    if (pathList.AreAllPathsFiles() && !static_cast<DWORD>(CRegDWORD(L"Software\\TortoiseSVN\\ShowLockDlg", TRUE)) && !props.nMinLockMsgSize)
     {
         // just lock the requested files
         CSVNProgressDlg progDlg;
         progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Lock);
         progDlg.SetPathList(pathList);
-        progDlg.SetAutoClose (parser);
+        progDlg.SetAutoClose(parser);
         progDlg.DoModal();
         bRet = !progDlg.DidErrorsOccur();
     }
-    else if (lockDlg.DoModal()==IDOK)
+    else if (lockDlg.DoModal() == IDOK)
     {
         if (lockDlg.m_pathList.GetCount() != 0)
         {
@@ -48,8 +48,9 @@ bool LockCommand::Execute()
             progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Lock);
             progDlg.SetOptions(lockDlg.m_bStealLocks ? ProgOptForce : ProgOptNone);
             progDlg.SetPathList(lockDlg.m_pathList);
+            progDlg.SetSelectedList(lockDlg.m_pathList);
             progDlg.SetCommitMessage(lockDlg.m_sLockMessage);
-            progDlg.SetAutoClose (parser);
+            progDlg.SetAutoClose(parser);
             progDlg.DoModal();
             bRet = !progDlg.DidErrorsOccur();
         }

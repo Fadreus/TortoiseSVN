@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2012 - TortoiseSVN
+// Copyright (C) 2003-2006, 2012, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,27 +19,27 @@
 #include "stdafx.h"
 #include "StdioFileT.h"
 
-CStdioFileT::CStdioFileT() : CStdioFile()
+CStdioFileT::CStdioFileT()
+    : CStdioFile()
 {
 }
 
-CStdioFileT::CStdioFileT(LPCTSTR lpszFileName, UINT nOpenFlags)
+CStdioFileT::CStdioFileT(LPCWSTR lpszFileName, UINT nOpenFlags)
 {
     ASSERT(lpszFileName != NULL);
     ASSERT(AfxIsValidString(lpszFileName));
 
     CFileException e;
-    if (!Open(lpszFileName, nOpenFlags, &e))
+    if (!CStdioFile::Open(lpszFileName, nOpenFlags, &e))
         AfxThrowFileException(e.m_cause, e.m_lOsError, e.m_strFileName);
 }
 
-
-void CStdioFileT::WriteString(LPCSTR lpsz)
+void CStdioFileT::WriteString(LPCSTR lpsz) const
 {
-    ASSERT(lpsz != NULL);
-    ASSERT(m_pStream != NULL);
+    ASSERT(lpsz != nullptr);
+    ASSERT(m_pStream != nullptr);
 
-    if (lpsz == NULL)
+    if (lpsz == nullptr)
     {
         AfxThrowInvalidArgException();
     }
@@ -48,13 +48,12 @@ void CStdioFileT::WriteString(LPCSTR lpsz)
         AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
 }
 
-
 void CStdioFileT::WriteString(LPCWSTR lpsz)
 {
-    ASSERT(lpsz != NULL);
-    ASSERT(m_pStream != NULL);
+    ASSERT(lpsz != nullptr);
+    ASSERT(m_pStream != nullptr);
 
-    if (lpsz == NULL)
+    if (lpsz == nullptr)
     {
         AfxThrowInvalidArgException();
     }

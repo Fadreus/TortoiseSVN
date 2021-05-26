@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2010, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008-2010, 2014, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,11 +16,6 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #pragma once
-
-#pragma warning(push)
-#include "svn_pools.h"
-#include "svn_wc.h"
-#pragma warning(pop)
 
 /**
  * \ingroup SVN
@@ -46,8 +41,9 @@
 class SVNAdminDir
 {
 private:
-    SVNAdminDir(const SVNAdminDir&);
-    SVNAdminDir& operator=(SVNAdminDir&);
+    SVNAdminDir(const SVNAdminDir&) = delete;
+    SVNAdminDir& operator=(SVNAdminDir&) = delete;
+
 public:
     SVNAdminDir();
     ~SVNAdminDir();
@@ -73,15 +69,16 @@ public:
     bool IsWCRoot(const CString& path) const;
     bool IsWCRoot(const CString& path, bool bDir) const;
 
-
     /// Returns true if the admin dir name is set to "_svn".
-    bool IsVSNETHackActive() const {return m_bVSNETHack;}
+    bool IsVSNETHackActive() const { return m_bVsnetHack; }
 
-    CString GetAdminDirName() const {return m_bVSNETHack ? L"_svn" : L".svn";}
+    CString GetAdminDirName() const { return m_bVsnetHack ? L"_svn" : L".svn"; }
+
 private:
     apr_pool_t* m_pool;
-    bool m_bVSNETHack;
-    int m_nInit;
+    bool        m_bVsnetHack;
+    int         m_nInit;
 };
 
+// ReSharper disable once CppInconsistentNaming
 extern SVNAdminDir g_SVNAdminDir;

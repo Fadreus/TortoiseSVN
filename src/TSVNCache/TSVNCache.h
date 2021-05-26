@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2005-2006, 2013, 2015 - TortoiseSVN
+// Copyright (C) 2005-2006, 2013, 2015, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,19 +18,16 @@
 //
 #pragma once
 
-#include "../version.h"
-
-#define BUFSIZE 4096
-#define MAX_CRAWLEDPATHS 15
+#define BUFSIZE             4096
+#define MAX_CRAWLEDPATHS    15
 #define MAX_CRAWLEDPATHSLEN (MAX_PATH * 2)
 
-extern HWND             hWndHidden;
-extern TCHAR            szCurrentCrawledPath[MAX_CRAWLEDPATHS][MAX_CRAWLEDPATHSLEN];
+extern HWND    hWndHidden;
+extern wchar_t szCurrentCrawledPath[MAX_CRAWLEDPATHS][MAX_CRAWLEDPATHSLEN];
 
-extern int nCurrentCrawledpathIndex;
+extern int                     nCurrentCrawledpathIndex;
 extern CComAutoCriticalSection critSec;
 
-#define TRAY_CALLBACK   (WM_APP + 1)
-#define TRAYPOP_EXIT    (WM_APP + 1)
-#define TRAY_ID         101
-
+#define TRAY_CALLBACK (WM_APP + 1)
+#define TRAYPOP_EXIT  (WM_APP + 1)
+#define TRAY_ID       101

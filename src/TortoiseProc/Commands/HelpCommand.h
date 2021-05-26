@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2012, 2014-2015, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "Command.h"
-
+#include "TortoiseProc.h"
 
 /**
  * \ingroup TortoiseProc
@@ -30,11 +30,9 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool            Execute() override
+    bool Execute() override
     {
-        return ((INT_PTR)ShellExecute(GetExplorerHWND(), L"open", theApp.m_pszHelpFilePath, NULL, NULL, SW_SHOWNORMAL) > 32);
+        return (reinterpret_cast<INT_PTR>(ShellExecute(GetExplorerHWND(), L"open", theApp.m_pszHelpFilePath, nullptr, nullptr, SW_SHOWNORMAL)) > 32);
     }
-    virtual bool            CheckPaths() override {return true;}
+    bool CheckPaths() override { return true; }
 };
-
-

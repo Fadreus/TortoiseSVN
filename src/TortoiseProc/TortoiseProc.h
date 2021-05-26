@@ -1,6 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2014, 2016 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013-2014, 2016, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,15 +19,8 @@
 #pragma once
 
 #ifndef __AFXWIN_H__
-    #error include 'stdafx.h' before including this file for PCH
+#    error include 'stdafx.h' before including this file for PCH
 #endif
-
-
-#include "resource.h"       // main symbols
-
-
-#include "../TortoiseShell/resource.h"
-//#include "UnicodeUtils.h"
 
 class CTSVNPath;
 class CTSVNPathList;
@@ -43,39 +36,38 @@ class CTSVNPathList;
  * just displays the common notify callbacks of the Subversion commands.
  */
 
-
 class CTortoiseProcApp : public CWinAppEx
 {
 public:
     CTortoiseProcApp();
-    ~CTortoiseProcApp();
+    ~CTortoiseProcApp() override;
 
-// Overrides
+    // Overrides
 public:
-    virtual BOOL InitInstance();
-    virtual int ExitInstance();
+    BOOL InitInstance() override;
+    int  ExitInstance() override;
 
-    void CheckUpgrade();
-    void InitializeJumpList(const CString& appid);
-    void DoInitializeJumpList(const CString& appid);
+    static void CheckUpgrade();
+    void        InitializeJumpList(const CString& appid);
+    static void DoInitializeJumpList(const CString& appid);
 
-    HWND GetExplorerHWND() { return (::IsWindow(hWndExplorer) ? hWndExplorer : NULL); }
+    HWND GetExplorerHWND() const { return (::IsWindow(hWndExplorer) ? hWndExplorer : nullptr); }
 
-// Implementation
+    // Implementation
 
 private:
     DECLARE_MESSAGE_MAP()
 private:
-    bool    retSuccess;
-    HWND    hWndExplorer;
-    apr_pool_t *m_GlobalPool;
-    void CheckForNewerVersion();
-    void Sync();
+    bool        retSuccess;
+    HWND        hWndExplorer;
+    apr_pool_t* m_globalPool;
+    void        CheckForNewerVersion() const;
+    static void Sync();
 };
 
 extern CTortoiseProcApp theApp;
-extern CString sOrigCWD;
-extern CString g_sGroupingUUID;
+extern CString          sOrigCwd;
+extern CString          g_sGroupingUuid;
+// ReSharper disable once CppInconsistentNaming
 HWND GetExplorerHWND();
 HWND FindParentWindow(HWND hWnd);
-

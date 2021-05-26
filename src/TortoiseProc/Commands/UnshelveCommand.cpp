@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2017-2018 - TortoiseSVN
+// Copyright (C) 2017-2018, 2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,17 +18,10 @@
 //
 #include "stdafx.h"
 #include "UnshelveCommand.h"
-
-#include "PathUtils.h"
-#include "StringUtils.h"
-#include "AppUtils.h"
 #include "UnshelveDlg.h"
 #include "SVN.h"
 #include "TempFile.h"
 #include "ProgressDlg.h"
-#include "SelectFileFilter.h"
-#include "SmartHandle.h"
-#include "PreserveChdir.h"
 
 bool UnshelveCommand::Execute()
 {
@@ -52,7 +45,7 @@ bool UnshelveCommand::Execute()
         if (dlg.DoModal() == IDOK)
         {
             name    = dlg.m_sShelveName;
-            version = dlg.m_Version;
+            version = dlg.m_version;
         }
     }
     if (cmdLinePath.IsEmpty() || name.IsEmpty())
@@ -64,7 +57,7 @@ bool UnshelveCommand::Execute()
     return bRet;
 }
 
-bool UnshelveCommand::Unshelve(const CString& shelveName, int version, const CTSVNPath& sDir)
+bool UnshelveCommand::Unshelve(const CString& shelveName, int version, const CTSVNPath& sDir) const
 {
     CProgressDlg progDlg;
     progDlg.SetTitle(IDS_PROC_PATCHTITLE);
@@ -72,7 +65,7 @@ bool UnshelveCommand::Unshelve(const CString& shelveName, int version, const CTS
     progDlg.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
 
     SVN svn;
-    if (!svn.Unshelve(shelveName, version, sDir))
+    if (!svn.UnShelve(shelveName, version, sDir))
     {
         progDlg.Stop();
         svn.ShowErrorDialog(GetExplorerHWND(), sDir);

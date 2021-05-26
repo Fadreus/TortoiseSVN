@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2014, 2016, 2020 - TortoiseSVN
+// Copyright (C) 2014, 2016, 2020-2021 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,10 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "TortoiseProc.h"
 #include "MonitorProjectDlg.h"
-#include "afxdialogex.h"
-
 
 // CMonitorProjectDlg dialog
 
@@ -32,12 +29,11 @@ CMonitorProjectDlg::CMonitorProjectDlg(CWnd* pParent /*=NULL*/)
     , m_sPathOrURL(_T(""))
     , m_sUsername(_T(""))
     , m_sPassword(_T(""))
-    , m_monitorInterval(30)
     , m_sIgnoreUsers(_T(""))
     , m_sIgnoreRegex(_T(""))
     , m_isParentPath(false)
+    , m_monitorInterval(30)
 {
-
 }
 
 CMonitorProjectDlg::~CMonitorProjectDlg()
@@ -52,19 +48,16 @@ void CMonitorProjectDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_USERNAME, m_sUsername);
     DDX_Text(pDX, IDC_PASSWORD, m_sPassword);
     DDX_Text(pDX, IDC_INTERVAL, m_monitorInterval);
-    DDV_MinMaxInt(pDX, m_monitorInterval, 1, 1000);
+    DDV_MinMaxInt(pDX, m_monitorInterval, 1, INT_MAX);
     DDX_Text(pDX, IDC_IGNOREUSERS, m_sIgnoreUsers);
     DDX_Text(pDX, IDC_IGNOREREGEX, m_sIgnoreRegex);
     DDX_Check(pDX, IDC_PARENTPATH, m_isParentPath);
 }
 
-
 BEGIN_MESSAGE_MAP(CMonitorProjectDlg, CStandAloneDialog)
 END_MESSAGE_MAP()
 
-
 // CMonitorProjectDlg message handlers
-
 
 void CMonitorProjectDlg::OnOK()
 {
@@ -77,14 +70,14 @@ void CMonitorProjectDlg::OnOK()
     }
     catch (std::exception&)
     {
-        CString text = CString(MAKEINTRESOURCE(IDS_ERR_INVALIDREGEX));
-        CString title = CString(MAKEINTRESOURCE(IDS_ERR_ERROR));
+        CString        text  = CString(MAKEINTRESOURCE(IDS_ERR_INVALIDREGEX));
+        CString        title = CString(MAKEINTRESOURCE(IDS_ERR_ERROR));
         EDITBALLOONTIP bt;
         bt.cbStruct = sizeof(bt);
-        bt.pszText = text;
+        bt.pszText  = text;
         bt.pszTitle = title;
-        bt.ttiIcon = TTI_WARNING;
-        SendDlgItemMessage(IDC_IGNOREREGEX, EM_SHOWBALLOONTIP, 0, (LPARAM)&bt);
+        bt.ttiIcon  = TTI_WARNING;
+        SendDlgItemMessage(IDC_IGNOREREGEX, EM_SHOWBALLOONTIP, 0, reinterpret_cast<LPARAM>(&bt));
         return;
     }
     // remove newlines in case the url was pasted with such

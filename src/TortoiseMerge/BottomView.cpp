@@ -1,6 +1,6 @@
-// TortoiseMerge - a Diff/Patch program
+﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2013 - TortoiseSVN
+// Copyright (C) 2006-2013, 2021 - TortoiseSVN
 // Copyright (C) 2019 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
@@ -18,24 +18,21 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "resource.h"
-#include "AppUtils.h"
 
 #include "BottomView.h"
 
 IMPLEMENT_DYNCREATE(CBottomView, CBaseView)
 
-CBottomView::CBottomView(void)
+CBottomView::CBottomView()
 {
-    m_pwndBottom = this;
-    m_pState = &m_AllState.bottom;
+    m_pwndBottom   = this;
+    m_pState       = &m_allState.bottom;
     m_nStatusBarID = ID_INDICATOR_BOTTOMVIEW;
 }
 
-CBottomView::~CBottomView(void)
+CBottomView::~CBottomView()
 {
 }
-
 
 void CBottomView::AddContextItems(CIconMenu& popup, DiffStates state)
 {
@@ -51,8 +48,7 @@ void CBottomView::AddContextItems(CIconMenu& popup, DiffStates state)
     CBaseView::AddContextItems(popup, state);
 }
 
-
-void CBottomView::UseBlock(CBaseView * pwndView, int nFirstViewLine, int nLastViewLine)
+void CBottomView::UseBlock(CBaseView* pwndView, int nFirstViewLine, int nLastViewLine)
 {
     if (!IsViewGood(pwndView))
         return;
@@ -60,22 +56,22 @@ void CBottomView::UseBlock(CBaseView * pwndView, int nFirstViewLine, int nLastVi
 
     for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
     {
-        viewdata lineData = pwndView->GetViewData(viewLine);
+        ViewData lineData = pwndView->GetViewData(viewLine);
         if ((lineData.ending != EOL_NOENDING) || (viewLine < (GetViewCount() - 1) && lineData.state != DIFFSTATE_CONFLICTEMPTY && lineData.state != DIFFSTATE_IDENTICALREMOVED))
-            lineData.ending = m_lineendings;
+            lineData.ending = m_lineEndings;
         lineData.state = ResolveState(lineData.state);
         SetViewData(viewLine, lineData);
         SetModified();
     }
 
     // make sure previous (non empty) line have EOL set
-    for (int nCheckViewLine = nFirstViewLine-1; nCheckViewLine > 0; nCheckViewLine--)
+    for (int nCheckViewLine = nFirstViewLine - 1; nCheckViewLine > 0; nCheckViewLine--)
     {
         if (!IsViewLineEmpty(nCheckViewLine) && GetViewState(nCheckViewLine) != DIFFSTATE_IDENTICALREMOVED)
         {
             if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
             {
-                SetViewLineEnding(nCheckViewLine, m_lineendings);
+                SetViewLineEnding(nCheckViewLine, m_lineEndings);
                 SetModified();
             }
             break;
@@ -96,7 +92,7 @@ void CBottomView::UseBlock(CBaseView * pwndView, int nFirstViewLine, int nLastVi
     RefreshViews();
 }
 
-void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
+void CBottomView::UseBothBlocks(CBaseView* pwndFirst, CBaseView* pwndLast)
 {
     if (!IsViewGood(pwndFirst) || !IsViewGood(pwndLast))
         return;
@@ -113,9 +109,9 @@ void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
     // use (copy) first block
     for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
     {
-        viewdata lineData = pwndFirst->GetViewData(viewLine);
+        ViewData lineData = pwndFirst->GetViewData(viewLine);
         if ((lineData.ending != EOL_NOENDING) || (viewLine < (GetViewCount() - 1) && lineData.state != DIFFSTATE_CONFLICTEMPTY && lineData.state != DIFFSTATE_IDENTICALREMOVED))
-            lineData.ending = m_lineendings;
+            lineData.ending = m_lineEndings;
         lineData.state = ResolveState(lineData.state);
         SetViewData(viewLine, lineData);
         if (!IsStateEmpty(pwndFirst->GetViewState(viewLine)))
@@ -124,13 +120,13 @@ void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
         }
     }
     // make sure previous (non empty) line have EOL set
-    for (int nCheckViewLine = nFirstViewLine-1; nCheckViewLine > 0; nCheckViewLine--)
+    for (int nCheckViewLine = nFirstViewLine - 1; nCheckViewLine > 0; nCheckViewLine--)
     {
         if (!IsViewLineEmpty(nCheckViewLine))
         {
             if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
             {
-                SetViewLineEnding(nCheckViewLine, m_lineendings);
+                SetViewLineEnding(nCheckViewLine, m_lineEndings);
             }
             break;
         }
@@ -142,8 +138,8 @@ void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
     int nViewIndex = nNextViewLine;
     for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++, nViewIndex++)
     {
-        viewdata lineData = pwndLast->GetViewData(viewLine);
-        lineData.state = ResolveState(lineData.state);
+        ViewData lineData = pwndLast->GetViewData(viewLine);
+        lineData.state    = ResolveState(lineData.state);
         InsertViewData(nViewIndex, lineData);
         if (!IsStateEmpty(pwndLast->GetViewState(viewLine)))
         {
@@ -170,13 +166,13 @@ void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
 
     // final clean up
     ClearSelection();
-    SetupAllViewSelection(nFirstViewLine, 2*nLastViewLine - nFirstViewLine - nRemovedLines + 1);
+    SetupAllViewSelection(nFirstViewLine, 2 * nLastViewLine - nFirstViewLine - nRemovedLines + 1);
     BuildAllScreen2ViewVector();
     SetModified();
     RefreshViews();
 }
 
-void CBottomView::UseViewBlock(CBaseView * pwndView)
+void CBottomView::UseViewBlock(CBaseView* pwndView)
 {
     if (!IsViewGood(pwndView))
         return;
@@ -189,12 +185,12 @@ void CBottomView::UseViewBlock(CBaseView * pwndView)
     return UseBlock(pwndView, nFirstViewLine, nLastViewLine);
 }
 
-void CBottomView::UseViewFile(CBaseView * pwndView)
+void CBottomView::UseViewFile(CBaseView* pwndView)
 {
     if (!IsViewGood(pwndView))
         return;
     int nFirstViewLine = 0;
-    int nLastViewLine = GetViewCount()-1;
+    int nLastViewLine  = GetViewCount() - 1;
 
     return UseBlock(pwndView, nFirstViewLine, nLastViewLine);
 }
